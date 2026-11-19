@@ -1,0 +1,2902 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeCraft 3D - منصة المراحل الأربع التفاعلية</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Three.js for Stage 3 3D Orbital Explorer -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Google Fonts: Cairo + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --lamp-accent: #f59e0b;
+      --stage2-accent: #00f2fe;
+      --stage3-accent: #00f2fe;
+      --stage4-accent: #00f2fe;
+      --bg-deep: #060a12;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Cairo', sans-serif;
+      background-color: var(--bg-deep);
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    .font-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stage-section {
+      transition: opacity 0.3s ease;
+    }
+
+    /* =====================================================================
+       STAGE 1: ARTICULATED SVG DESK LAMP (LEFT) & LOGIN CARD (RIGHT)
+    ===================================================================== */
+    .lamp-stage-bg {
+      background:
+        radial-gradient(circle at 22% 48%, color-mix(in srgb, var(--lamp-accent) 16%, transparent), transparent 48%),
+        radial-gradient(circle at 78% 50%, rgba(0, 242, 254, 0.06), transparent 56%),
+        linear-gradient(135deg, #060a12 0%, #0a101d 55%, #060a12 100%);
+    }
+
+    .lamp-svg-wrapper {
+      width: 100%;
+      max-width: 620px;
+      user-select: none;
+    }
+
+    #lamp-svg {
+      width: 100%;
+      height: auto;
+      max-height: 330px;
+      display: block;
+      overflow: visible;
+    }
+
+    #lamp-arm-lower,
+    #lamp-middle-joint,
+    #lamp-arm-upper,
+    #lamp-neck-joint,
+    #lamp-head-group,
+    #lamp-pull-chain-group,
+    #lamp-pull-stem,
+    #lamp-pull-knob,
+    #lamp-beam-group,
+    #lamp-lens-glow,
+    #lamp-floor-glow {
+      transition:
+        transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.35s ease,
+        fill 0.35s ease,
+        stroke 0.35s ease;
+    }
+
+    #lamp-pull-chain-group {
+      cursor: grab;
+      touch-action: none;
+    }
+
+    #lamp-pull-chain-group:active {
+      cursor: grabbing;
+    }
+
+    #lamp-pull-chain-group.is-pulling #lamp-pull-stem {
+      transform: scaleY(1.32);
+    }
+
+    #lamp-pull-chain-group.is-pulling #lamp-pull-knob {
+      transform: translateY(10px) scale(1.15);
+    }
+
+    #lamp-svg:not(.is-on) #lamp-arm-lower {
+      transform: rotate(7deg);
+      transform-origin: 128px 256px;
+    }
+
+    #lamp-svg:not(.is-on) #lamp-arm-upper {
+      transform: rotate(-9deg);
+      transform-origin: 132px 136px;
+    }
+
+    #lamp-svg:not(.is-on) #lamp-head-group {
+      transform: rotate(-14deg);
+      transform-origin: 156px 86px;
+    }
+
+    #lamp-svg:not(.is-on) #lamp-beam-group {
+      opacity: 0;
+      transform: rotate(-14deg) translateX(-14px) scaleX(0.92);
+      transform-origin: 156px 86px;
+      pointer-events: none;
+    }
+
+    #lamp-svg:not(.is-on) #lamp-lens-glow {
+      opacity: 0.14;
+    }
+
+    #lamp-svg:not(.is-on) #lamp-floor-glow {
+      opacity: 0.12;
+    }
+
+    #lamp-svg.is-on #lamp-arm-lower {
+      transform: rotate(3deg);
+      transform-origin: 128px 256px;
+    }
+
+    #lamp-svg.is-on #lamp-arm-upper {
+      transform: rotate(-3deg);
+      transform-origin: 132px 136px;
+    }
+
+    #lamp-svg.is-on #lamp-head-group {
+      transform: rotate(5deg);
+      transform-origin: 156px 86px;
+    }
+
+    #lamp-svg.is-on #lamp-beam-group {
+      opacity: 1;
+      transform: rotate(5deg) translateX(0px) scaleX(1);
+      transform-origin: 156px 86px;
+    }
+
+    #lamp-svg.is-on #lamp-lens-glow {
+      opacity: 0.96;
+    }
+
+    #lamp-svg.is-on #lamp-floor-glow {
+      opacity: 0.85;
+    }
+
+    .login-panel-locked {
+      opacity: 0.42;
+      filter: grayscale(0.5) brightness(0.72);
+      pointer-events: none;
+      transform: scale(0.985);
+      transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .login-panel-unlocked {
+      opacity: 1;
+      filter: none;
+      pointer-events: auto;
+      transform: scale(1);
+      box-shadow: 0 0 48px -14px var(--lamp-accent), 0 24px 60px rgba(0, 0, 0, 0.78);
+      transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    /* =====================================================================
+       STAGE 2 BACKGROUNDS
+    ===================================================================== */
+    .stage2-bg-cyber {
+      background:
+        radial-gradient(circle at 50% 25%, rgba(0, 242, 254, 0.14), transparent 55%),
+        linear-gradient(145deg, #060b16 0%, #091224 55%, #050912 100%);
+    }
+
+    .stage2-bg-violet {
+      background:
+        radial-gradient(circle at 50% 25%, rgba(168, 85, 247, 0.2), transparent 55%),
+        linear-gradient(145deg, #0c0719 0%, #170d2e 55%, #090513 100%);
+    }
+
+    .stage2-bg-emerald {
+      background:
+        radial-gradient(circle at 50% 25%, rgba(16, 185, 129, 0.18), transparent 55%),
+        linear-gradient(145deg, #051412 0%, #09231f 55%, #040f0d 100%);
+    }
+
+    .stage2-bg-amber {
+      background:
+        radial-gradient(circle at 50% 25%, rgba(245, 158, 11, 0.18), transparent 55%),
+        linear-gradient(145deg, #150e06 0%, #241708 55%, #0e0904 100%);
+    }
+
+    /* =====================================================================
+       STAGE 3: 3D ORBITAL EXPLORER & TOUCH TILT
+    ===================================================================== */
+    .cyber-grid-bg {
+      background-color: #080c14;
+      background-image:
+        radial-gradient(circle at 50% 35%, rgba(0, 242, 254, 0.08), transparent 55%),
+        linear-gradient(to right, rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 44px 44px, 44px 44px;
+    }
+
+    .orbit-stage {
+      perspective: 1200px;
+      transform-style: preserve-3d;
+      touch-action: none;
+    }
+
+    .orbit-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 174px;
+      margin-left: -87px;
+      margin-top: -86px;
+      border-radius: 18px;
+      background: rgba(11, 18, 32, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      cursor: pointer;
+      user-select: none;
+      will-change: transform, opacity;
+      touch-action: none;
+    }
+
+    @media (min-width: 640px) {
+      .orbit-card {
+        width: 192px;
+        margin-left: -96px;
+        margin-top: -90px;
+      }
+    }
+
+    .orbit-card.is-featured {
+      border-color: var(--stage3-accent, #00f2fe);
+      box-shadow: 0 0 24px rgba(0, 242, 254, 0.22), 0 18px 36px rgba(0, 0, 0, 0.75);
+      background: rgba(14, 24, 42, 0.97);
+    }
+
+    #person-detail-card {
+      transform-style: preserve-3d;
+      transition: transform 0.16s ease-out, box-shadow 0.25s ease;
+      touch-action: none;
+    }
+
+    /* =====================================================================
+       STAGE 4: PER-PROFILE ARTICLE WORKSPACE THEMES
+    ===================================================================== */
+    .stage4-theme-cyber {
+      background:
+        radial-gradient(circle at 18% 15%, rgba(0, 242, 254, 0.12), transparent 46%),
+        linear-gradient(145deg, #050911 0%, #091220 55%, #060b14 100%);
+      color: #f8fafc;
+    }
+
+    .stage4-theme-midnight {
+      background:
+        radial-gradient(circle at 22% 20%, rgba(129, 140, 248, 0.18), transparent 50%),
+        linear-gradient(155deg, #070b22 0%, #0e1538 55%, #070a1c 100%);
+      color: #f1f5f9;
+    }
+
+    .stage4-theme-light {
+      background:
+        radial-gradient(circle at 50% 10%, rgba(2, 132, 199, 0.12), transparent 55%),
+        linear-gradient(160deg, #f8fafc 0%, #e2e8f0 100%);
+      color: #0f172a;
+    }
+
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 180;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="bg-[#060a12] text-slate-100 antialiased selection:bg-cyan-400/30 selection:text-cyan-200">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- =======================================================================
+       STAGE 1: ARTICULATED LAMP (LEFT) & LOGIN CARD (RIGHT)
+  ======================================================================= -->
+  <section
+    id="stage-1"
+    class="stage-section lamp-stage-bg min-h-screen w-full flex flex-col justify-between p-4 sm:p-7"
+  >
+    <!-- Top Bar -->
+    <div class="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          id="btn-open-dev-login"
+          type="button"
+          class="rounded-xl border border-cyan-400/45 bg-cyan-500/15 hover:bg-cyan-500/25 px-3.5 py-2 text-xs font-extrabold text-cyan-200 transition cursor-pointer"
+        >
+          وضع المطورين
+        </button>
+
+        <button
+          id="btn-logout-dev-stage1"
+          type="button"
+          class="hidden rounded-xl border border-rose-400/45 bg-rose-500/15 hover:bg-rose-500/25 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+        >
+          تسجيل خروج مطور
+        </button>
+
+        <button
+          id="btn-toggle-lamp-light"
+          type="button"
+          class="rounded-xl border border-amber-400/45 bg-amber-500/15 hover:bg-amber-500/25 px-3.5 py-2 text-xs font-extrabold text-amber-200 transition cursor-pointer"
+        >
+          تشغيل / إطفاء الإضاءة
+        </button>
+
+        <button
+          type="button"
+          data-reset-platform="true"
+          class="rounded-xl border border-rose-400/40 bg-rose-500/10 hover:bg-rose-500/20 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+        >
+          إعادة تعيين للافتراضي
+        </button>
+
+        <div class="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900/80 px-2.5 py-1.5">
+          <span id="lamp-color-dot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+          <span id="lamp-color-label" class="text-[11px] font-bold text-slate-300">نور دافئ</span>
+          <button type="button" data-lamp-preset="warm" aria-label="نور دافئ" class="w-4 h-4 rounded-full bg-amber-400 border border-white/30 cursor-pointer"></button>
+          <button type="button" data-lamp-preset="cyan" aria-label="سماوي" class="w-4 h-4 rounded-full bg-cyan-400 border border-white/30 cursor-pointer"></button>
+          <button type="button" data-lamp-preset="amber2" aria-label="ذهبي" class="w-4 h-4 rounded-full bg-yellow-400 border border-white/30 cursor-pointer"></button>
+          <button type="button" data-lamp-preset="purple" aria-label="بنفسجي" class="w-4 h-4 rounded-full bg-violet-500 border border-white/30 cursor-pointer"></button>
+          <button
+            id="btn-cycle-lamp-color"
+            type="button"
+            class="mr-1 rounded-lg bg-slate-800 hover:bg-slate-700 px-2 py-0.5 text-[10px] font-bold text-slate-200 transition cursor-pointer"
+          >
+            تبديل
+          </button>
+        </div>
+      </div>
+
+      <span class="rounded-full border border-slate-700/80 bg-slate-900/75 px-3 py-1 text-xs font-bold text-slate-300">
+        الواجهة 1 / 4
+      </span>
+    </div>
+
+    <!-- Main Stage 1 Split: Articulated Lamp on Left, Login Card on Right -->
+    <div dir="ltr" class="w-full max-w-6xl mx-auto my-auto py-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <!-- LEFT: Articulated SVG Desk Lamp with Pull-Chain & Light Cone -->
+      <div class="lg:col-span-6 flex flex-col items-center justify-center">
+        <div class="lamp-svg-wrapper">
+          <svg id="lamp-svg" viewBox="0 0 640 310" role="img" aria-label="مصباح مكتبي مفصلي بحبل سحب على اليسار">
+            <defs>
+              <radialGradient id="lamp-beam-grad" cx="0%" cy="50%" r="100%">
+                <stop id="beam-stop-1" offset="0%" stop-color="#f59e0b" stop-opacity="0.46" />
+                <stop id="beam-stop-2" offset="55%" stop-color="#f59e0b" stop-opacity="0.14" />
+                <stop id="beam-stop-3" offset="100%" stop-color="#f59e0b" stop-opacity="0" />
+              </radialGradient>
+              <radialGradient id="lamp-floor-grad" cx="50%" cy="50%" r="50%">
+                <stop id="floor-stop-1" offset="0%" stop-color="#f59e0b" stop-opacity="0.45" />
+                <stop id="floor-stop-2" offset="100%" stop-color="#f59e0b" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+
+            <line x1="36" y1="264" x2="604" y2="264" stroke="#334155" stroke-width="3" stroke-linecap="round" />
+            <ellipse id="lamp-floor-glow" cx="385" cy="264" rx="145" ry="12" fill="url(#lamp-floor-grad)" />
+
+            <rect x="86" y="252" width="84" height="12" rx="6" fill="#1e293b" stroke="#475569" stroke-width="2" />
+            <circle cx="128" cy="256" r="9" fill="#334155" stroke="#94a3b8" stroke-width="2" />
+
+            <g id="lamp-arm-lower">
+              <line x1="128" y1="252" x2="132" y2="136" stroke="#94a3b8" stroke-width="8" stroke-linecap="round" />
+              <line x1="128" y1="252" x2="132" y2="136" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round" />
+            </g>
+
+            <g id="lamp-middle-joint">
+              <circle cx="132" cy="136" r="11" fill="#1e293b" stroke="#cbd5e1" stroke-width="2.5" />
+              <circle cx="132" cy="136" r="4" fill="#f8fafc" />
+            </g>
+
+            <g id="lamp-arm-upper">
+              <line x1="132" y1="136" x2="156" y2="86" stroke="#94a3b8" stroke-width="7" stroke-linecap="round" />
+              <line x1="132" y1="136" x2="156" y2="86" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round" />
+            </g>
+
+            <g id="lamp-neck-joint">
+              <circle cx="156" cy="86" r="9" fill="#1e293b" stroke="#cbd5e1" stroke-width="2.2" />
+            </g>
+
+            <g id="lamp-head-group">
+              <path d="M156 86 L186 78 L194 94 L164 98 Z" fill="#334155" stroke="#cbd5e1" stroke-width="2" />
+              <circle cx="186" cy="86" r="3.5" fill="#f8fafc" />
+              <path d="M186 74 L244 58 L256 106 L192 104 Z" fill="#1e293b" stroke="#94a3b8" stroke-width="2.5" stroke-linejoin="round" />
+              <ellipse id="lamp-lens-glow" cx="251" cy="83" rx="6" ry="18" fill="#f59e0b" />
+
+              <g id="lamp-pull-chain-group" tabindex="0" role="button" aria-label="اسحب أو اضغط لتشغيل المصباح">
+                <rect x="202" y="102" width="24" height="58" fill="transparent" />
+                <line id="lamp-pull-stem" x1="214" y1="103" x2="214" y2="136" stroke="#cbd5e1" stroke-width="2.2" stroke-linecap="round" />
+                <g id="lamp-pull-knob">
+                  <circle id="lamp-chain-bead" cx="214" cy="142" r="6" fill="#f59e0b" stroke="#ffffff" stroke-width="1.5" />
+                </g>
+              </g>
+            </g>
+
+            <g id="lamp-beam-group">
+              <polygon points="254,66 565,26 572,226 254,100" fill="url(#lamp-beam-grad)" />
+            </g>
+          </svg>
+        </div>
+        <p dir="rtl" class="text-xs text-slate-400 mt-2 text-center">
+          اسحب حبل المصباح أو اضغط عليه لتشغيل الإضاءة وفتح تسجيل الدخول.
+        </p>
+      </div>
+
+      <!-- RIGHT: Login Card -->
+      <div dir="rtl" class="lg:col-span-6 flex items-center justify-center">
+        <div
+          id="login-card"
+          class="login-panel-locked w-full max-w-md rounded-3xl border border-slate-700/80 bg-[#0b1220]/90 backdrop-blur-xl p-6 sm:p-8 space-y-5"
+        >
+          <h1 class="text-2xl font-black text-white">تسجيل الدخول</h1>
+
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            اكتب الـ <span class="font-code text-cyan-300">ID</span> والباسورد الخاصين ببروفايلك لتعديله، أو ادخل <span class="text-emerald-300 font-bold">كزائر</span> للقراءة والمشاهدة فقط بدون أي تعديل.
+          </p>
+
+          <form id="login-form" class="space-y-3.5">
+            <div>
+              <label for="auth-id-input" class="block text-xs font-bold text-slate-300 mb-1">ID البروفايل</label>
+              <input
+                id="auth-id-input"
+                type="text"
+                inputmode="numeric"
+                class="w-full rounded-xl border border-slate-700 bg-slate-950/90 px-3.5 py-2.5 text-sm font-code text-white focus:border-cyan-400 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label for="auth-pass-input" class="block text-xs font-bold text-slate-300 mb-1">الباسورد</label>
+              <input
+                id="auth-pass-input"
+                type="password"
+                inputmode="numeric"
+                class="w-full rounded-xl border border-slate-700 bg-slate-950/90 px-3.5 py-2.5 text-sm font-code text-white focus:border-cyan-400 focus:outline-none"
+              />
+            </div>
+
+            <p id="login-error-msg" class="hidden text-xs font-bold text-rose-400"></p>
+
+            <button
+              id="auth-submit-btn"
+              type="submit"
+              class="w-full rounded-2xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 py-3 text-sm font-black text-slate-950 shadow-lg transition cursor-pointer"
+            >
+              تسجيل الدخول
+            </button>
+
+            <button
+              id="btn-guest-login"
+              type="button"
+              class="w-full rounded-2xl border border-slate-600/90 bg-slate-900/90 hover:bg-slate-800 py-2.5 text-xs sm:text-sm font-extrabold text-slate-200 transition cursor-pointer"
+            >
+              دخول كزائر (قراءة فقط بدون تعديل)
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-2"></div>
+  </section>
+
+  <!-- =======================================================================
+       STAGE 2: INTERACTIVE HUB WITH COLOR/BG SWITCHER & IDEA TITLE/TEXT
+  ======================================================================= -->
+  <section
+    id="stage-2"
+    class="stage-section stage2-bg-cyber hidden relative min-h-screen w-full flex flex-col justify-between p-4 sm:p-7 overflow-hidden transition-colors duration-300"
+  >
+    <canvas id="stage2-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+
+    <!-- Top Row -->
+    <div class="relative z-10 w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          id="btn-back-to-stage1"
+          type="button"
+          class="rounded-xl border border-slate-700 bg-slate-900/80 hover:bg-slate-800 px-3.5 py-2 text-xs font-bold text-slate-200 transition cursor-pointer"
+        >
+          الواجهة الأولى →
+        </button>
+
+        <button
+          id="btn-switch-regular-stage2"
+          type="button"
+          class="rounded-xl border border-sky-400/45 bg-sky-500/15 hover:bg-sky-500/25 px-3.5 py-2 text-xs font-extrabold text-sky-200 transition cursor-pointer"
+        >
+          تسجيل لحساب عادي
+        </button>
+
+        <button
+          id="btn-logout-dev-stage2"
+          type="button"
+          class="hidden rounded-xl border border-rose-400/45 bg-rose-500/15 hover:bg-rose-500/25 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+        >
+          تسجيل خروج مطور
+        </button>
+
+        <button
+          id="btn-stage2-cycle-theme"
+          type="button"
+          class="rounded-xl border border-cyan-400/45 bg-cyan-500/15 hover:bg-cyan-500/25 px-3.5 py-2 text-xs font-extrabold text-cyan-200 transition cursor-pointer"
+        >
+          تغيير اللون والخلفية: <span id="stage2-theme-name">سماوي ليلي</span>
+        </button>
+
+        <button
+          id="btn-stage2-edit-idea"
+          type="button"
+          class="hidden rounded-xl border border-amber-400/50 bg-amber-500/15 hover:bg-amber-500/25 px-3.5 py-2 text-xs font-extrabold text-amber-200 transition cursor-pointer"
+        >
+          كتابة نص الفكرة والعنوان
+        </button>
+
+        <button
+          type="button"
+          data-reset-platform="true"
+          class="rounded-xl border border-rose-400/40 bg-rose-500/10 hover:bg-rose-500/20 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+        >
+          إعادة تعيين للافتراضي
+        </button>
+
+        <span class="rounded-full border border-slate-700/80 bg-slate-900/75 px-3 py-1 text-xs font-bold text-slate-300">
+          الواجهة 2 / 4
+        </span>
+      </div>
+
+      <span id="stage2-signed-user-badge" class="rounded-full border border-cyan-400/35 bg-cyan-500/10 px-3 py-1 text-xs font-extrabold text-cyan-200">
+        وضع زائر (قراءة فقط)
+      </span>
+    </div>
+
+    <!-- Center Hub -->
+    <div class="relative z-10 w-full max-w-6xl mx-auto my-auto py-8 flex flex-col items-center gap-8">
+      <h2 id="stage2-idea-title" class="text-3xl sm:text-5xl font-black text-center text-white tracking-tight">
+        مركز المواضيع التفاعلي
+      </h2>
+
+      <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <div class="lg:col-span-4 hidden lg:block"></div>
+
+        <div class="lg:col-span-4 flex flex-col items-center gap-3">
+          <button
+            id="btn-open-topic-center"
+            type="button"
+            class="w-full rounded-2xl px-8 py-4 text-base sm:text-lg font-black text-slate-950 transition transform hover:scale-[1.03] cursor-pointer"
+            style="background-image: linear-gradient(to right, var(--stage2-accent), #38bdf8);"
+          >
+            استعراض البروفايلات (الواجهة 3)
+          </button>
+
+          <button
+            id="btn-open-my-profile-editor"
+            type="button"
+            class="hidden w-full rounded-2xl border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 px-6 py-3 text-xs sm:text-sm font-black text-cyan-200 transition cursor-pointer"
+          >
+            تعديل بروفايلي الآن
+          </button>
+        </div>
+
+        <div class="lg:col-span-4">
+          <div id="stage2-idea-box" class="rounded-2xl border border-slate-800/90 bg-slate-900/75 backdrop-blur-md p-4 text-right space-y-2">
+            <p id="stage2-idea-text" class="text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line">
+              انتقل إلى الواجهة الثالثة لاستعراض البروفايلات والسيرة الذاتية، وافتح زر مقال داخل أي بروفايل للانتقال إلى صفحة المقال والصور الخاصة به.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-2"></div>
+  </section>
+
+  <!-- =======================================================================
+       STAGE 3: AUTO-ORBIT + TOUCH/DRAG + SEARCH/FILTER PROFILE EXPLORER
+  ======================================================================= -->
+  <section
+    id="stage-3"
+    class="stage-section cyber-grid-bg hidden min-h-screen w-full flex flex-col justify-between p-4 sm:p-7"
+  >
+    <!-- Top Header -->
+    <div class="w-full max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2.5">
+        <button
+          id="btn-back-to-stage2"
+          type="button"
+          class="rounded-xl border border-slate-700 bg-slate-900/85 hover:bg-slate-800 px-3.5 py-2 text-xs font-bold text-slate-200 transition cursor-pointer"
+        >
+          الواجهة الثانية →
+        </button>
+
+        <button
+          id="btn-switch-regular-stage3"
+          type="button"
+          class="rounded-xl border border-sky-400/45 bg-sky-500/15 hover:bg-sky-500/25 px-3.5 py-2 text-xs font-extrabold text-sky-200 transition cursor-pointer"
+        >
+          تسجيل لحساب عادي
+        </button>
+
+        <button
+          id="btn-logout-dev-stage3"
+          type="button"
+          class="hidden rounded-xl border border-rose-400/45 bg-rose-500/15 hover:bg-rose-500/25 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+        >
+          تسجيل خروج مطور
+        </button>
+
+        <button
+          type="button"
+          data-reset-platform="true"
+          class="rounded-xl border border-rose-400/40 bg-rose-500/10 hover:bg-rose-500/20 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+        >
+          إعادة تعيين للافتراضي
+        </button>
+
+        <span class="rounded-full border border-cyan-400/35 bg-cyan-500/10 px-3 py-1 text-xs font-extrabold text-cyan-200">
+          المدار التلقائي واللمسي • <span id="stage3-count-badge" class="font-code">5</span>
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          id="btn-orbit-prev"
+          type="button"
+          class="rounded-xl border border-slate-700 bg-slate-900/85 hover:bg-slate-800 px-3 py-2 text-xs font-extrabold text-white transition cursor-pointer"
+        >
+          السابق
+        </button>
+        <button
+          id="btn-orbit-next"
+          type="button"
+          class="rounded-xl border border-slate-700 bg-slate-900/85 hover:bg-slate-800 px-3 py-2 text-xs font-extrabold text-white transition cursor-pointer"
+        >
+          التالي
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Stage 3 Grid -->
+    <div class="w-full max-w-7xl mx-auto my-auto py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+      <!-- Left Column: Search/Filter + Profiles List & Featured Summary -->
+      <div class="lg:col-span-4 space-y-4">
+        <div class="rounded-3xl border border-slate-800 bg-[#0b1220]/90 backdrop-blur-xl p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <h2 class="text-sm sm:text-base font-black text-white">قائمة البروفايلات (<span id="stage3-list-title-count">5</span>)</h2>
+          </div>
+
+          <!-- Quick Search / Filter Bar -->
+          <div class="relative flex items-center">
+            <input
+              id="stage3-search-input"
+              type="text"
+              placeholder="ابحث بالاسم أو الدور..."
+              class="w-full rounded-xl border border-slate-700/90 bg-slate-950/90 px-3.5 py-2 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+            />
+            <button
+              id="stage3-clear-search-btn"
+              type="button"
+              class="hidden absolute left-2 rounded-lg bg-slate-800 hover:bg-slate-700 px-2 py-0.5 text-[10px] font-bold text-slate-200 cursor-pointer"
+            >
+              مسح
+            </button>
+          </div>
+
+          <!-- Developer-Only Bulk Edit Controls (Hidden for Guest & Regular Users) -->
+          <div id="dev-stage3-controls" class="hidden grid-cols-3 gap-2">
+            <button
+              id="btn-dev-edit-active"
+              type="button"
+              class="rounded-xl border border-cyan-400/40 bg-cyan-500/15 hover:bg-cyan-500/25 py-2 px-2 text-[11px] font-extrabold text-cyan-200 transition cursor-pointer"
+            >
+              تعديل المحدد
+            </button>
+            <button
+              id="btn-dev-add-profile"
+              type="button"
+              class="rounded-xl border border-sky-400/40 bg-sky-500/15 hover:bg-sky-500/25 py-2 px-2 text-[11px] font-extrabold text-sky-200 transition cursor-pointer"
+            >
+              إضافة
+            </button>
+            <button
+              id="btn-dev-remove-profile"
+              type="button"
+              class="rounded-xl border border-rose-400/40 bg-rose-500/15 hover:bg-rose-500/25 py-2 px-2 text-[11px] font-extrabold text-rose-200 transition cursor-pointer"
+            >
+              إزالة
+            </button>
+          </div>
+
+          <div id="stage3-profile-list" class="max-h-64 overflow-y-auto space-y-2 pr-0.5"></div>
+        </div>
+
+        <!-- Featured Profile Summary Bar -->
+        <div
+          id="stage3-featured-bar"
+          class="rounded-3xl border border-cyan-400/35 bg-[#0b1220]/90 backdrop-blur-xl p-4 space-y-3"
+        >
+          <div class="flex items-center gap-3">
+            <img
+              id="featured-profile-avatar"
+              src="https://api.dicebear.com/7.x/avataaars/svg?seed=MohamedShaaban"
+              alt="البروفايل النشط"
+              onerror="this.onerror=null;this.src='https://placehold.co/64x64/0f172a/00f2fe?text=DEV';"
+              class="w-12 h-12 rounded-full border-2 object-cover bg-slate-900 shrink-0"
+            />
+            <div class="min-w-0 flex-1">
+              <div id="featured-profile-name" class="text-sm font-black text-white truncate">محمد شعبان</div>
+              <span
+                id="featured-profile-role"
+                class="inline-block mt-0.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold truncate max-w-full"
+              >
+                الدور
+              </span>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-slate-800/80 bg-slate-950/60 p-2.5">
+            <div class="text-[10px] font-extrabold text-slate-400 mb-0.5">السيرة الذاتية</div>
+            <p id="featured-profile-bio" class="text-xs text-slate-200 line-clamp-2 leading-relaxed"></p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button
+              id="btn-open-featured-modal"
+              type="button"
+              class="flex-1 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 py-2.5 text-xs font-black text-slate-950 transition cursor-pointer"
+            >
+              فتح البروفايل
+            </button>
+
+            <button
+              id="btn-featured-open-article"
+              type="button"
+              class="rounded-xl border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 px-4 py-2.5 text-xs font-black text-cyan-200 transition cursor-pointer"
+            >
+              مقال
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Auto-Orbit + Touch/Drag Cards -->
+      <div class="lg:col-span-8">
+        <div
+          id="orbit-arena"
+          class="orbit-stage relative w-full h-[380px] sm:h-[440px] rounded-3xl border border-slate-800/80 bg-slate-950/55 overflow-hidden"
+        >
+          <canvas id="three-orbit-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+          <div id="orbit-ring-track" class="relative w-full h-full"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-2"></div>
+  </section>
+
+  <!-- =======================================================================
+       PROFILE DETAIL MODAL (#modal-person-profile) + "مقال" STAGE TRIGGER
+  ======================================================================= -->
+  <div
+    id="modal-person-profile"
+    class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto"
+  >
+    <div
+      id="person-detail-card"
+      class="w-full max-w-xl rounded-3xl border border-cyan-400/50 bg-[#0b1220]/95 p-6 sm:p-7 text-white shadow-2xl space-y-5 my-auto max-h-[92vh] overflow-y-auto"
+    >
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-center gap-4 min-w-0">
+          <div class="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 overflow-hidden bg-slate-900 shrink-0">
+            <img
+              id="detail-person-avatar"
+              src="https://api.dicebear.com/7.x/avataaars/svg?seed=MohamedShaaban"
+              alt="صورة البروفايل"
+              onerror="this.onerror=null;this.src='https://placehold.co/96x96/0f172a/00f2fe?text=DEV';"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="min-w-0">
+            <h3 id="detail-person-name" class="text-xl sm:text-2xl font-black text-white truncate"></h3>
+            <p id="detail-person-role" class="text-xs sm:text-sm font-bold mt-0.5 truncate"></p>
+          </div>
+        </div>
+
+        <button
+          id="close-person-profile-btn"
+          type="button"
+          class="rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 px-3 py-1.5 text-xs font-extrabold text-slate-300 cursor-pointer shrink-0"
+        >
+          إغلاق ✕
+        </button>
+      </div>
+
+      <!-- Bio / CV Box -->
+      <div class="rounded-2xl border border-slate-800 bg-slate-950/85 p-4 space-y-2">
+        <span class="text-xs font-black text-cyan-300">السيرة الذاتية</span>
+        <p id="detail-person-bio" class="text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line"></p>
+      </div>
+
+      <!-- Dedicated "مقال" Stage Launcher Box -->
+      <div class="rounded-2xl border border-cyan-400/35 bg-slate-950/90 p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
+          <div class="text-[11px] font-bold text-cyan-300">مرحلة المقال والصور الكاملة (الواجهة 4)</div>
+          <div id="detail-article-title" class="text-sm sm:text-base font-black text-white truncate mt-0.5"></div>
+          <div id="detail-article-media-summary" class="text-[11px] text-slate-400 mt-0.5"></div>
+        </div>
+
+        <button
+          id="btn-open-profile-article-page"
+          type="button"
+          class="rounded-2xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 px-7 py-3 text-sm font-black text-slate-950 shadow-lg transition cursor-pointer shrink-0"
+        >
+          مقال
+        </button>
+      </div>
+
+      <!-- Skills List -->
+      <div id="detail-skills-list" class="space-y-2.5"></div>
+
+      <!-- Profile Editor Panel (Hidden completely for Guests) -->
+      <div id="owner-profile-editor-panel" class="hidden rounded-2xl border border-cyan-400/45 bg-slate-950/95 p-4 space-y-3.5">
+        <div class="flex items-center justify-between">
+          <span id="owner-editor-heading" class="text-xs font-black text-cyan-300">تعديل البروفايل والصورة والسيرة الذاتية</span>
+        </div>
+
+        <!-- Avatar Change Controls -->
+        <div class="rounded-xl border border-slate-800 bg-slate-900/75 p-3 space-y-2.5">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <img
+                id="owner-edit-avatar-preview"
+                src="https://api.dicebear.com/7.x/avataaars/svg?seed=MohamedShaaban"
+                alt="معاينة الصورة"
+                class="w-12 h-12 rounded-full border-2 border-cyan-400/60 object-cover bg-slate-950 shrink-0"
+              />
+              <div>
+                <div class="text-xs font-extrabold text-white">صورة البروفايل</div>
+                <div class="text-[11px] text-slate-400">اختر صورة من جهازك أو ضع رابط صورة</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 shrink-0">
+              <label
+                for="owner-edit-avatar-file"
+                class="rounded-xl border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 px-3 py-1.5 text-[11px] font-black text-cyan-200 transition cursor-pointer"
+              >
+                رفع صورة
+              </label>
+              <input
+                id="owner-edit-avatar-file"
+                type="file"
+                accept="image/*"
+                class="hidden"
+              />
+              <button
+                id="btn-reset-owner-avatar"
+                type="button"
+                class="rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 text-[11px] font-bold text-slate-300 transition cursor-pointer"
+              >
+                افتراضي
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label for="owner-edit-avatar-url" class="block text-[11px] font-bold text-slate-400 mb-1">أو رابط الصورة (URL)</label>
+            <input
+              id="owner-edit-avatar-url"
+              type="text"
+              dir="ltr"
+              placeholder="https://..."
+              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-code text-white focus:border-cyan-400 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="owner-edit-name" class="block text-xs font-bold text-slate-300 mb-1">الاسم</label>
+            <input
+              id="owner-edit-name"
+              type="text"
+              class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-white focus:border-cyan-400 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label for="owner-edit-role" class="block text-xs font-bold text-slate-300 mb-1">الدور / التخصص</label>
+            <input
+              id="owner-edit-role"
+              type="text"
+              class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-white focus:border-cyan-400 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="owner-edit-bio" class="block text-xs font-bold text-cyan-200 mb-1">السيرة الذاتية</label>
+          <textarea
+            id="owner-edit-bio"
+            rows="3"
+            placeholder="اكتب السيرة الذاتية هنا..."
+            class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-white leading-relaxed focus:border-cyan-400 focus:outline-none"
+          ></textarea>
+        </div>
+
+        <button
+          id="btn-save-owner-profile"
+          type="button"
+          class="w-full rounded-xl bg-cyan-400 hover:bg-cyan-300 py-2.5 text-xs font-black text-slate-950 transition cursor-pointer"
+        >
+          حفظ التعديلات
+        </button>
+      </div>
+
+      <!-- Bottom Action Buttons -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            id="detail-action-email"
+            type="button"
+            class="rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-200 cursor-pointer"
+          >
+            البريد
+          </button>
+          <button
+            id="detail-action-github"
+            type="button"
+            class="rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-200 cursor-pointer"
+          >
+            GitHub
+          </button>
+        </div>
+
+        <button
+          id="btn-toggle-owner-editor"
+          type="button"
+          class="hidden rounded-xl border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 px-3.5 py-1.5 text-xs font-extrabold text-cyan-200 cursor-pointer"
+        >
+          تعديل البروفايل والصورة والسيرة
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       STAGE 4 (#stage-4): FULL DEDICATED ARTICLE + ARTICLE GALLERY STAGE
+  ======================================================================= -->
+  <section
+    id="stage-4"
+    class="stage-section stage4-theme-cyber hidden min-h-screen w-full flex-col p-4 sm:p-7 transition-colors duration-300"
+  >
+    <div class="w-full max-w-6xl mx-auto flex flex-col gap-5 flex-1">
+      <!-- Top Header -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2.5">
+          <h1
+            id="article-workspace-author"
+            class="rounded-2xl border border-cyan-400/45 bg-slate-900/85 px-4 py-2 text-base sm:text-xl font-black text-white"
+          >
+            اسم البروفايل
+          </h1>
+          <span class="rounded-full border border-cyan-400/35 bg-cyan-500/10 px-3 py-1 text-xs font-extrabold text-cyan-200">
+            الواجهة 4 • مرحلة المقال والصور
+          </span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            id="btn-back-to-profile-modal"
+            type="button"
+            class="rounded-xl border border-slate-600/80 bg-slate-900/85 hover:bg-slate-800 px-3.5 py-2 text-xs font-extrabold text-white transition cursor-pointer"
+          >
+            نافذة البروفايل
+          </button>
+          <button
+            id="btn-back-to-stage3-from-article"
+            type="button"
+            class="rounded-xl border border-slate-700 bg-slate-900/75 hover:bg-slate-800 px-3.5 py-2 text-xs font-bold text-slate-200 transition cursor-pointer"
+          >
+            العودة للبروفايلات (الواجهة 3) →
+          </button>
+        </div>
+      </div>
+
+      <!-- Stage 4 Toolbar (Edit controls hidden for Guests) -->
+      <div class="rounded-2xl border border-slate-700/70 bg-slate-950/65 backdrop-blur-md p-3 flex flex-wrap items-center justify-between gap-2.5">
+        <div id="stage4-visual-controls" class="flex flex-wrap items-center gap-2">
+          <button
+            id="stage4-btn-theme-cycle"
+            type="button"
+            class="rounded-xl border border-indigo-400/50 bg-indigo-500/15 hover:bg-indigo-500/25 px-3.5 py-2 text-xs font-black text-indigo-200 transition cursor-pointer"
+          >
+            ثيم: <span id="stage4-theme-label">Dark Cyber</span>
+          </button>
+
+          <label
+            id="stage4-color-label"
+            for="stage4-color-picker"
+            class="inline-flex items-center gap-2 rounded-xl border border-amber-400/50 bg-amber-500/15 hover:bg-amber-500/25 px-3 py-1.5 text-xs font-black text-amber-200 transition cursor-pointer"
+          >
+            <span>الألوان</span>
+            <input
+              id="stage4-color-picker"
+              type="color"
+              value="#00f2fe"
+              class="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
+            />
+          </label>
+        </div>
+
+        <button
+          id="stage4-btn-save"
+          type="button"
+          class="hidden rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 px-5 py-2 text-xs font-black text-slate-950 shadow-lg transition cursor-pointer"
+        >
+          حفظ المقال والصور
+        </button>
+      </div>
+
+      <!-- Main Large Article & Media Stage -->
+      <div
+        id="stage4-workspace-canvas"
+        class="flex-1 rounded-3xl border border-cyan-400/35 bg-slate-950/55 backdrop-blur-md p-5 sm:p-8 space-y-6 transition-all"
+      >
+        <!-- Article Title -->
+        <div>
+          <label for="stage4-article-title-input" class="block text-xs sm:text-sm font-extrabold opacity-85 mb-2">
+            عنوان المقال
+          </label>
+          <input
+            id="stage4-article-title-input"
+            type="text"
+            placeholder="اكتب عنوان المقال الرئيسي هنا..."
+            class="w-full rounded-2xl border border-slate-700/80 bg-slate-950/80 px-4 py-3 text-base sm:text-xl font-black text-white focus:outline-none"
+          />
+        </div>
+
+        <!-- Expansive Article Body -->
+        <div>
+          <label for="stage4-main-article-textarea" class="block text-xs sm:text-sm font-extrabold opacity-85 mb-2">
+            نص المقال الكامل
+          </label>
+          <textarea
+            id="stage4-main-article-textarea"
+            rows="16"
+            placeholder="اكتب مقالك الكامل هنا بمساحة واسعة ومريحة..."
+            class="w-full min-h-[380px] sm:min-h-[440px] rounded-2xl border border-slate-700/80 bg-slate-950/80 p-5 text-sm sm:text-base text-white leading-loose focus:outline-none resize-y"
+          ></textarea>
+        </div>
+
+        <!-- Article Images Section (Add & View Images Belonging to This Article) -->
+        <div class="rounded-2xl border border-slate-800/90 bg-slate-950/75 p-4 sm:p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-sm sm:text-base font-black text-white">صور المقال (<span id="stage4-images-count" class="font-code text-cyan-300">0</span>)</h2>
+              <p class="text-[11px] sm:text-xs text-slate-400">صور مرفقة ومرتبطة بهذا المقال تحديداً</p>
+            </div>
+          </div>
+
+          <!-- Add Article Image Controls (Hidden for Guests) -->
+          <div id="stage4-add-image-panel" class="hidden rounded-2xl border border-slate-800 bg-slate-900/70 p-4 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+              <div class="sm:col-span-5">
+                <label for="stage4-image-caption-input" class="block text-xs font-bold text-slate-300 mb-1">وصف الصورة (اختياري)</label>
+                <input
+                  id="stage4-image-caption-input"
+                  type="text"
+                  placeholder="مثال: لقطة من المشروع أو مخطط توضيحي"
+                  class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs sm:text-sm text-white focus:border-cyan-400 focus:outline-none"
+                />
+              </div>
+
+              <div class="sm:col-span-4">
+                <label for="stage4-image-url-input" class="block text-xs font-bold text-slate-300 mb-1">رابط الصورة (URL)</label>
+                <input
+                  id="stage4-image-url-input"
+                  type="text"
+                  dir="ltr"
+                  placeholder="https://..."
+                  class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-code text-white focus:border-cyan-400 focus:outline-none"
+                />
+              </div>
+
+              <div class="sm:col-span-3 flex items-center gap-2">
+                <label
+                  for="stage4-image-file-input"
+                  class="flex-1 text-center rounded-xl border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 px-3 py-2 text-xs font-black text-cyan-200 transition cursor-pointer"
+                >
+                  رفع من الجهاز
+                </label>
+                <input id="stage4-image-file-input" type="file" accept="image/*" class="hidden" />
+
+                <button
+                  id="stage4-btn-add-url-image"
+                  type="button"
+                  class="rounded-xl bg-sky-400 hover:bg-sky-300 px-3.5 py-2 text-xs font-black text-slate-950 transition cursor-pointer"
+                >
+                  إضافة
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Article Images Grid -->
+          <div id="stage4-article-images-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =======================================================================
+       STAGE 2 IDEA TITLE & TEXT MODAL
+  ======================================================================= -->
+  <div id="modal-stage2-idea" class="fixed inset-0 z-[140] hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="w-full max-w-lg rounded-3xl border border-amber-400/45 bg-[#0c1322] p-6 text-white shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-black text-amber-300">كتابة عنوان ونص الفكرة</h3>
+        <button id="close-stage2-idea-btn" type="button" class="text-slate-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label for="stage2-idea-title-input" class="block text-xs font-bold text-slate-300 mb-1">عنوان الفكرة</label>
+          <input
+            id="stage2-idea-title-input"
+            type="text"
+            class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white focus:border-amber-400 focus:outline-none"
+          />
+        </div>
+        <div>
+          <label for="stage2-idea-text-input" class="block text-xs font-bold text-slate-300 mb-1">نص الفكرة</label>
+          <textarea
+            id="stage2-idea-text-input"
+            rows="4"
+            class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white leading-relaxed focus:border-amber-400 focus:outline-none"
+          ></textarea>
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button id="cancel-stage2-idea-btn" type="button" class="rounded-xl border border-slate-700 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 cursor-pointer">
+          إلغاء
+        </button>
+        <button id="save-stage2-idea-btn" type="button" class="rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 px-5 py-2 text-xs font-black cursor-pointer">
+          حفظ الفكرة
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       DEVELOPER LOGIN MODAL (PASSCODE: 75321 -> INSTANT ENTRY) + ADD PROFILE MODAL
+  ======================================================================= -->
+  <div id="modal-dev-login" class="fixed inset-0 z-[140] hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md rounded-3xl border border-cyan-400/40 bg-[#0c1322] p-6 text-white shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-black text-cyan-300">دخول المطورين</h3>
+        <button id="close-dev-login-btn" type="button" class="text-slate-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        أدخل باسورد المطورين للدخول مباشرة بكل صلاحيات التعديل.
+      </p>
+      <input
+        id="dev-pass-input"
+        type="password"
+        inputmode="numeric"
+        placeholder="•••••"
+        class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm font-code text-white focus:border-cyan-400 focus:outline-none"
+      />
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button id="cancel-dev-login-btn" type="button" class="rounded-xl border border-slate-700 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 cursor-pointer">
+          إلغاء
+        </button>
+        <button id="dev-confirm-login-btn" type="button" class="rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 text-slate-950 px-5 py-2 text-xs font-black cursor-pointer">
+          دخول
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-add-profile" class="fixed inset-0 z-[140] hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="w-full max-w-lg rounded-3xl border border-sky-400/40 bg-[#0c1322] p-6 text-white shadow-2xl space-y-4 my-auto">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-black text-sky-300">إضافة بروفايل جديد</h3>
+        <button id="close-add-profile-btn" type="button" class="text-slate-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label for="add-item-name" class="block text-xs font-bold text-slate-300 mb-1">الاسم</label>
+          <input id="add-item-name" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white focus:border-sky-400 focus:outline-none" />
+        </div>
+        <div>
+          <label for="add-item-role" class="block text-xs font-bold text-slate-300 mb-1">الدور / الوصف</label>
+          <input id="add-item-role" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white focus:border-sky-400 focus:outline-none" />
+        </div>
+        <div>
+          <label for="add-item-avatar" class="block text-xs font-bold text-slate-300 mb-1">رابط الصورة أو رفع ملف</label>
+          <div class="flex items-center gap-2">
+            <input id="add-item-avatar" type="text" dir="ltr" placeholder="https://..." class="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-code text-white focus:border-sky-400 focus:outline-none" />
+            <label for="add-item-avatar-file" class="rounded-xl border border-sky-400/50 bg-sky-500/15 hover:bg-sky-500/25 px-3 py-2 text-xs font-black text-sky-200 cursor-pointer shrink-0">
+              رفع صورة
+            </label>
+            <input id="add-item-avatar-file" type="file" accept="image/*" class="hidden" />
+          </div>
+        </div>
+        <div>
+          <label for="add-item-bio" class="block text-xs font-bold text-slate-300 mb-1">السيرة الذاتية</label>
+          <textarea id="add-item-bio" rows="3" placeholder="اكتب السيرة الذاتية للعضو..." class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white leading-relaxed focus:border-sky-400 focus:outline-none"></textarea>
+        </div>
+        <div>
+          <label for="add-item-article-title" class="block text-xs font-bold text-slate-300 mb-1">عنوان المقال</label>
+          <input id="add-item-article-title" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white focus:border-sky-400 focus:outline-none" />
+        </div>
+        <div>
+          <label for="add-item-article" class="block text-xs font-bold text-slate-300 mb-1">نص المقال</label>
+          <textarea id="add-item-article" rows="3" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white leading-relaxed focus:border-sky-400 focus:outline-none"></textarea>
+        </div>
+        <div class="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/80 p-3">
+          <span class="text-xs font-bold text-slate-200">لون التمييز</span>
+          <input id="add-item-color" type="color" value="#38bdf8" class="w-10 h-8 rounded cursor-pointer bg-transparent border-0" />
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button id="cancel-add-profile-btn" type="button" class="rounded-xl border border-slate-700 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 cursor-pointer">
+          إلغاء
+        </button>
+        <button id="confirm-add-item-btn" type="button" class="rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 px-5 py-2 text-xs font-black cursor-pointer">
+          إضافة
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       APPLICATION RUNTIME SCRIPT
+  ======================================================================= -->
+  <script>
+    (function () {
+      const STORAGE_KEY = 'codecraft_id_auth_profiles_v8';
+      const DEV_PASS = '75321';
+
+      const LAMP_PRESETS = {
+        warm: { label: 'نور دافئ', hex: '#f59e0b' },
+        cyan: { label: 'سماوي', hex: '#00f2fe' },
+        amber2: { label: 'ذهبي', hex: '#facc15' },
+        purple: { label: 'بنفسجي', hex: '#8b5cf6' }
+      };
+
+      const STAGE2_THEMES = {
+        cyber: { label: 'سماوي ليلي', className: 'stage2-bg-cyber', accent: '#00f2fe' },
+        violet: { label: 'بنفسجي داكن', className: 'stage2-bg-violet', accent: '#a855f7' },
+        emerald: { label: 'زمردي داكن', className: 'stage2-bg-emerald', accent: '#10b981' },
+        amber: { label: 'كهرماني داكن', className: 'stage2-bg-amber', accent: '#f59e0b' }
+      };
+
+      const STAGE4_THEMES = {
+        cyber: { label: 'Dark Cyber', className: 'stage4-theme-cyber', accent: '#00f2fe', isLight: false },
+        midnight: { label: 'Midnight Indigo', className: 'stage4-theme-midnight', accent: '#818cf8', isLight: false },
+        light: { label: 'Light Studio', className: 'stage4-theme-light', accent: '#0284c7', isLight: true }
+      };
+
+      const DEFAULT_PROFILES = [
+        {
+          id: 'profile_1',
+          authId: '7251',
+          authPass: '6534',
+          name: 'محمد شعبان',
+          role: 'مطور برمجيات',
+          color: '#00f2fe',
+          stage4Theme: 'cyber',
+          stage4Accent: '#00f2fe',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MohamedShaaban',
+          bio: 'مطور برمجيات مهتم بتطوير الويب التفاعلي وهندسة الأنظمة والذكاء الاصطناعي وبناء التجارب البرمجية المتكاملة.',
+          articleTitle: 'مقال محمد شعبان',
+          article: 'مساحة مقال كاملة ومستقلة للكتابة وإضافة الصور المرتبطة بهذا البروفايل.',
+          articleImages: [],
+          skills: [
+            { label: 'تطوير البرمجيات', percent: 95 },
+            { label: 'هندسة الأنظمة', percent: 90 }
+          ]
+        },
+        {
+          id: 'profile_2',
+          authId: '7615',
+          authPass: '6124',
+          name: 'محمد عبد الصبور',
+          role: 'عضو الفريق',
+          color: '#38bdf8',
+          stage4Theme: 'cyber',
+          stage4Accent: '#38bdf8',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MohamedAbdElsabour',
+          bio: 'مطور واجهات ومشارك في بناء مشاريع الويب الحديثة وتنظيم هيكلية التطبيقات التفاعلية.',
+          articleTitle: 'مقال محمد عبد الصبور',
+          article: 'مساحة مقال كاملة ومستقلة للكتابة وإضافة الصور المرتبطة بهذا البروفايل.',
+          articleImages: [],
+          skills: [
+            { label: 'تطوير الويب', percent: 90 },
+            { label: 'بناء المشاريع', percent: 87 }
+          ]
+        },
+        {
+          id: 'profile_3',
+          authId: '7272',
+          authPass: '6325',
+          name: 'محمد عادل',
+          role: 'عضو الفريق',
+          color: '#f59e0b',
+          stage4Theme: 'cyber',
+          stage4Accent: '#f59e0b',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MohamedAdel',
+          bio: 'مهتم بتطوير البرمجيات وتنسيق البيانات وتحسين تجربة الاستخدام داخل التطبيقات الجماعية.',
+          articleTitle: 'مقال محمد عادل',
+          article: 'مساحة مقال كاملة ومستقلة للكتابة وإضافة الصور المرتبطة بهذا البروفايل.',
+          articleImages: [],
+          skills: [
+            { label: 'تطوير البرمجيات', percent: 89 },
+            { label: 'تنسيق الأنظمة', percent: 86 }
+          ]
+        },
+        {
+          id: 'profile_4',
+          authId: '7321',
+          authPass: '6756',
+          name: 'ادهم احمد',
+          role: 'عضو الفريق',
+          color: '#ec4899',
+          stage4Theme: 'cyber',
+          stage4Accent: '#ec4899',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AdhamAhmed',
+          bio: 'مصمم ومطور واجهات تفاعلية يركز على التناسق البصري وسهولة التنقل بين المراحل.',
+          articleTitle: 'مقال ادهم احمد',
+          article: 'مساحة مقال كاملة ومستقلة للكتابة وإضافة الصور المرتبطة بهذا البروفايل.',
+          articleImages: [],
+          skills: [
+            { label: 'تطوير الويب', percent: 91 },
+            { label: 'التصميم والتفاعل', percent: 88 }
+          ]
+        },
+        {
+          id: 'profile_5',
+          authId: '7134',
+          authPass: '6162',
+          name: 'شهاب ابرهيم',
+          role: 'عضو الفريق',
+          color: '#8b5cf6',
+          stage4Theme: 'midnight',
+          stage4Accent: '#818cf8',
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ShehabIbrahim',
+          bio: 'مطور برمجيات يركز على تحسين الأداء واستقرار التطبيقات التفاعلية وإدارة المحتوى.',
+          articleTitle: 'مقال شهاب ابرهيم',
+          article: 'مساحة مقال كاملة ومستقلة للكتابة وإضافة الصور المرتبطة بهذا البروفايل.',
+          articleImages: [],
+          skills: [
+            { label: 'تطوير البرمجيات', percent: 92 },
+            { label: 'تحسين الأداء', percent: 89 }
+          ]
+        }
+      ];
+
+      function hexToRgba(hex, alpha) {
+        try {
+          const clean = (hex || '#f59e0b').replace('#', '');
+          const full = clean.length === 3
+            ? clean.split('').map((c) => c + c).join('')
+            : clean;
+          const num = parseInt(full, 16);
+          const r = (num >> 16) & 255;
+          const g = (num >> 8) & 255;
+          const b = num & 255;
+          return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        } catch (_) {
+          return `rgba(245, 158, 11, ${alpha})`;
+        }
+      }
+
+      function compressImageFile(file, maxSize = 480, quality = 0.82) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              let w = img.width;
+              let h = img.height;
+              if (w > h) {
+                if (w > maxSize) {
+                  h = Math.round((h * maxSize) / w);
+                  w = maxSize;
+                }
+              } else if (h > maxSize) {
+                w = Math.round((w * maxSize) / h);
+                h = maxSize;
+              }
+              canvas.width = Math.max(1, w);
+              canvas.height = Math.max(1, h);
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = reject;
+            img.src = ev.target.result;
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function createDefaultState() {
+        return {
+          currentStage: 1,
+          lampOn: false,
+          lampPreset: 'warm',
+          devUnlocked: false,
+          isGuest: true,
+          loggedInProfileId: null,
+          activeProfileId: 'profile_1',
+          activeModalProfileId: 'profile_1',
+          stage2Theme: 'cyber',
+          stage2IdeaTitle: 'مركز المواضيع التفاعلي',
+          stage2IdeaText: 'انتقل إلى الواجهة الثالثة لاستعراض البروفايلات والسيرة الذاتية، وافتح زر مقال داخل أي بروفايل للانتقال إلى صفحة المقال والصور الخاصة به.',
+          stageColors: {
+            1: '#f59e0b',
+            2: '#00f2fe',
+            3: '#00f2fe'
+          },
+          profiles: DEFAULT_PROFILES.map((p) => ({
+            ...p,
+            articleImages: [],
+            skills: p.skills.map((s) => ({ ...s }))
+          }))
+        };
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return createDefaultState();
+          const parsed = JSON.parse(raw);
+          const base = createDefaultState();
+          const profiles = Array.isArray(parsed.profiles) && parsed.profiles.length
+            ? parsed.profiles.map((p, idx) => {
+                const fb = base.profiles[idx % base.profiles.length];
+                return {
+                  ...fb,
+                  ...p,
+                  bio: typeof p.bio === 'string' ? p.bio : fb.bio,
+                  articleImages: Array.isArray(p.articleImages) ? p.articleImages : [],
+                  authId: p.authId || fb.authId,
+                  authPass: p.authPass || fb.authPass
+                };
+              })
+            : base.profiles;
+
+          return {
+            ...base,
+            ...parsed,
+            stage2Theme: STAGE2_THEMES[parsed.stage2Theme] ? parsed.stage2Theme : base.stage2Theme,
+            stage2IdeaTitle: typeof parsed.stage2IdeaTitle === 'string' ? parsed.stage2IdeaTitle : base.stage2IdeaTitle,
+            stage2IdeaText: typeof parsed.stage2IdeaText === 'string' ? parsed.stage2IdeaText : base.stage2IdeaText,
+            stageColors: { ...base.stageColors, ...(parsed.stageColors || {}) },
+            profiles
+          };
+        } catch (_) {
+          return createDefaultState();
+        }
+      }
+
+      let state = loadState();
+      let stage3SearchQuery = '';
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (_) {
+          toast('مساحة التخزين ممتلئة، استخدم رابط صورة أو صورة أصغر', 'error');
+        }
+      }
+
+      function resetPlatformToDefault() {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (_) {}
+        state = createDefaultState();
+        stage3SearchQuery = '';
+        const searchInput = document.getElementById('stage3-search-input');
+        const clearSearchBtn = document.getElementById('stage3-clear-search-btn');
+        if (searchInput) searchInput.value = '';
+        if (clearSearchBtn) clearSearchBtn.classList.add('hidden');
+        closeModal('modal-person-profile');
+        closeModal('modal-dev-login');
+        closeModal('modal-add-profile');
+        closeModal('modal-stage2-idea');
+        applyLampPresetColor(LAMP_PRESETS[state.lampPreset]?.hex || '#f59e0b', LAMP_PRESETS[state.lampPreset]?.label || 'نور دافئ');
+        syncDeveloperAndGuestControlsUI();
+        syncStage2UI();
+        goToStage(1);
+        toast('تمت إعادة تعيين المنصة بالكامل إلى الإعدادات الافتراضية', 'success');
+      }
+
+      document.querySelectorAll('[data-reset-platform="true"]').forEach((btn) => {
+        btn.addEventListener('click', resetPlatformToDefault);
+      });
+
+      function toast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const item = document.createElement('div');
+        const palette =
+          type === 'success'
+            ? 'border-cyan-400/50 bg-slate-900/95 text-cyan-200'
+            : type === 'error'
+            ? 'border-rose-400/50 bg-rose-950/90 text-rose-200'
+            : 'border-sky-400/40 bg-slate-900/95 text-slate-100';
+        item.className = `rounded-xl border ${palette} backdrop-blur px-4 py-2 text-xs sm:text-sm font-bold shadow-xl transition-all`;
+        item.textContent = message;
+        container.appendChild(item);
+        setTimeout(() => {
+          item.style.opacity = '0';
+          item.style.transform = 'translateY(6px)';
+          setTimeout(() => item.remove(), 250);
+        }, 2400);
+      }
+
+      function openModal(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+      }
+
+      function closeModal(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+      }
+
+      function getActiveProfile() {
+        return state.profiles.find((p) => p.id === state.activeProfileId) || state.profiles[0];
+      }
+
+      function getLoggedInProfile() {
+        if (!state.loggedInProfileId) return null;
+        return state.profiles.find((p) => p.id === state.loggedInProfileId) || null;
+      }
+
+      function canEditProfile(profile) {
+        if (state.isGuest) return false;
+        if (state.devUnlocked) return true;
+        const logged = getLoggedInProfile();
+        return Boolean(logged && profile && logged.id === profile.id);
+      }
+
+      function canEditStage2Idea() {
+        if (state.isGuest) return false;
+        return Boolean(state.devUnlocked || getLoggedInProfile());
+      }
+
+      function syncDeveloperAndGuestControlsUI() {
+        const showDevTools = Boolean(state.devUnlocked && !state.isGuest);
+        const devStage3Controls = document.getElementById('dev-stage3-controls');
+        if (devStage3Controls) {
+          devStage3Controls.classList.toggle('hidden', !showDevTools);
+          devStage3Controls.classList.toggle('grid', showDevTools);
+        }
+
+        ['btn-logout-dev-stage1', 'btn-logout-dev-stage2', 'btn-logout-dev-stage3'].forEach((id) => {
+          document.getElementById(id)?.classList.toggle('hidden', !showDevTools);
+        });
+
+        document.getElementById('btn-stage2-edit-idea')?.classList.toggle('hidden', !canEditStage2Idea());
+      }
+
+      function activateDeveloperAndEnter() {
+        state.devUnlocked = true;
+        state.isGuest = false;
+        saveState();
+        syncDeveloperAndGuestControlsUI();
+        syncStage2UI();
+        closeModal('modal-dev-login');
+        toast('تم الدخول بصلاحيات المطورين الكاملة', 'success');
+        goToStage(3);
+      }
+
+      function enterAsGuest() {
+        state.isGuest = true;
+        state.devUnlocked = false;
+        state.loggedInProfileId = null;
+        saveState();
+        syncDeveloperAndGuestControlsUI();
+        syncStage2UI();
+        toast('تم الدخول كزائر — التعديل مخفي بالكامل', 'info');
+        goToStage(3);
+      }
+
+      function logoutDeveloper() {
+        state.devUnlocked = false;
+        state.isGuest = true;
+        saveState();
+        syncDeveloperAndGuestControlsUI();
+        syncStage2UI();
+        toast('تم تسجيل خروج المطور', 'info');
+        goToStage(1);
+      }
+
+      function goToRegularAccountLogin() {
+        state.devUnlocked = false;
+        state.loggedInProfileId = null;
+        state.isGuest = false;
+        state.lampOn = true;
+        saveState();
+        syncDeveloperAndGuestControlsUI();
+        syncStage2UI();
+        const idInput = document.getElementById('auth-id-input');
+        const passInput = document.getElementById('auth-pass-input');
+        if (idInput) idInput.value = '';
+        if (passInput) passInput.value = '';
+        goToStage(1);
+      }
+
+      // =====================================================================
+      // LAMP & COLORS (STAGE 1)
+      // =====================================================================
+      function applyLampPresetColor(hex, labelText) {
+        const accent = hex || '#f59e0b';
+        state.stageColors[1] = accent;
+        document.documentElement.style.setProperty('--lamp-accent', accent);
+
+        const dot = document.getElementById('lamp-color-dot');
+        const label = document.getElementById('lamp-color-label');
+        const lens = document.getElementById('lamp-lens-glow');
+        const bead = document.getElementById('lamp-chain-bead');
+        const b1 = document.getElementById('beam-stop-1');
+        const b2 = document.getElementById('beam-stop-2');
+        const b3 = document.getElementById('beam-stop-3');
+        const f1 = document.getElementById('floor-stop-1');
+        const f2 = document.getElementById('floor-stop-2');
+
+        if (dot) {
+          dot.style.backgroundColor = accent;
+          dot.style.boxShadow = `0 0 10px ${accent}`;
+        }
+        if (label && labelText) label.textContent = labelText;
+        if (lens) lens.setAttribute('fill', accent);
+        if (bead) bead.setAttribute('fill', accent);
+        if (b1) b1.setAttribute('stop-color', accent);
+        if (b2) b2.setAttribute('stop-color', accent);
+        if (b3) b3.setAttribute('stop-color', accent);
+        if (f1) f1.setAttribute('stop-color', accent);
+        if (f2) f2.setAttribute('stop-color', accent);
+      }
+
+      function syncLampState() {
+        const svg = document.getElementById('lamp-svg');
+        const loginCard = document.getElementById('login-card');
+        if (svg) svg.classList.toggle('is-on', Boolean(state.lampOn));
+        if (loginCard) {
+          loginCard.classList.toggle('login-panel-unlocked', Boolean(state.lampOn));
+          loginCard.classList.toggle('login-panel-locked', !state.lampOn);
+        }
+      }
+
+      function toggleLampWithPull() {
+        const chainGroup = document.getElementById('lamp-pull-chain-group');
+        if (chainGroup) {
+          chainGroup.classList.add('is-pulling');
+          setTimeout(() => chainGroup.classList.remove('is-pulling'), 240);
+        }
+        state.lampOn = !state.lampOn;
+        saveState();
+        syncLampState();
+      }
+
+      document.getElementById('btn-toggle-lamp-light')?.addEventListener('click', toggleLampWithPull);
+
+      (function bindPullChainEvents() {
+        const chainGroup = document.getElementById('lamp-pull-chain-group');
+        if (!chainGroup) return;
+        let pointerStartY = null;
+        let triggeredByDrag = false;
+
+        chainGroup.addEventListener('pointerdown', (e) => {
+          pointerStartY = e.clientY;
+          triggeredByDrag = false;
+        });
+
+        window.addEventListener('pointermove', (e) => {
+          if (pointerStartY === null || triggeredByDrag) return;
+          if (e.clientY - pointerStartY > 14) {
+            triggeredByDrag = true;
+            toggleLampWithPull();
+          }
+        });
+
+        window.addEventListener('pointerup', () => {
+          pointerStartY = null;
+        });
+
+        chainGroup.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (triggeredByDrag) {
+            triggeredByDrag = false;
+            return;
+          }
+          toggleLampWithPull();
+        });
+      })();
+
+      document.querySelectorAll('[data-lamp-preset]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const presetKey = btn.getAttribute('data-lamp-preset');
+          const preset = LAMP_PRESETS[presetKey];
+          if (!preset) return;
+          state.lampPreset = presetKey;
+          state.stageColors[1] = preset.hex;
+          saveState();
+          applyLampPresetColor(preset.hex, preset.label);
+        });
+      });
+
+      document.getElementById('btn-cycle-lamp-color')?.addEventListener('click', () => {
+        const keys = Object.keys(LAMP_PRESETS);
+        const currentIdx = Math.max(0, keys.indexOf(state.lampPreset));
+        const nextKey = keys[(currentIdx + 1) % keys.length];
+        const nextPreset = LAMP_PRESETS[nextKey];
+        state.lampPreset = nextKey;
+        state.stageColors[1] = nextPreset.hex;
+        saveState();
+        applyLampPresetColor(nextPreset.hex, nextPreset.label);
+      });
+
+      // Developer Login Modal (Passcode: 75321 -> Instant Entry)
+      document.getElementById('btn-open-dev-login')?.addEventListener('click', () => {
+        const input = document.getElementById('dev-pass-input');
+        if (input) input.value = '';
+        openModal('modal-dev-login');
+      });
+      document.getElementById('close-dev-login-btn')?.addEventListener('click', () => closeModal('modal-dev-login'));
+      document.getElementById('cancel-dev-login-btn')?.addEventListener('click', () => closeModal('modal-dev-login'));
+
+      document.getElementById('dev-confirm-login-btn')?.addEventListener('click', () => {
+        const passVal = (document.getElementById('dev-pass-input')?.value || '').trim();
+        if (passVal !== DEV_PASS) {
+          toast('باسورد المطورين غير صحيح', 'error');
+          return;
+        }
+        activateDeveloperAndEnter();
+      });
+
+      ['btn-logout-dev-stage1', 'btn-logout-dev-stage2', 'btn-logout-dev-stage3'].forEach((id) => {
+        document.getElementById(id)?.addEventListener('click', logoutDeveloper);
+      });
+
+      ['btn-switch-regular-stage2', 'btn-switch-regular-stage3'].forEach((id) => {
+        document.getElementById(id)?.addEventListener('click', goToRegularAccountLogin);
+      });
+
+      document.getElementById('btn-guest-login')?.addEventListener('click', () => {
+        if (!state.lampOn) {
+          toast('اسحب حبل المصباح أولاً لتشغيل الإضاءة', 'info');
+          return;
+        }
+        enterAsGuest();
+      });
+
+      // =====================================================================
+      // STAGE 2: COLOR/BG SWITCHER + IDEA TITLE & TEXT
+      // =====================================================================
+      function applyStage2Theme(themeKey) {
+        const key = STAGE2_THEMES[themeKey] ? themeKey : 'cyber';
+        const themeObj = STAGE2_THEMES[key];
+        state.stage2Theme = key;
+        state.stageColors[2] = themeObj.accent;
+        document.documentElement.style.setProperty('--stage2-accent', themeObj.accent);
+
+        const sec = document.getElementById('stage-2');
+        if (sec) {
+          Object.values(STAGE2_THEMES).forEach((t) => sec.classList.remove(t.className));
+          sec.classList.add(themeObj.className);
+        }
+
+        const labelEl = document.getElementById('stage2-theme-name');
+        if (labelEl) labelEl.textContent = themeObj.label;
+
+        const boxEl = document.getElementById('stage2-idea-box');
+        if (boxEl) boxEl.style.borderColor = hexToRgba(themeObj.accent, 0.35);
+      }
+
+      function syncStage2UI() {
+        applyStage2Theme(state.stage2Theme);
+
+        const titleEl = document.getElementById('stage2-idea-title');
+        const textEl = document.getElementById('stage2-idea-text');
+        if (titleEl) titleEl.textContent = state.stage2IdeaTitle || 'مركز المواضيع التفاعلي';
+        if (textEl) textEl.textContent = state.stage2IdeaText || '';
+
+        const badge = document.getElementById('stage2-signed-user-badge');
+        const myEditorBtn = document.getElementById('btn-open-my-profile-editor');
+        const logged = getLoggedInProfile();
+
+        if (state.devUnlocked && !state.isGuest) {
+          if (badge) badge.textContent = 'وضع المطورين (كامل الصلاحيات)';
+        } else if (logged && !state.isGuest) {
+          if (badge) badge.textContent = `${logged.name}`;
+        } else {
+          if (badge) badge.textContent = 'وضع زائر (قراءة فقط)';
+        }
+
+        if (!state.isGuest && (logged || state.devUnlocked)) {
+          const target = logged || getActiveProfile();
+          if (myEditorBtn) {
+            myEditorBtn.classList.remove('hidden');
+            myEditorBtn.textContent = state.devUnlocked
+              ? `تعديل البروفايل (${target.name})`
+              : `تعديل بروفايلي (${target.name})`;
+          }
+        } else {
+          myEditorBtn?.classList.add('hidden');
+        }
+
+        document.getElementById('btn-stage2-edit-idea')?.classList.toggle('hidden', !canEditStage2Idea());
+      }
+
+      document.getElementById('btn-stage2-cycle-theme')?.addEventListener('click', () => {
+        const keys = Object.keys(STAGE2_THEMES);
+        const idx = Math.max(0, keys.indexOf(state.stage2Theme));
+        const nextKey = keys[(idx + 1) % keys.length];
+        applyStage2Theme(nextKey);
+        saveState();
+        toast(`تم تغيير اللون والخلفية إلى: ${STAGE2_THEMES[nextKey].label}`, 'success');
+      });
+
+      document.getElementById('btn-stage2-edit-idea')?.addEventListener('click', () => {
+        if (!canEditStage2Idea()) return;
+        const titleInput = document.getElementById('stage2-idea-title-input');
+        const textInput = document.getElementById('stage2-idea-text-input');
+        if (titleInput) titleInput.value = state.stage2IdeaTitle || '';
+        if (textInput) textInput.value = state.stage2IdeaText || '';
+        openModal('modal-stage2-idea');
+      });
+
+      document.getElementById('close-stage2-idea-btn')?.addEventListener('click', () => closeModal('modal-stage2-idea'));
+      document.getElementById('cancel-stage2-idea-btn')?.addEventListener('click', () => closeModal('modal-stage2-idea'));
+
+      document.getElementById('save-stage2-idea-btn')?.addEventListener('click', () => {
+        if (!canEditStage2Idea()) return;
+        const titleVal = (document.getElementById('stage2-idea-title-input')?.value || '').trim();
+        const textVal = (document.getElementById('stage2-idea-text-input')?.value || '').trim();
+        state.stage2IdeaTitle = titleVal || 'مركز المواضيع التفاعلي';
+        state.stage2IdeaText = textVal;
+        saveState();
+        syncStage2UI();
+        closeModal('modal-stage2-idea');
+        toast('تم حفظ عنوان ونص الفكرة', 'success');
+      });
+
+      document.getElementById('login-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!state.lampOn) {
+          toast('اسحب حبل المصباح أولاً لتشغيل الإضاءة', 'info');
+          return;
+        }
+
+        const idVal = (document.getElementById('auth-id-input')?.value || '').trim();
+        const passVal = (document.getElementById('auth-pass-input')?.value || '').trim();
+        const errorEl = document.getElementById('login-error-msg');
+
+        if (!idVal && !passVal) {
+          if (errorEl) errorEl.classList.add('hidden');
+          enterAsGuest();
+          return;
+        }
+
+        if (passVal === DEV_PASS && (!idVal || idVal === DEV_PASS)) {
+          if (errorEl) errorEl.classList.add('hidden');
+          activateDeveloperAndEnter();
+          return;
+        }
+
+        const matched = state.profiles.find((p) => p.authId === idVal && p.authPass === passVal);
+        if (!matched) {
+          if (errorEl) {
+            errorEl.textContent = 'الـ ID أو الباسورد غير صحيح';
+            errorEl.classList.remove('hidden');
+          }
+          toast('الـ ID أو الباسورد غير صحيح', 'error');
+          return;
+        }
+
+        if (errorEl) errorEl.classList.add('hidden');
+        state.isGuest = false;
+        state.loggedInProfileId = matched.id;
+        state.activeProfileId = matched.id;
+        state.activeModalProfileId = matched.id;
+        saveState();
+        syncDeveloperAndGuestControlsUI();
+        syncStage2UI();
+        toast(`أهلاً ${matched.name} — تم فتح تعديل بروفايلك`, 'success');
+        goToStage(3);
+        openPersonProfileModal(matched, true);
+      });
+
+      document.getElementById('btn-open-my-profile-editor')?.addEventListener('click', () => {
+        if (state.isGuest) return;
+        const target = getLoggedInProfile() || getActiveProfile();
+        if (!target) return;
+        goToStage(3);
+        openPersonProfileModal(target, true);
+      });
+
+      // =====================================================================
+      // STAGE 2 CANVAS
+      // =====================================================================
+      (function initStage2Canvas() {
+        const canvas = document.getElementById('stage2-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        let particles = [];
+        const count = 48;
+
+        function resizeCanvas() {
+          const w = Math.max(1, window.innerWidth);
+          const h = Math.max(1, window.innerHeight);
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          canvas.width = Math.floor(w * dpr);
+          canvas.height = Math.floor(h * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function seedParticles() {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          particles = Array.from({ length: count }, () => ({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            vx: (Math.random() - 0.5) * 0.45,
+            vy: (Math.random() - 0.5) * 0.45,
+            r: 1.4 + Math.random() * 2.2
+          }));
+        }
+
+        resizeCanvas();
+        seedParticles();
+        window.addEventListener('resize', () => {
+          resizeCanvas();
+          seedParticles();
+        });
+
+        function step() {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+          const accent = state.stageColors[2] || '#00f2fe';
+          ctx.clearRect(0, 0, w, h);
+
+          for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0 || p.x > w) p.vx *= -1;
+            if (p.y < 0 || p.y > h) p.vy *= -1;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = hexToRgba(accent, 0.55);
+            ctx.fill();
+          }
+
+          requestAnimationFrame(step);
+        }
+
+        requestAnimationFrame(step);
+      })();
+
+      document.getElementById('btn-back-to-stage1')?.addEventListener('click', () => goToStage(1));
+      document.getElementById('btn-open-topic-center')?.addEventListener('click', () => goToStage(3));
+
+      // =====================================================================
+      // STAGE 3: AUTO-ORBIT + TOUCH/DRAG + SEARCH/FILTER PROFILE EXPLORER
+      // =====================================================================
+      let orbitAngle = 0;
+      let orbitVelocity = 0;
+      let isInteractingOrbit = false;
+      let lastPointerX = 0;
+      let pointerDownX = 0;
+      let pointerDownY = 0;
+      let hasDraggedPastThreshold = false;
+      const AUTO_ORBIT_SPEED = 0.24;
+
+      function getFilteredProfiles() {
+        const q = (stage3SearchQuery || '').trim().toLowerCase();
+        if (!q) return state.profiles;
+        return state.profiles.filter(
+          (p) =>
+            (p.name || '').toLowerCase().includes(q) ||
+            (p.role || '').toLowerCase().includes(q)
+        );
+      }
+
+      function selectProfileById(id, openModalAfter = false) {
+        const idx = state.profiles.findIndex((p) => p.id === id);
+        if (idx === -1) return;
+        state.activeProfileId = id;
+        const count = Math.max(1, state.profiles.length);
+        orbitAngle = -idx * (360 / count);
+        orbitVelocity = 0;
+        saveState();
+        renderStage3();
+        if (openModalAfter) {
+          openPersonProfileModal(state.profiles[idx], canEditProfile(state.profiles[idx]));
+        }
+      }
+
+      function renderOrbitCards() {
+        const track = document.getElementById('orbit-ring-track');
+        if (!track) return;
+        track.innerHTML = '';
+
+        const list = state.profiles;
+        const count = Math.max(1, list.length);
+        const stepRad = (Math.PI * 2) / count;
+        const radiusX = window.innerWidth < 640 ? 120 : 225;
+        const radiusZ = window.innerWidth < 640 ? 90 : 165;
+        const baseRad = (orbitAngle * Math.PI) / 180;
+
+        list.forEach((profile, idx) => {
+          const theta = baseRad + idx * stepRad;
+          const x = Math.sin(theta) * radiusX;
+          const z = Math.cos(theta) * radiusZ;
+          const depthRatio = (z + radiusZ) / (radiusZ * 2);
+          const scale = 0.72 + depthRatio * 0.34;
+          const opacity = 0.44 + depthRatio * 0.56;
+
+          const card = document.createElement('div');
+          const isSelected = profile.id === state.activeProfileId;
+          card.className = `orbit-card p-3.5 text-center ${isSelected ? 'is-featured' : ''}`;
+          card.style.transform = `translate3d(${x.toFixed(1)}px, 0px, ${z.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+          card.style.opacity = opacity.toFixed(2);
+          card.style.zIndex = String(Math.round(10 + depthRatio * 40));
+          card.style.borderColor = isSelected ? (profile.color || '#00f2fe') : 'rgba(148, 163, 184, 0.22)';
+
+          const avatarSrc =
+            profile.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile.name)}`;
+
+          card.innerHTML = `
+            <img
+              src="${avatarSrc}"
+              alt="${profile.name}"
+              onerror="this.onerror=null;this.src='https://placehold.co/72x72/0f172a/00f2fe?text=DEV';"
+              class="w-12 h-12 sm:w-14 sm:h-14 rounded-full mx-auto object-cover border-2 bg-slate-900"
+              style="border-color:${profile.color || '#00f2fe'};"
+            />
+            <div class="mt-2.5 text-xs sm:text-sm font-black text-white truncate">${profile.name}</div>
+            <div class="mt-0.5 text-[10px] sm:text-[11px] text-slate-300 truncate">${profile.role}</div>
+          `;
+
+          let cardDownX = 0;
+          let cardDownY = 0;
+
+          card.addEventListener('pointerdown', (e) => {
+            cardDownX = e.clientX;
+            cardDownY = e.clientY;
+          });
+
+          const triggerOpenCardProfile = (e) => {
+            if (e) e.stopPropagation();
+            if (hasDraggedPastThreshold) return;
+            state.activeProfileId = profile.id;
+            state.activeModalProfileId = profile.id;
+            orbitVelocity = 0;
+            saveState();
+            updateSpotlightOnly();
+            openPersonProfileModal(profile, canEditProfile(profile));
+          };
+
+          card.addEventListener('pointerup', (e) => {
+            const movedDist = Math.hypot(e.clientX - cardDownX, e.clientY - cardDownY);
+            if (movedDist < 10 && !hasDraggedPastThreshold) {
+              triggerOpenCardProfile(e);
+            }
+          });
+
+          card.addEventListener('click', (e) => {
+            if (e.detail === 0 || !hasDraggedPastThreshold) {
+              triggerOpenCardProfile(e);
+            }
+          });
+
+          track.appendChild(card);
+        });
+      }
+
+      function updateSpotlightOnly() {
+        const active = getActiveProfile();
+        const filtered = getFilteredProfiles();
+        const countBadge = document.getElementById('stage3-count-badge');
+        const listCountBadge = document.getElementById('stage3-list-title-count');
+        if (countBadge) countBadge.textContent = String(state.profiles.length);
+        if (listCountBadge) listCountBadge.textContent = String(filtered.length);
+
+        const avatarEl = document.getElementById('featured-profile-avatar');
+        const nameEl = document.getElementById('featured-profile-name');
+        const roleEl = document.getElementById('featured-profile-role');
+        const bioEl = document.getElementById('featured-profile-bio');
+        const barEl = document.getElementById('stage3-featured-bar');
+
+        if (avatarEl) {
+          avatarEl.src =
+            active.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(active.name)}`;
+          avatarEl.style.borderColor = active.color || '#00f2fe';
+        }
+        if (nameEl) nameEl.textContent = active.name;
+        if (roleEl) {
+          roleEl.textContent = active.role;
+          roleEl.style.borderColor = hexToRgba(active.color || '#00f2fe', 0.45);
+          roleEl.style.color = active.color || '#00f2fe';
+        }
+        if (bioEl) bioEl.textContent = active.bio || 'لا توجد سيرة ذاتية مضافة بعد.';
+        if (barEl) barEl.style.borderColor = hexToRgba(active.color || '#00f2fe', 0.35);
+
+        document.querySelectorAll('[data-profile-list-id]').forEach((row) => {
+          const rid = row.getAttribute('data-profile-list-id');
+          const selected = rid === active.id;
+          row.className = selected
+            ? 'w-full text-right rounded-2xl border border-cyan-400/60 bg-cyan-500/15 p-3 transition cursor-pointer'
+            : 'w-full text-right rounded-2xl border border-slate-800/90 bg-slate-900/70 hover:bg-slate-800/80 p-3 transition cursor-pointer';
+        });
+      }
+
+      function renderStage3() {
+        syncDeveloperAndGuestControlsUI();
+        const active = getActiveProfile();
+        const filtered = getFilteredProfiles();
+        const listEl = document.getElementById('stage3-profile-list');
+        if (listEl) {
+          listEl.innerHTML = '';
+          if (!filtered.length) {
+            listEl.innerHTML = `
+              <div class="rounded-2xl border border-dashed border-slate-800 bg-slate-950/50 p-4 text-center text-xs text-slate-400">
+                لا توجد نتائج مطابقة للبحث.
+              </div>
+            `;
+          } else {
+            filtered.forEach((p) => {
+              const selected = p.id === active.id;
+              const avatarSrc = p.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(p.name)}`;
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.setAttribute('data-profile-list-id', p.id);
+              btn.className = selected
+                ? 'w-full text-right rounded-2xl border border-cyan-400/60 bg-cyan-500/15 p-3 transition cursor-pointer'
+                : 'w-full text-right rounded-2xl border border-slate-800/90 bg-slate-900/70 hover:bg-slate-800/80 p-3 transition cursor-pointer';
+              btn.innerHTML = `
+                <div class="flex items-center justify-between gap-2.5">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <img
+                      src="${avatarSrc}"
+                      alt="${p.name}"
+                      onerror="this.onerror=null;this.src='https://placehold.co/48x48/0f172a/00f2fe?text=DEV';"
+                      class="w-9 h-9 rounded-full object-cover border shrink-0 bg-slate-950"
+                      style="border-color:${p.color || '#00f2fe'};"
+                    />
+                    <div class="min-w-0">
+                      <div class="text-xs sm:text-sm font-black text-white truncate">${p.name}</div>
+                      <div class="text-[11px] text-slate-400 truncate">${p.role}</div>
+                    </div>
+                  </div>
+                  <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${p.color || '#00f2fe'};"></span>
+                </div>
+              `;
+              btn.addEventListener('click', () => {
+                selectProfileById(p.id, true);
+              });
+              listEl.appendChild(btn);
+            });
+          }
+        }
+
+        updateSpotlightOnly();
+        renderOrbitCards();
+      }
+
+      document.getElementById('stage3-search-input')?.addEventListener('input', (e) => {
+        stage3SearchQuery = e.target.value || '';
+        document.getElementById('stage3-clear-search-btn')?.classList.toggle('hidden', !stage3SearchQuery.trim());
+        renderStage3();
+      });
+
+      document.getElementById('stage3-clear-search-btn')?.addEventListener('click', () => {
+        stage3SearchQuery = '';
+        const input = document.getElementById('stage3-search-input');
+        if (input) input.value = '';
+        document.getElementById('stage3-clear-search-btn')?.classList.add('hidden');
+        renderStage3();
+      });
+
+      document.getElementById('btn-dev-edit-active')?.addEventListener('click', () => {
+        if (!state.devUnlocked || state.isGuest) return;
+        const active = getActiveProfile();
+        openPersonProfileModal(active, true);
+      });
+
+      document.getElementById('btn-dev-add-profile')?.addEventListener('click', () => {
+        if (!state.devUnlocked || state.isGuest) return;
+        ['add-item-name', 'add-item-role', 'add-item-avatar', 'add-item-bio', 'add-item-article-title', 'add-item-article'].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+        openModal('modal-add-profile');
+      });
+
+      document.getElementById('add-item-avatar-file')?.addEventListener('change', async (e) => {
+        if (!state.devUnlocked || state.isGuest) return;
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const dataUrl = await compressImageFile(file, 240, 0.82);
+          const urlInput = document.getElementById('add-item-avatar');
+          if (urlInput) urlInput.value = dataUrl;
+          toast('تم تجهيز صورة البروفايل', 'success');
+        } catch (_) {
+          toast('تعذر قراءة ملف الصورة', 'error');
+        }
+      });
+
+      document.getElementById('close-add-profile-btn')?.addEventListener('click', () => closeModal('modal-add-profile'));
+      document.getElementById('cancel-add-profile-btn')?.addEventListener('click', () => closeModal('modal-add-profile'));
+
+      document.getElementById('confirm-add-item-btn')?.addEventListener('click', () => {
+        if (!state.devUnlocked || state.isGuest) return;
+        const nameVal = (document.getElementById('add-item-name')?.value || '').trim();
+        if (!nameVal) {
+          toast('أدخل الاسم أولاً', 'error');
+          return;
+        }
+        const roleVal = (document.getElementById('add-item-role')?.value || '').trim();
+        const avatarVal = (document.getElementById('add-item-avatar')?.value || '').trim();
+        const bioVal = (document.getElementById('add-item-bio')?.value || '').trim();
+        const artTitleVal = (document.getElementById('add-item-article-title')?.value || '').trim();
+        const artBodyVal = (document.getElementById('add-item-article')?.value || '').trim();
+        const colorVal = document.getElementById('add-item-color')?.value || '#38bdf8';
+
+        const newId = `profile_${Date.now()}`;
+        state.profiles.push({
+          id: newId,
+          authId: String(Math.floor(1000 + Math.random() * 9000)),
+          authPass: String(Math.floor(1000 + Math.random() * 9000)),
+          name: nameVal,
+          role: roleVal || 'عضو فريق',
+          color: colorVal,
+          stage4Theme: 'cyber',
+          stage4Accent: colorVal,
+          avatar: avatarVal || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(nameVal)}`,
+          bio: bioVal || `سيرة ذاتية خاصة بالعضو ${nameVal}.`,
+          articleTitle: artTitleVal || `مقال ${nameVal}`,
+          article: artBodyVal || 'محتوى مقال جديد.',
+          articleImages: [],
+          skills: [{ label: 'تطوير البرمجيات', percent: 90 }]
+        });
+        state.activeProfileId = newId;
+        saveState();
+        renderStage3();
+        closeModal('modal-add-profile');
+        toast(`تمت إضافة "${nameVal}"`, 'success');
+      });
+
+      document.getElementById('btn-dev-remove-profile')?.addEventListener('click', () => {
+        if (!state.devUnlocked || state.isGuest) return;
+        if (state.profiles.length <= 1) {
+          toast('يجب الإبقاء على بروفايل واحد على الأقل', 'error');
+          return;
+        }
+        const active = getActiveProfile();
+        state.profiles = state.profiles.filter((p) => p.id !== active.id);
+        state.activeProfileId = state.profiles[0].id;
+        saveState();
+        renderStage3();
+        toast(`تمت إزالة "${active.name}"`, 'info');
+      });
+
+      (function bindOrbitControls() {
+        const arena = document.getElementById('orbit-arena');
+        if (!arena) return;
+
+        arena.addEventListener('pointerdown', (e) => {
+          isInteractingOrbit = true;
+          lastPointerX = e.clientX;
+          pointerDownX = e.clientX;
+          pointerDownY = e.clientY;
+          hasDraggedPastThreshold = false;
+          orbitVelocity = 0;
+        });
+
+        window.addEventListener('pointermove', (e) => {
+          if (!isInteractingOrbit) return;
+          const totalDist = Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY);
+          if (totalDist > 10) hasDraggedPastThreshold = true;
+          const dx = e.clientX - lastPointerX;
+          lastPointerX = e.clientX;
+          const deltaDeg = dx * 0.38;
+          orbitAngle += deltaDeg;
+          orbitVelocity = deltaDeg * 0.65;
+          renderOrbitCards();
+        });
+
+        function releaseOrbitInteraction() {
+          if (!isInteractingOrbit) return;
+          isInteractingOrbit = false;
+          setTimeout(() => {
+            hasDraggedPastThreshold = false;
+          }, 40);
+        }
+
+        window.addEventListener('pointerup', releaseOrbitInteraction);
+        window.addEventListener('pointercancel', releaseOrbitInteraction);
+
+        function animateOrbitLoop() {
+          if (state.currentStage === 3) {
+            if (!isInteractingOrbit) {
+              orbitAngle += AUTO_ORBIT_SPEED + orbitVelocity;
+              orbitVelocity *= 0.92;
+              if (Math.abs(orbitVelocity) < 0.01) orbitVelocity = 0;
+              if (orbitAngle > 360000 || orbitAngle < -360000) orbitAngle = orbitAngle % 360;
+            }
+            renderOrbitCards();
+          }
+          requestAnimationFrame(animateOrbitLoop);
+        }
+
+        requestAnimationFrame(animateOrbitLoop);
+      })();
+
+      (function bindProfileCardTouchTilt() {
+        const detailCard = document.getElementById('person-detail-card');
+        if (!detailCard) return;
+
+        function updateTilt(clientX, clientY) {
+          const rect = detailCard.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+          const nx = ((clientX - rect.left) / rect.width - 0.5) * 2;
+          const ny = ((clientY - rect.top) / rect.height - 0.5) * 2;
+          detailCard.style.transform = `perspective(950px) rotateX(${(-ny * 5).toFixed(2)}deg) rotateY(${(nx * 6).toFixed(2)}deg)`;
+        }
+
+        detailCard.addEventListener('pointermove', (e) => updateTilt(e.clientX, e.clientY));
+        detailCard.addEventListener('pointerleave', () => {
+          detailCard.style.transform = 'perspective(950px) rotateX(0deg) rotateY(0deg)';
+        });
+        detailCard.addEventListener('pointercancel', () => {
+          detailCard.style.transform = 'perspective(950px) rotateX(0deg) rotateY(0deg)';
+        });
+      })();
+
+      (function initThreeOrbitRing() {
+        const canvas = document.getElementById('three-orbit-canvas');
+        if (!canvas || typeof THREE === 'undefined') return;
+        try {
+          const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+          const scene = new THREE.Scene();
+          const camera = new THREE.PerspectiveCamera(45, 2, 0.1, 100);
+          camera.position.set(0, 2.2, 6.2);
+          camera.lookAt(0, 0, 0);
+
+          const torusGeo = new THREE.TorusGeometry(2.35, 0.018, 12, 100);
+          torusGeo.rotateX(Math.PI / 2);
+          const torusMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe, transparent: true, opacity: 0.34 });
+          const ringMesh = new THREE.Mesh(torusGeo, torusMat);
+          scene.add(ringMesh);
+
+          function resizeThree() {
+            const parent = canvas.parentElement;
+            if (!parent) return;
+            camera.aspect = Math.max(1, parent.clientWidth) / Math.max(1, parent.clientHeight);
+            camera.updateProjectionMatrix();
+            renderer.setSize(Math.max(1, parent.clientWidth), Math.max(1, parent.clientHeight), false);
+          }
+
+          resizeThree();
+          window.addEventListener('resize', resizeThree);
+
+          function renderThree() {
+            ringMesh.rotation.y = (orbitAngle * Math.PI) / 180;
+            try {
+              ringMesh.material.color.set(state.stageColors[3] || '#00f2fe');
+            } catch (_) {}
+            renderer.render(scene, camera);
+            requestAnimationFrame(renderThree);
+          }
+
+          requestAnimationFrame(renderThree);
+        } catch (_) {}
+      })();
+
+      document.getElementById('btn-orbit-prev')?.addEventListener('click', () => {
+        orbitAngle += 360 / Math.max(1, state.profiles.length);
+        renderOrbitCards();
+      });
+
+      document.getElementById('btn-orbit-next')?.addEventListener('click', () => {
+        orbitAngle -= 360 / Math.max(1, state.profiles.length);
+        renderOrbitCards();
+      });
+
+      document.getElementById('btn-open-featured-modal')?.addEventListener('click', () => {
+        const active = getActiveProfile();
+        openPersonProfileModal(active, canEditProfile(active));
+      });
+
+      document.getElementById('btn-featured-open-article')?.addEventListener('click', () => {
+        const active = getActiveProfile();
+        openStage4ForProfile(active.id);
+      });
+
+      document.getElementById('btn-back-to-stage2')?.addEventListener('click', () => goToStage(2));
+
+      // =====================================================================
+      // PROFILE MODAL + AVATAR & BIO EDITOR + STAGE 4 ARTICLE & IMAGES
+      // =====================================================================
+      let draftStage4Theme = 'cyber';
+      let draftStage4Accent = '#00f2fe';
+      let draftAvatarDataUrl = '';
+      let draftArticleImages = [];
+
+      function setOwnerEditorVisibility(profile, openPanel = false) {
+        const toggleBtn = document.getElementById('btn-toggle-owner-editor');
+        const panel = document.getElementById('owner-profile-editor-panel');
+        const headingEl = document.getElementById('owner-editor-heading');
+        const allowed = canEditProfile(profile);
+
+        if (!allowed) {
+          toggleBtn?.classList.add('hidden');
+          panel?.classList.add('hidden');
+          return;
+        }
+
+        const currentAvatar =
+          profile.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile.name)}`;
+        draftAvatarDataUrl = currentAvatar;
+
+        toggleBtn?.classList.remove('hidden');
+        if (headingEl) {
+          headingEl.textContent = state.devUnlocked
+            ? `تعديل البروفايل والصورة والسيرة (${profile.name})`
+            : 'تعديل بروفايلي وصورتي وسيرتي الذاتية';
+        }
+        document.getElementById('owner-edit-avatar-preview').src = currentAvatar;
+        document.getElementById('owner-edit-avatar-url').value = currentAvatar.startsWith('data:') ? '' : currentAvatar;
+        document.getElementById('owner-edit-name').value = profile.name || '';
+        document.getElementById('owner-edit-role').value = profile.role || '';
+        document.getElementById('owner-edit-bio').value = profile.bio || '';
+
+        if (openPanel) {
+          panel?.classList.remove('hidden');
+        } else {
+          panel?.classList.add('hidden');
+        }
+      }
+
+      document.getElementById('owner-edit-avatar-file')?.addEventListener('change', async (e) => {
+        const p = state.profiles.find((item) => item.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(p)) return;
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const dataUrl = await compressImageFile(file, 240, 0.82);
+          draftAvatarDataUrl = dataUrl;
+          const previewEl = document.getElementById('owner-edit-avatar-preview');
+          const urlInput = document.getElementById('owner-edit-avatar-url');
+          if (previewEl) previewEl.src = dataUrl;
+          if (urlInput) urlInput.value = '';
+          toast('تم تحميل الصورة — اضغط حفظ التعديلات لتثبيتها', 'success');
+        } catch (_) {
+          toast('تعذر تحميل الصورة، جرب صورة أخرى', 'error');
+        }
+      });
+
+      document.getElementById('owner-edit-avatar-url')?.addEventListener('input', (e) => {
+        const p = state.profiles.find((item) => item.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(p)) return;
+        const val = (e.target.value || '').trim();
+        if (!val) return;
+        draftAvatarDataUrl = val;
+        const previewEl = document.getElementById('owner-edit-avatar-preview');
+        if (previewEl) previewEl.src = val;
+      });
+
+      document.getElementById('btn-reset-owner-avatar')?.addEventListener('click', () => {
+        const p = state.profiles.find((item) => item.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(p)) return;
+        const fallback = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(p.name || 'User')}`;
+        draftAvatarDataUrl = fallback;
+        const previewEl = document.getElementById('owner-edit-avatar-preview');
+        const urlInput = document.getElementById('owner-edit-avatar-url');
+        if (previewEl) previewEl.src = fallback;
+        if (urlInput) urlInput.value = fallback;
+      });
+
+      function openPersonProfileModal(profile, openEditorDirectly = false) {
+        const target = profile || getActiveProfile();
+        if (!target) return;
+
+        state.activeProfileId = target.id;
+        state.activeModalProfileId = target.id;
+        saveState();
+        updateSpotlightOnly();
+
+        const accent = target.color || '#00f2fe';
+        const detailCard = document.getElementById('person-detail-card');
+        if (detailCard) {
+          detailCard.style.transform = 'perspective(950px) rotateX(0deg) rotateY(0deg)';
+          detailCard.style.borderColor = accent;
+          detailCard.style.boxShadow = `0 0 42px -8px ${accent}, 0 25px 70px rgba(0, 0, 0, 0.9)`;
+        }
+
+        const nameEl = document.getElementById('detail-person-name');
+        const roleEl = document.getElementById('detail-person-role');
+        const avatarEl = document.getElementById('detail-person-avatar');
+        const bioEl = document.getElementById('detail-person-bio');
+        const artTitleEl = document.getElementById('detail-article-title');
+        const artMediaEl = document.getElementById('detail-article-media-summary');
+        const skillsBox = document.getElementById('detail-skills-list');
+
+        if (nameEl) nameEl.textContent = target.name;
+        if (roleEl) {
+          roleEl.textContent = target.role;
+          roleEl.style.color = accent;
+        }
+        if (avatarEl) {
+          avatarEl.src =
+            target.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(target.name)}`;
+          avatarEl.parentElement.style.borderColor = accent;
+        }
+        if (bioEl) {
+          bioEl.textContent = target.bio || 'لا توجد سيرة ذاتية مضافة لهذا البروفايل بعد.';
+        }
+
+        const imgCount = Array.isArray(target.articleImages) ? target.articleImages.length : 0;
+        if (artTitleEl) artTitleEl.textContent = target.articleTitle || `مقال ${target.name}`;
+        if (artMediaEl) {
+          artMediaEl.textContent = `يحتوي على ${imgCount} ${imgCount === 1 ? 'صورة مرفقة' : 'صور مرفقة'} — اضغط "مقال" لفتح صفحة المقال الكاملة.`;
+        }
+
+        if (skillsBox) {
+          skillsBox.innerHTML = '';
+          (target.skills || [{ label: 'تطوير البرمجيات', percent: 90 }]).forEach((sk) => {
+            const pct = Math.max(0, Math.min(100, Number(sk.percent) || 85));
+            const row = document.createElement('div');
+            row.className = 'space-y-1.5';
+            row.innerHTML = `
+              <div class="flex items-center justify-between text-xs font-bold text-slate-200">
+                <span>${sk.label}</span>
+                <span class="font-code" style="color:${accent};">${pct}%</span>
+              </div>
+              <div class="w-full h-2.5 rounded-full bg-slate-900 overflow-hidden border border-slate-800">
+                <div class="h-full rounded-full transition-all duration-500" style="width:${pct}%; background:${accent};"></div>
+              </div>
+            `;
+            skillsBox.appendChild(row);
+          });
+        }
+
+        setOwnerEditorVisibility(target, openEditorDirectly && !state.isGuest);
+        openModal('modal-person-profile');
+      }
+
+      document.getElementById('btn-toggle-owner-editor')?.addEventListener('click', () => {
+        const p = state.profiles.find((item) => item.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(p)) return;
+        document.getElementById('owner-profile-editor-panel')?.classList.toggle('hidden');
+      });
+
+      document.getElementById('btn-save-owner-profile')?.addEventListener('click', () => {
+        const idx = state.profiles.findIndex((p) => p.id === state.activeModalProfileId);
+        if (idx === -1 || !canEditProfile(state.profiles[idx])) return;
+
+        const nameVal = (document.getElementById('owner-edit-name')?.value || '').trim();
+        const roleVal = (document.getElementById('owner-edit-role')?.value || '').trim();
+        const bioVal = (document.getElementById('owner-edit-bio')?.value || '').trim();
+        const urlInputVal = (document.getElementById('owner-edit-avatar-url')?.value || '').trim();
+
+        if (draftAvatarDataUrl) {
+          state.profiles[idx].avatar = draftAvatarDataUrl;
+        } else if (urlInputVal) {
+          state.profiles[idx].avatar = urlInputVal;
+        }
+
+        if (nameVal) state.profiles[idx].name = nameVal;
+        if (roleVal) state.profiles[idx].role = roleVal;
+        state.profiles[idx].bio = bioVal;
+
+        saveState();
+        syncStage2UI();
+        renderStage3();
+        openPersonProfileModal(state.profiles[idx], true);
+        toast('تم حفظ الصورة والسيرة الذاتية وبيانات البروفايل', 'success');
+      });
+
+      document.getElementById('close-person-profile-btn')?.addEventListener('click', () => {
+        closeModal('modal-person-profile');
+      });
+
+      document.getElementById('detail-action-email')?.addEventListener('click', () => {
+        const p = state.profiles.find((item) => item.id === state.activeModalProfileId) || getActiveProfile();
+        toast(`بروفايل ${p.name}`, 'info');
+      });
+
+      document.getElementById('detail-action-github')?.addEventListener('click', () => {
+        const p = state.profiles.find((item) => item.id === state.activeModalProfileId) || getActiveProfile();
+        toast(`ملف ${p.name} جاهز للاستعراض`, 'info');
+      });
+
+      // Stage 4: Article + Article Images
+      function renderStage4ArticleImages() {
+        const gridEl = document.getElementById('stage4-article-images-grid');
+        const countEl = document.getElementById('stage4-images-count');
+        const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+        const editable = canEditProfile(target);
+
+        if (countEl) countEl.textContent = String(draftArticleImages.length);
+        if (!gridEl) return;
+
+        if (!draftArticleImages.length) {
+          gridEl.innerHTML = `
+            <div class="col-span-full rounded-2xl border border-dashed border-slate-700/80 bg-slate-900/40 p-6 text-center text-xs sm:text-sm text-slate-400">
+              لا توجد صور مضافة لهذا المقال بعد.
+            </div>
+          `;
+          return;
+        }
+
+        gridEl.innerHTML = '';
+        draftArticleImages.forEach((imgItem, idx) => {
+          const card = document.createElement('div');
+          card.className = 'rounded-2xl border border-slate-800 bg-slate-900/85 overflow-hidden flex flex-col justify-between';
+          card.innerHTML = `
+            <img
+              src="${imgItem.src}"
+              alt="${imgItem.caption || 'صورة المقال'}"
+              onerror="this.onerror=null;this.src='https://placehold.co/480x300/0f172a/00f2fe?text=Article+Image';"
+              class="w-full h-48 object-cover bg-slate-950"
+            />
+            <div class="p-3 flex items-center justify-between gap-2">
+              <p class="text-xs font-bold text-slate-200 truncate">${imgItem.caption || `صورة ${idx + 1}`}</p>
+              ${
+                editable
+                  ? `<button type="button" data-remove-article-img="${idx}" class="rounded-lg border border-rose-400/40 bg-rose-500/15 hover:bg-rose-500/25 px-2.5 py-1 text-[11px] font-extrabold text-rose-200 cursor-pointer shrink-0">حذف</button>`
+                  : ''
+              }
+            </div>
+          `;
+          gridEl.appendChild(card);
+        });
+
+        if (editable) {
+          gridEl.querySelectorAll('[data-remove-article-img]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const delIdx = Number(btn.getAttribute('data-remove-article-img'));
+              draftArticleImages.splice(delIdx, 1);
+              renderStage4ArticleImages();
+              toast('تم حذف الصورة من المقال — اضغط حفظ المقال والصور لتثبيت التغيير', 'info');
+            });
+          });
+        }
+      }
+
+      document.getElementById('stage4-image-file-input')?.addEventListener('change', async (e) => {
+        const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(target)) return;
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const dataUrl = await compressImageFile(file, 640, 0.82);
+          const captionInput = document.getElementById('stage4-image-caption-input');
+          const captionVal = (captionInput?.value || '').trim();
+          draftArticleImages.push({
+            id: `img_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            src: dataUrl,
+            caption: captionVal || file.name
+          });
+          if (captionInput) captionInput.value = '';
+          e.target.value = '';
+          renderStage4ArticleImages();
+          toast('تمت إضافة الصورة للمقال', 'success');
+        } catch (_) {
+          toast('تعذر قراءة ملف الصورة', 'error');
+        }
+      });
+
+      document.getElementById('stage4-btn-add-url-image')?.addEventListener('click', () => {
+        const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(target)) return;
+        const urlInput = document.getElementById('stage4-image-url-input');
+        const captionInput = document.getElementById('stage4-image-caption-input');
+        const srcVal = (urlInput?.value || '').trim();
+        if (!srcVal) {
+          toast('أدخل رابط الصورة أو ارفع صورة من الجهاز', 'error');
+          return;
+        }
+        const captionVal = (captionInput?.value || '').trim();
+        draftArticleImages.push({
+          id: `img_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          src: srcVal,
+          caption: captionVal || `صورة ${draftArticleImages.length + 1}`
+        });
+        if (urlInput) urlInput.value = '';
+        if (captionInput) captionInput.value = '';
+        renderStage4ArticleImages();
+        toast('تمت إضافة الصورة للمقال', 'success');
+      });
+
+      function applyStage4Visuals(themeKey, accentHex) {
+        const themeObj = STAGE4_THEMES[themeKey] || STAGE4_THEMES.cyber;
+        const accent = accentHex || themeObj.accent || '#00f2fe';
+        const stage4El = document.getElementById('stage-4');
+        const canvasEl = document.getElementById('stage4-workspace-canvas');
+        const themeLabelEl = document.getElementById('stage4-theme-label');
+        const colorPickerEl = document.getElementById('stage4-color-picker');
+
+        document.documentElement.style.setProperty('--stage4-accent', accent);
+
+        if (stage4El) {
+          Object.values(STAGE4_THEMES).forEach((t) => stage4El.classList.remove(t.className));
+          stage4El.classList.add(themeObj.className);
+        }
+        if (themeLabelEl) themeLabelEl.textContent = themeObj.label;
+        if (colorPickerEl) colorPickerEl.value = accent;
+        if (canvasEl) {
+          canvasEl.style.borderColor = hexToRgba(accent, 0.45);
+          canvasEl.style.boxShadow = `0 0 36px -14px ${hexToRgba(accent, 0.45)}`;
+        }
+      }
+
+      function syncStage4EditableState(target) {
+        const editable = canEditProfile(target);
+        const titleInput = document.getElementById('stage4-article-title-input');
+        const bodyTextarea = document.getElementById('stage4-main-article-textarea');
+        const saveBtn = document.getElementById('stage4-btn-save');
+        const addImgPanel = document.getElementById('stage4-add-image-panel');
+        const visualControls = document.getElementById('stage4-visual-controls');
+
+        if (titleInput) titleInput.readOnly = !editable;
+        if (bodyTextarea) bodyTextarea.readOnly = !editable;
+        saveBtn?.classList.toggle('hidden', !editable);
+        addImgPanel?.classList.toggle('hidden', !editable);
+        visualControls?.classList.toggle('hidden', !editable);
+      }
+
+      function openStage4ForProfile(profileId) {
+        const target = state.profiles.find((p) => p.id === profileId) || getActiveProfile();
+        if (!target) return;
+
+        state.activeProfileId = target.id;
+        state.activeModalProfileId = target.id;
+        state.currentStage = 4;
+        saveState();
+
+        closeModal('modal-person-profile');
+        [1, 2, 3].forEach((n) => document.getElementById(`stage-${n}`)?.classList.add('hidden'));
+
+        draftStage4Theme = STAGE4_THEMES[target.stage4Theme] ? target.stage4Theme : 'cyber';
+        draftStage4Accent = target.stage4Accent || target.color || '#00f2fe';
+        draftArticleImages = Array.isArray(target.articleImages)
+          ? target.articleImages.map((im) => ({ ...im }))
+          : [];
+
+        document.getElementById('article-workspace-author').textContent = target.name;
+        document.getElementById('stage4-article-title-input').value = target.articleTitle || '';
+        document.getElementById('stage4-main-article-textarea').value = target.article || '';
+
+        applyStage4Visuals(draftStage4Theme, draftStage4Accent);
+        syncStage4EditableState(target);
+        renderStage4ArticleImages();
+
+        const stage4Sec = document.getElementById('stage-4');
+        if (stage4Sec) {
+          stage4Sec.classList.remove('hidden');
+          stage4Sec.classList.add('flex');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      document.getElementById('btn-open-profile-article-page')?.addEventListener('click', () => {
+        openStage4ForProfile(state.activeModalProfileId || getActiveProfile().id);
+      });
+
+      document.getElementById('btn-back-to-profile-modal')?.addEventListener('click', () => {
+        const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+        goToStage(3);
+        openPersonProfileModal(target, canEditProfile(target));
+      });
+
+      document.getElementById('btn-back-to-stage3-from-article')?.addEventListener('click', () => {
+        goToStage(3);
+      });
+
+      document.getElementById('stage4-btn-theme-cycle')?.addEventListener('click', () => {
+        const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(target)) return;
+        const order = ['cyber', 'midnight', 'light'];
+        const nextKey = order[(Math.max(0, order.indexOf(draftStage4Theme)) + 1) % order.length];
+        draftStage4Theme = nextKey;
+        applyStage4Visuals(draftStage4Theme, draftStage4Accent);
+      });
+
+      document.getElementById('stage4-color-picker')?.addEventListener('input', (e) => {
+        const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(target)) return;
+        draftStage4Accent = e.target.value || '#00f2fe';
+        applyStage4Visuals(draftStage4Theme, draftStage4Accent);
+      });
+
+      document.getElementById('stage4-btn-save')?.addEventListener('click', () => {
+        const idx = state.profiles.findIndex((p) => p.id === state.activeModalProfileId);
+        if (idx === -1 || !canEditProfile(state.profiles[idx])) return;
+        const titleVal = (document.getElementById('stage4-article-title-input')?.value || '').trim();
+        const bodyVal = document.getElementById('stage4-main-article-textarea')?.value || '';
+        state.profiles[idx].articleTitle = titleVal || `مقال ${state.profiles[idx].name}`;
+        state.profiles[idx].article = bodyVal;
+        state.profiles[idx].articleImages = draftArticleImages.map((im) => ({ ...im }));
+        state.profiles[idx].stage4Theme = draftStage4Theme;
+        state.profiles[idx].stage4Accent = draftStage4Accent;
+        state.profiles[idx].color = draftStage4Accent;
+        saveState();
+        renderStage3();
+        toast(`تم حفظ مقال وصور ${state.profiles[idx].name}`, 'success');
+      });
+
+      function goToStage(stageNum) {
+        const validStage = [1, 2, 3, 4].includes(Number(stageNum)) ? Number(stageNum) : 1;
+        state.currentStage = validStage;
+        saveState();
+
+        const stage4Sec = document.getElementById('stage-4');
+        if (validStage === 4) {
+          openStage4ForProfile(state.activeModalProfileId || getActiveProfile().id);
+          return;
+        }
+
+        if (stage4Sec) {
+          stage4Sec.classList.add('hidden');
+          stage4Sec.classList.remove('flex');
+        }
+
+        [1, 2, 3].forEach((n) => {
+          document.getElementById(`stage-${n}`)?.classList.toggle('hidden', n !== validStage);
+        });
+
+        if (validStage === 1) syncLampState();
+        else if (validStage === 2) syncStage2UI();
+        else if (validStage === 3) renderStage3();
+      }
+
+      // Initial Boot
+      applyLampPresetColor(state.stageColors[1] || '#f59e0b');
+      syncDeveloperAndGuestControlsUI();
+      syncStage2UI();
+      goToStage(state.currentStage || 1);
+    })();
+  </script>
+</body>
+</html>
