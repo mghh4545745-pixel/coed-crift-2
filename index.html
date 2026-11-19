@@ -1272,12 +1272,18 @@
   </div>
 
   <!-- =======================================================================
-       APPLICATION RUNTIME SCRIPT
+       APPLICATION RUNTIME SCRIPT (OPEN / REFRESH CLOUD SYNC ONLY)
   ======================================================================= -->
   <script>
     (function () {
-      const STORAGE_KEY = 'codecraft_id_auth_profiles_v8';
+      const STORAGE_KEY = 'codecraft_id_auth_profiles_v9';
       const DEV_PASS = '75321';
+
+      // Supabase REST config (anon key only for browser frontend)
+      const SUPABASE_URL = 'https://kakdgmwxkhmizlggclei.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtha2RnbXd4a2htaXpsZ2djbGVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMjE4MDAsImV4cCI6MjExMDY5NzgwMH0.wLgbb1dFLd4Iufjw-oRQB0tnowotsi1TzkklQKvEwUk';
+      const SUPABASE_TABLE = 'platform_state';
+      const SUPABASE_ROW_ID = 'codecraft_shared_v1';
 
       const LAMP_PRESETS = {
         warm: { label: 'نور دافئ', hex: '#f59e0b' },
@@ -1471,35 +1477,50 @@
         };
       }
 
+      function normalizeState(parsed) {
+        const base = createDefaultState();
+        if (!parsed || typeof parsed !== 'object') return base;
+        const profiles = Array.isArray(parsed.profiles) && parsed.profiles.length
+          ? parsed.profiles.map((p, idx) => {
+              const fb = base.profiles[idx % base.profiles.length];
+              return {
+                ...fb,
+                ...p,
+                bio: typeof p.bio === 'string' ? p.bio : fb.bio,
+                articleImages: Array.isArray(p.articleImages) ? p.articleImages : [],
+                authId: p.authId || fb.authId,
+                authPass: p.authPass || fb.authPass
+              };
+            })
+          : base.profiles;
+
+        return {
+          ...base,
+          ...parsed,
+          stage2Theme: STAGE2_THEMES[parsed.stage2Theme] ? parsed.stage2Theme : base.stage2Theme,
+          stage2IdeaTitle: typeof parsed.stage2IdeaTitle === 'string' ? parsed.stage2IdeaTitle : base.stage2IdeaTitle,
+          stage2IdeaText: typeof parsed.stage2IdeaText === 'string' ? parsed.stage2IdeaText : base.stage2IdeaText,
+          stageColors: { ...base.stageColors, ...(parsed.stageColors || {}) },
+          profiles
+        };
+      }
+
+      function buildCloudPayload(srcState) {
+        return {
+          stage2Theme: srcState.stage2Theme,
+          stage2IdeaTitle: srcState.stage2IdeaTitle,
+          stage2IdeaText: srcState.stage2IdeaText,
+          lampPreset: srcState.lampPreset,
+          stageColors: srcState.stageColors,
+          profiles: srcState.profiles
+        };
+      }
+
       function loadState() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
           if (!raw) return createDefaultState();
-          const parsed = JSON.parse(raw);
-          const base = createDefaultState();
-          const profiles = Array.isArray(parsed.profiles) && parsed.profiles.length
-            ? parsed.profiles.map((p, idx) => {
-                const fb = base.profiles[idx % base.profiles.length];
-                return {
-                  ...fb,
-                  ...p,
-                  bio: typeof p.bio === 'string' ? p.bio : fb.bio,
-                  articleImages: Array.isArray(p.articleImages) ? p.articleImages : [],
-                  authId: p.authId || fb.authId,
-                  authPass: p.authPass || fb.authPass
-                };
-              })
-            : base.profiles;
-
-          return {
-            ...base,
-            ...parsed,
-            stage2Theme: STAGE2_THEMES[parsed.stage2Theme] ? parsed.stage2Theme : base.stage2Theme,
-            stage2IdeaTitle: typeof parsed.stage2IdeaTitle === 'string' ? parsed.stage2IdeaTitle : base.stage2IdeaTitle,
-            stage2IdeaText: typeof parsed.stage2IdeaText === 'string' ? parsed.stage2IdeaText : base.stage2IdeaText,
-            stageColors: { ...base.stageColors, ...(parsed.stageColors || {}) },
-            profiles
-          };
+          return normalizeState(JSON.parse(raw));
         } catch (_) {
           return createDefaultState();
         }
@@ -1507,8 +1528,9 @@
 
       let state = loadState();
       let stage3SearchQuery = '';
+      let hasSyncedOnCurrentLoad = false;
 
-      function saveState() {
+      function writeLocalOnly() {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         } catch (_) {
@@ -1516,7 +1538,103 @@
         }
       }
 
-      function resetPlatformToDefault() {
+      async function pushSharedStateToCloud() {
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return false;
+        try {
+          const endpoint = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?on_conflict=id`;
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'resolution=merge-duplicates,return=minimal'
+            },
+            body: JSON.stringify([{
+              id: SUPABASE_ROW_ID,
+              payload: buildCloudPayload(state),
+              updated_at: new Date().toISOString()
+            }])
+          });
+          if (!res.ok) return false;
+          return true;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      // Single sync on page open or refresh (no background polling)
+      async function syncSharedStateOnceOnLoad() {
+        if (hasSyncedOnCurrentLoad) return;
+        hasSyncedOnCurrentLoad = true;
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+
+        try {
+          const endpoint = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${encodeURIComponent(SUPABASE_ROW_ID)}&select=payload`;
+          const res = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            },
+            cache: 'no-store'
+          });
+          if (!res.ok) return;
+          const rows = await res.json();
+          if (!Array.isArray(rows) || !rows.length || !rows[0]?.payload) return;
+
+          const cloud = rows[0].payload;
+          state = normalizeState({
+            ...state,
+            stage2Theme: cloud.stage2Theme,
+            stage2IdeaTitle: cloud.stage2IdeaTitle,
+            stage2IdeaText: cloud.stage2IdeaText,
+            lampPreset: cloud.lampPreset,
+            stageColors: cloud.stageColors,
+            profiles: cloud.profiles
+          });
+          writeLocalOnly();
+
+          const preset = LAMP_PRESETS[state.lampPreset];
+          applyLampPresetColor(
+            preset?.hex || state.stageColors[1] || '#f59e0b',
+            preset?.label || 'نور دافئ'
+          );
+          syncDeveloperAndGuestControlsUI();
+          syncStage2UI();
+          if (state.currentStage === 3) renderStage3();
+          else if (state.currentStage === 4) {
+            const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+            if (target) {
+              draftStage4Theme = STAGE4_THEMES[target.stage4Theme] ? target.stage4Theme : 'cyber';
+              draftStage4Accent = target.stage4Accent || target.color || '#00f2fe';
+              draftArticleImages = Array.isArray(target.articleImages)
+                ? target.articleImages.map((im) => ({ ...im }))
+                : [];
+              document.getElementById('article-workspace-author').textContent = target.name;
+              document.getElementById('stage4-article-title-input').value = target.articleTitle || '';
+              document.getElementById('stage4-main-article-textarea').value = target.article || '';
+              applyStage4Visuals(draftStage4Theme, draftStage4Accent);
+              syncStage4EditableState(target);
+              renderStage4ArticleImages();
+            }
+          }
+        } catch (_) {}
+      }
+
+      async function saveState(syncCloud = false) {
+        writeLocalOnly();
+        if (syncCloud) {
+          const ok = await pushSharedStateToCloud();
+          if (ok) {
+            toast('تم الحفظ ومزامنة التحديث للجميع', 'success');
+          } else {
+            toast('تم الحفظ محلياً (تعذر الوصول للسحابة حالياً)', 'info');
+          }
+        }
+      }
+
+      async function resetPlatformToDefault() {
         try {
           localStorage.removeItem(STORAGE_KEY);
         } catch (_) {}
@@ -1534,7 +1652,7 @@
         syncDeveloperAndGuestControlsUI();
         syncStage2UI();
         goToStage(1);
-        toast('تمت إعادة تعيين المنصة بالكامل إلى الإعدادات الافتراضية', 'success');
+        await saveState(true);
       }
 
       document.querySelectorAll('[data-reset-platform="true"]').forEach((btn) => {
@@ -1614,7 +1732,7 @@
       function activateDeveloperAndEnter() {
         state.devUnlocked = true;
         state.isGuest = false;
-        saveState();
+        saveState(false);
         syncDeveloperAndGuestControlsUI();
         syncStage2UI();
         closeModal('modal-dev-login');
@@ -1626,7 +1744,7 @@
         state.isGuest = true;
         state.devUnlocked = false;
         state.loggedInProfileId = null;
-        saveState();
+        saveState(false);
         syncDeveloperAndGuestControlsUI();
         syncStage2UI();
         toast('تم الدخول كزائر — التعديل مخفي بالكامل', 'info');
@@ -1636,7 +1754,7 @@
       function logoutDeveloper() {
         state.devUnlocked = false;
         state.isGuest = true;
-        saveState();
+        saveState(false);
         syncDeveloperAndGuestControlsUI();
         syncStage2UI();
         toast('تم تسجيل خروج المطور', 'info');
@@ -1648,7 +1766,7 @@
         state.loggedInProfileId = null;
         state.isGuest = false;
         state.lampOn = true;
-        saveState();
+        saveState(false);
         syncDeveloperAndGuestControlsUI();
         syncStage2UI();
         const idInput = document.getElementById('auth-id-input');
@@ -1707,7 +1825,7 @@
           setTimeout(() => chainGroup.classList.remove('is-pulling'), 240);
         }
         state.lampOn = !state.lampOn;
-        saveState();
+        saveState(false);
         syncLampState();
       }
 
@@ -1753,8 +1871,8 @@
           if (!preset) return;
           state.lampPreset = presetKey;
           state.stageColors[1] = preset.hex;
-          saveState();
           applyLampPresetColor(preset.hex, preset.label);
+          saveState(true);
         });
       });
 
@@ -1765,8 +1883,8 @@
         const nextPreset = LAMP_PRESETS[nextKey];
         state.lampPreset = nextKey;
         state.stageColors[1] = nextPreset.hex;
-        saveState();
         applyLampPresetColor(nextPreset.hex, nextPreset.label);
+        saveState(true);
       });
 
       // Developer Login Modal (Passcode: 75321 -> Instant Entry)
@@ -1861,13 +1979,12 @@
         document.getElementById('btn-stage2-edit-idea')?.classList.toggle('hidden', !canEditStage2Idea());
       }
 
-      document.getElementById('btn-stage2-cycle-theme')?.addEventListener('click', () => {
+      document.getElementById('btn-stage2-cycle-theme')?.addEventListener('click', async () => {
         const keys = Object.keys(STAGE2_THEMES);
         const idx = Math.max(0, keys.indexOf(state.stage2Theme));
         const nextKey = keys[(idx + 1) % keys.length];
         applyStage2Theme(nextKey);
-        saveState();
-        toast(`تم تغيير اللون والخلفية إلى: ${STAGE2_THEMES[nextKey].label}`, 'success');
+        await saveState(true);
       });
 
       document.getElementById('btn-stage2-edit-idea')?.addEventListener('click', () => {
@@ -1882,16 +1999,15 @@
       document.getElementById('close-stage2-idea-btn')?.addEventListener('click', () => closeModal('modal-stage2-idea'));
       document.getElementById('cancel-stage2-idea-btn')?.addEventListener('click', () => closeModal('modal-stage2-idea'));
 
-      document.getElementById('save-stage2-idea-btn')?.addEventListener('click', () => {
+      document.getElementById('save-stage2-idea-btn')?.addEventListener('click', async () => {
         if (!canEditStage2Idea()) return;
         const titleVal = (document.getElementById('stage2-idea-title-input')?.value || '').trim();
         const textVal = (document.getElementById('stage2-idea-text-input')?.value || '').trim();
         state.stage2IdeaTitle = titleVal || 'مركز المواضيع التفاعلي';
         state.stage2IdeaText = textVal;
-        saveState();
         syncStage2UI();
         closeModal('modal-stage2-idea');
-        toast('تم حفظ عنوان ونص الفكرة', 'success');
+        await saveState(true);
       });
 
       document.getElementById('login-form')?.addEventListener('submit', (e) => {
@@ -1932,7 +2048,7 @@
         state.loggedInProfileId = matched.id;
         state.activeProfileId = matched.id;
         state.activeModalProfileId = matched.id;
-        saveState();
+        saveState(false);
         syncDeveloperAndGuestControlsUI();
         syncStage2UI();
         toast(`أهلاً ${matched.name} — تم فتح تعديل بروفايلك`, 'success');
@@ -2045,7 +2161,7 @@
         const count = Math.max(1, state.profiles.length);
         orbitAngle = -idx * (360 / count);
         orbitVelocity = 0;
-        saveState();
+        saveState(false);
         renderStage3();
         if (openModalAfter) {
           openPersonProfileModal(state.profiles[idx], canEditProfile(state.profiles[idx]));
@@ -2109,7 +2225,7 @@
             state.activeProfileId = profile.id;
             state.activeModalProfileId = profile.id;
             orbitVelocity = 0;
-            saveState();
+            saveState(false);
             updateSpotlightOnly();
             openPersonProfileModal(profile, canEditProfile(profile));
           };
@@ -2267,7 +2383,7 @@
       document.getElementById('close-add-profile-btn')?.addEventListener('click', () => closeModal('modal-add-profile'));
       document.getElementById('cancel-add-profile-btn')?.addEventListener('click', () => closeModal('modal-add-profile'));
 
-      document.getElementById('confirm-add-item-btn')?.addEventListener('click', () => {
+      document.getElementById('confirm-add-item-btn')?.addEventListener('click', async () => {
         if (!state.devUnlocked || state.isGuest) return;
         const nameVal = (document.getElementById('add-item-name')?.value || '').trim();
         if (!nameVal) {
@@ -2299,13 +2415,12 @@
           skills: [{ label: 'تطوير البرمجيات', percent: 90 }]
         });
         state.activeProfileId = newId;
-        saveState();
         renderStage3();
         closeModal('modal-add-profile');
-        toast(`تمت إضافة "${nameVal}"`, 'success');
+        await saveState(true);
       });
 
-      document.getElementById('btn-dev-remove-profile')?.addEventListener('click', () => {
+      document.getElementById('btn-dev-remove-profile')?.addEventListener('click', async () => {
         if (!state.devUnlocked || state.isGuest) return;
         if (state.profiles.length <= 1) {
           toast('يجب الإبقاء على بروفايل واحد على الأقل', 'error');
@@ -2314,9 +2429,8 @@
         const active = getActiveProfile();
         state.profiles = state.profiles.filter((p) => p.id !== active.id);
         state.activeProfileId = state.profiles[0].id;
-        saveState();
         renderStage3();
-        toast(`تمت إزالة "${active.name}"`, 'info');
+        await saveState(true);
       });
 
       (function bindOrbitControls() {
@@ -2542,7 +2656,7 @@
 
         state.activeProfileId = target.id;
         state.activeModalProfileId = target.id;
-        saveState();
+        saveState(false);
         updateSpotlightOnly();
 
         const accent = target.color || '#00f2fe';
@@ -2610,7 +2724,7 @@
         document.getElementById('owner-profile-editor-panel')?.classList.toggle('hidden');
       });
 
-      document.getElementById('btn-save-owner-profile')?.addEventListener('click', () => {
+      document.getElementById('btn-save-owner-profile')?.addEventListener('click', async () => {
         const idx = state.profiles.findIndex((p) => p.id === state.activeModalProfileId);
         if (idx === -1 || !canEditProfile(state.profiles[idx])) return;
 
@@ -2629,11 +2743,10 @@
         if (roleVal) state.profiles[idx].role = roleVal;
         state.profiles[idx].bio = bioVal;
 
-        saveState();
         syncStage2UI();
         renderStage3();
         openPersonProfileModal(state.profiles[idx], true);
-        toast('تم حفظ الصورة والسيرة الذاتية وبيانات البروفايل', 'success');
+        await saveState(true);
       });
 
       document.getElementById('close-person-profile-btn')?.addEventListener('click', () => {
@@ -2793,7 +2906,7 @@
         state.activeProfileId = target.id;
         state.activeModalProfileId = target.id;
         state.currentStage = 4;
-        saveState();
+        saveState(false);
 
         closeModal('modal-person-profile');
         [1, 2, 3].forEach((n) => document.getElementById(`stage-${n}`)?.classList.add('hidden'));
@@ -2850,7 +2963,7 @@
         applyStage4Visuals(draftStage4Theme, draftStage4Accent);
       });
 
-      document.getElementById('stage4-btn-save')?.addEventListener('click', () => {
+      document.getElementById('stage4-btn-save')?.addEventListener('click', async () => {
         const idx = state.profiles.findIndex((p) => p.id === state.activeModalProfileId);
         if (idx === -1 || !canEditProfile(state.profiles[idx])) return;
         const titleVal = (document.getElementById('stage4-article-title-input')?.value || '').trim();
@@ -2861,15 +2974,14 @@
         state.profiles[idx].stage4Theme = draftStage4Theme;
         state.profiles[idx].stage4Accent = draftStage4Accent;
         state.profiles[idx].color = draftStage4Accent;
-        saveState();
         renderStage3();
-        toast(`تم حفظ مقال وصور ${state.profiles[idx].name}`, 'success');
+        await saveState(true);
       });
 
       function goToStage(stageNum) {
         const validStage = [1, 2, 3, 4].includes(Number(stageNum)) ? Number(stageNum) : 1;
         state.currentStage = validStage;
-        saveState();
+        saveState(false);
 
         const stage4Sec = document.getElementById('stage-4');
         if (validStage === 4) {
@@ -2891,11 +3003,16 @@
         else if (validStage === 3) renderStage3();
       }
 
-      // Initial Boot
-      applyLampPresetColor(state.stageColors[1] || '#f59e0b');
+      // Initial Boot + One-Time Sync on Open / Refresh
+      const initialPreset = LAMP_PRESETS[state.lampPreset];
+      applyLampPresetColor(
+        initialPreset?.hex || state.stageColors[1] || '#f59e0b',
+        initialPreset?.label || 'نور دافئ'
+      );
       syncDeveloperAndGuestControlsUI();
       syncStage2UI();
       goToStage(state.currentStage || 1);
+      syncSharedStateOnceOnLoad();
     })();
   </script>
 </body>
