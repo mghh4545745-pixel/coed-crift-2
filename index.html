@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CodeCraft 3D - منصة المراحل الأربع التفاعلية</title>
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
   <!-- Three.js for Stage 3 3D Orbital Explorer -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
@@ -41,10 +38,313 @@
       background-color: var(--bg-deep);
       color: #f8fafc;
       overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    h1, h2, h3, h4, p, label {
+      margin: 0;
+    }
+
+    button, input, textarea {
+      font-family: inherit;
     }
 
     .font-code {
       font-family: 'JetBrains Mono', monospace;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .flex { display: flex; }
+    .grid { display: grid; }
+    .relative { position: relative; }
+    .fixed { position: fixed; }
+    .absolute { position: absolute; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .min-h-screen { min-height: 100vh; }
+    .w-full { width: 100%; }
+    .h-full { height: 100%; }
+    .h-2 { height: 0.5rem; }
+    .h-2\.5 { height: 0.625rem; }
+    .h-8 { height: 2rem; }
+    .h-9 { height: 2.25rem; }
+    .h-12 { height: 3rem; }
+    .h-14 { height: 3.5rem; }
+    .h-16 { height: 4rem; }
+    .h-48 { height: 12rem; }
+    .w-2\.5 { width: 0.625rem; }
+    .w-4 { width: 1rem; }
+    .w-6 { width: 1.5rem; }
+    .w-9 { width: 2.25rem; }
+    .w-10 { width: 2.5rem; }
+    .w-12 { width: 3rem; }
+    .w-14 { width: 3.5rem; }
+    .w-16 { width: 4rem; }
+    .max-w-md { max-width: 28rem; }
+    .max-w-lg { max-width: 32rem; }
+    .max-w-xl { max-width: 36rem; }
+    .max-w-6xl { max-width: 72rem; }
+    .max-w-7xl { max-width: 80rem; }
+    .max-w-full { max-width: 100%; }
+    .max-h-64 { max-height: 16rem; }
+    .max-h-\[92vh\] { max-height: 92vh; }
+    .min-w-0 { min-width: 0; }
+    .flex-1 { flex: 1 1 0%; }
+    .shrink-0 { flex-shrink: 0; }
+    .flex-col { flex-direction: column; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .items-end { align-items: flex-end; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .justify-end { justify-content: flex-end; }
+    .gap-1\.5 { gap: 0.375rem; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-2\.5 { gap: 0.625rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-4 { gap: 1rem; }
+    .gap-5 { gap: 1.25rem; }
+    .gap-6 { gap: 1.5rem; }
+    .gap-8 { gap: 2rem; }
+    .space-y-1\.5 > * + * { margin-top: 0.375rem; }
+    .space-y-2 > * + * { margin-top: 0.5rem; }
+    .space-y-2\.5 > * + * { margin-top: 0.625rem; }
+    .space-y-3 > * + * { margin-top: 0.75rem; }
+    .space-y-3\.5 > * + * { margin-top: 0.875rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .space-y-5 > * + * { margin-top: 1.25rem; }
+    .space-y-6 > * + * { margin-top: 1.5rem; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .my-auto { margin-top: auto; margin-bottom: auto; }
+    .mt-0\.5 { margin-top: 0.125rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-2\.5 { margin-top: 0.625rem; }
+    .mr-1 { margin-right: 0.25rem; }
+    .pr-0\.5 { padding-right: 0.125rem; }
+    .pt-1 { padding-top: 0.25rem; }
+    .pt-2 { padding-top: 0.5rem; }
+    .p-2\.5 { padding: 0.625rem; }
+    .p-3 { padding: 0.75rem; }
+    .p-3\.5 { padding: 0.875rem; }
+    .p-4 { padding: 1rem; }
+    .p-5 { padding: 1.25rem; }
+    .p-6 { padding: 1.5rem; }
+    .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .px-3\.5 { padding-left: 0.875rem; padding-right: 0.875rem; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .px-7 { padding-left: 1.75rem; padding-right: 1.75rem; }
+    .px-8 { padding-left: 2rem; padding-right: 2rem; }
+    .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+    .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+    .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+    .py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+    .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-2xl { border-radius: 1rem; }
+    .rounded-3xl { border-radius: 1.5rem; }
+    .rounded-full { border-radius: 9999px; }
+    .border { border-width: 1px; border-style: solid; border-color: rgba(148, 163, 184, 0.25); }
+    .border-0 { border-width: 0; }
+    .border-2 { border-width: 2px; border-style: solid; border-color: rgba(148, 163, 184, 0.35); }
+    .border-t { border-top-width: 1px; border-top-style: solid; }
+    .border-dashed { border-style: dashed; }
+    .border-slate-600\/80 { border-color: rgba(71, 85, 105, 0.8); }
+    .border-slate-600\/90 { border-color: rgba(71, 85, 105, 0.9); }
+    .border-slate-700 { border-color: #334155; }
+    .border-slate-700\/70 { border-color: rgba(51, 65, 85, 0.7); }
+    .border-slate-700\/80 { border-color: rgba(51, 65, 85, 0.8); }
+    .border-slate-700\/90 { border-color: rgba(51, 65, 85, 0.9); }
+    .border-slate-800 { border-color: #1e293b; }
+    .border-slate-800\/80 { border-color: rgba(30, 41, 59, 0.8); }
+    .border-slate-800\/90 { border-color: rgba(30, 41, 59, 0.9); }
+    .border-cyan-400\/35 { border-color: rgba(34, 211, 238, 0.35); }
+    .border-cyan-400\/40 { border-color: rgba(34, 211, 238, 0.4); }
+    .border-cyan-400\/45 { border-color: rgba(34, 211, 238, 0.45); }
+    .border-cyan-400\/50 { border-color: rgba(34, 211, 238, 0.5); }
+    .border-cyan-400\/60 { border-color: rgba(34, 211, 238, 0.6); }
+    .border-sky-400\/40 { border-color: rgba(56, 189, 248, 0.4); }
+    .border-sky-400\/45 { border-color: rgba(56, 189, 248, 0.45); }
+    .border-sky-400\/50 { border-color: rgba(56, 189, 248, 0.5); }
+    .border-amber-400\/45 { border-color: rgba(251, 191, 36, 0.45); }
+    .border-amber-400\/50 { border-color: rgba(251, 191, 36, 0.5); }
+    .border-indigo-400\/50 { border-color: rgba(129, 140, 248, 0.5); }
+    .border-rose-400\/40 { border-color: rgba(251, 113, 133, 0.4); }
+    .border-rose-400\/45 { border-color: rgba(251, 113, 133, 0.45); }
+    .border-white\/30 { border-color: rgba(255, 255, 255, 0.3); }
+
+    .bg-transparent { background-color: transparent; }
+    .bg-black\/75 { background-color: rgba(0, 0, 0, 0.75); }
+    .bg-black\/80 { background-color: rgba(0, 0, 0, 0.8); }
+    .bg-\[\#060a12\] { background-color: #060a12; }
+    .bg-\[\#0b1220\]\/90 { background-color: rgba(11, 18, 32, 0.9); }
+    .bg-\[\#0b1220\]\/95 { background-color: rgba(11, 18, 32, 0.95); }
+    .bg-\[\#0c1322\] { background-color: #0c1322; }
+    .bg-slate-800 { background-color: #1e293b; }
+    .bg-slate-800\/80 { background-color: rgba(30, 41, 59, 0.8); }
+    .bg-slate-900 { background-color: #0f172a; }
+    .bg-slate-900\/40 { background-color: rgba(15, 23, 42, 0.4); }
+    .bg-slate-900\/70 { background-color: rgba(15, 23, 42, 0.7); }
+    .bg-slate-900\/75 { background-color: rgba(15, 23, 42, 0.75); }
+    .bg-slate-900\/80 { background-color: rgba(15, 23, 42, 0.8); }
+    .bg-slate-900\/85 { background-color: rgba(15, 23, 42, 0.85); }
+    .bg-slate-900\/90 { background-color: rgba(15, 23, 42, 0.9); }
+    .bg-slate-950 { background-color: #020617; }
+    .bg-slate-950\/55 { background-color: rgba(2, 6, 23, 0.55); }
+    .bg-slate-950\/60 { background-color: rgba(2, 6, 23, 0.6); }
+    .bg-slate-950\/65 { background-color: rgba(2, 6, 23, 0.65); }
+    .bg-slate-950\/75 { background-color: rgba(2, 6, 23, 0.75); }
+    .bg-slate-950\/80 { background-color: rgba(2, 6, 23, 0.8); }
+    .bg-slate-950\/85 { background-color: rgba(2, 6, 23, 0.85); }
+    .bg-slate-950\/90 { background-color: rgba(2, 6, 23, 0.9); }
+    .bg-slate-950\/95 { background-color: rgba(2, 6, 23, 0.95); }
+    .bg-cyan-400 { background-color: #22d3ee; }
+    .bg-cyan-500\/10 { background-color: rgba(6, 182, 212, 0.1); }
+    .bg-cyan-500\/15 { background-color: rgba(6, 182, 212, 0.15); }
+    .bg-sky-400 { background-color: #38bdf8; }
+    .bg-sky-500\/15 { background-color: rgba(14, 165, 233, 0.15); }
+    .bg-amber-400 { background-color: #fbbf24; }
+    .bg-amber-500\/15 { background-color: rgba(245, 158, 11, 0.15); }
+    .bg-yellow-400 { background-color: #facc15; }
+    .bg-violet-500 { background-color: #8b5cf6; }
+    .bg-indigo-500\/15 { background-color: rgba(99, 102, 241, 0.15); }
+    .bg-rose-500\/10 { background-color: rgba(244, 63, 94, 0.1); }
+    .bg-rose-500\/15 { background-color: rgba(244, 63, 94, 0.15); }
+
+    .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
+    .from-cyan-400 { --tw-gradient-from: #22d3ee; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, transparent); }
+    .to-sky-400 { --tw-gradient-to: #38bdf8; }
+
+    .text-white { color: #ffffff; }
+    .text-slate-100 { color: #f1f5f9; }
+    .text-slate-200 { color: #e2e8f0; }
+    .text-slate-300 { color: #cbd5e1; }
+    .text-slate-400 { color: #94a3b8; }
+    .text-slate-500 { color: #64748b; }
+    .text-slate-950 { color: #020617; }
+    .text-cyan-200 { color: #a5f3fc; }
+    .text-cyan-300 { color: #67e8f9; }
+    .text-sky-200 { color: #bae6fd; }
+    .text-sky-300 { color: #7dd3fc; }
+    .text-amber-200 { color: #fde68a; }
+    .text-amber-300 { color: #fcd34d; }
+    .text-emerald-300 { color: #6ee7b7; }
+    .text-indigo-200 { color: #c7d2fe; }
+    .text-rose-200 { color: #fecdd3; }
+    .text-rose-400 { color: #fb7185; }
+
+    .text-\[10px\] { font-size: 10px; }
+    .text-\[11px\] { font-size: 11px; }
+    .text-xs { font-size: 0.75rem; }
+    .text-sm { font-size: 0.875rem; }
+    .text-base { font-size: 1rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-xl { font-size: 1.25rem; }
+    .text-2xl { font-size: 1.5rem; }
+    .text-3xl { font-size: 1.875rem; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .font-black { font-weight: 900; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .leading-relaxed { line-height: 1.625; }
+    .leading-loose { line-height: 2; }
+    .tracking-tight { letter-spacing: -0.025em; }
+    .whitespace-pre-line { white-space: pre-line; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .overflow-hidden { overflow: hidden; }
+    .overflow-y-auto { overflow-y: auto; }
+    .pointer-events-none { pointer-events: none; }
+    .pointer-events-auto { pointer-events: auto; }
+    .cursor-pointer { cursor: pointer; }
+    .resize-y { resize: vertical; }
+    .object-cover { object-fit: cover; }
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.45); }
+    .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75); }
+    .backdrop-blur-sm { backdrop-filter: blur(4px); }
+    .backdrop-blur-md { backdrop-filter: blur(12px); }
+    .backdrop-blur-xl { backdrop-filter: blur(24px); }
+    .transition { transition: all 0.2s ease; }
+    .transition-all { transition: all 0.25s ease; }
+    .transition-colors { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+    .duration-300 { transition-duration: 300ms; }
+    .duration-500 { transition-duration: 500ms; }
+    .transform { transform: translateZ(0); }
+
+    .opacity-85 { opacity: 0.85; }
+    .inline-block { display: inline-block; }
+    .inline-flex { display: inline-flex; }
+    .block { display: block; }
+    .col-span-full { grid-column: 1 / -1; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .z-10 { z-index: 10; }
+    .z-\[120\] { z-index: 120; }
+    .z-\[140\] { z-index: 140; }
+
+    .left-2 { left: 0.5rem; }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    input, textarea {
+      outline: none;
+    }
+    input:focus, textarea:focus {
+      border-color: #22d3ee;
+    }
+
+    button:hover, label.cursor-pointer:hover {
+      filter: brightness(1.08);
+    }
+
+    @media (min-width: 640px) {
+      .sm\:p-7 { padding: 1.75rem; }
+      .sm\:p-8 { padding: 2rem; }
+      .sm\:px-4 { padding-left: 1rem; padding-right: 1rem; }
+      .sm\:py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+      .sm\:text-sm { font-size: 0.875rem; }
+      .sm\:text-base { font-size: 1rem; }
+      .sm\:text-xl { font-size: 1.25rem; }
+      .sm\:text-2xl { font-size: 1.5rem; }
+      .sm\:text-5xl { font-size: 3rem; }
+      .sm\:w-14 { width: 3.5rem; }
+      .sm\:h-14 { height: 3.5rem; }
+      .sm\:w-20 { width: 5rem; }
+      .sm\:h-20 { height: 5rem; }
+      .sm\:min-h-\[440px\] { min-height: 440px; }
+      .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sm\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .sm\:col-span-3 { grid-column: span 3 / span 3; }
+      .sm\:col-span-4 { grid-column: span 4 / span 4; }
+      .sm\:col-span-5 { grid-column: span 5 / span 5; }
+    }
+
+    @media (min-width: 1024px) {
+      .lg\:block { display: block; }
+      .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .lg\:col-span-4 { grid-column: span 4 / span 4; }
+      .lg\:col-span-6 { grid-column: span 6 / span 6; }
+      .lg\:col-span-8 { grid-column: span 8 / span 8; }
     }
 
     .stage-section {
@@ -56,7 +356,7 @@
     ===================================================================== */
     .lamp-stage-bg {
       background:
-        radial-gradient(circle at 22% 48%, color-mix(in srgb, var(--lamp-accent) 16%, transparent), transparent 48%),
+        radial-gradient(circle at 22% 48%, rgba(245, 158, 11, 0.16), transparent 48%),
         radial-gradient(circle at 78% 50%, rgba(0, 242, 254, 0.06), transparent 56%),
         linear-gradient(135deg, #060a12 0%, #0a101d 55%, #060a12 100%);
     }
@@ -306,7 +606,7 @@
     }
   </style>
 </head>
-<body class="bg-[#060a12] text-slate-100 antialiased selection:bg-cyan-400/30 selection:text-cyan-200">
+<body class="bg-[#060a12] text-slate-100">
 
   <!-- Toast Notification Container -->
   <div id="toast-container" aria-live="polite"></div>
@@ -324,7 +624,7 @@
         <button
           id="btn-open-dev-login"
           type="button"
-          class="rounded-xl border border-cyan-400/45 bg-cyan-500/15 hover:bg-cyan-500/25 px-3.5 py-2 text-xs font-extrabold text-cyan-200 transition cursor-pointer"
+          class="rounded-xl border border-cyan-400/45 bg-cyan-500/15 px-3.5 py-2 text-xs font-extrabold text-cyan-200 transition cursor-pointer"
         >
           وضع المطورين
         </button>
@@ -332,7 +632,7 @@
         <button
           id="btn-logout-dev-stage1"
           type="button"
-          class="hidden rounded-xl border border-rose-400/45 bg-rose-500/15 hover:bg-rose-500/25 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+          class="hidden rounded-xl border border-rose-400/45 bg-rose-500/15 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
         >
           تسجيل خروج مطور
         </button>
@@ -340,7 +640,7 @@
         <button
           id="btn-toggle-lamp-light"
           type="button"
-          class="rounded-xl border border-amber-400/45 bg-amber-500/15 hover:bg-amber-500/25 px-3.5 py-2 text-xs font-extrabold text-amber-200 transition cursor-pointer"
+          class="rounded-xl border border-amber-400/45 bg-amber-500/15 px-3.5 py-2 text-xs font-extrabold text-amber-200 transition cursor-pointer"
         >
           تشغيل / إطفاء الإضاءة
         </button>
@@ -348,7 +648,7 @@
         <button
           type="button"
           data-reset-platform="true"
-          class="rounded-xl border border-rose-400/40 bg-rose-500/10 hover:bg-rose-500/20 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+          class="rounded-xl border border-rose-400/40 bg-rose-500/10 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
         >
           إعادة تعيين للافتراضي
         </button>
@@ -363,7 +663,7 @@
           <button
             id="btn-cycle-lamp-color"
             type="button"
-            class="mr-1 rounded-lg bg-slate-800 hover:bg-slate-700 px-2 py-0.5 text-[10px] font-bold text-slate-200 transition cursor-pointer"
+            class="mr-1 rounded-lg bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-slate-200 transition cursor-pointer"
           >
             تبديل
           </button>
@@ -462,7 +762,7 @@
                 id="auth-id-input"
                 type="text"
                 inputmode="numeric"
-                class="w-full rounded-xl border border-slate-700 bg-slate-950/90 px-3.5 py-2.5 text-sm font-code text-white focus:border-cyan-400 focus:outline-none"
+                class="w-full rounded-xl border border-slate-700 bg-slate-950/90 px-3.5 py-2.5 text-sm font-code text-white"
               />
             </div>
 
@@ -472,7 +772,7 @@
                 id="auth-pass-input"
                 type="password"
                 inputmode="numeric"
-                class="w-full rounded-xl border border-slate-700 bg-slate-950/90 px-3.5 py-2.5 text-sm font-code text-white focus:border-cyan-400 focus:outline-none"
+                class="w-full rounded-xl border border-slate-700 bg-slate-950/90 px-3.5 py-2.5 text-sm font-code text-white"
               />
             </div>
 
@@ -481,7 +781,7 @@
             <button
               id="auth-submit-btn"
               type="submit"
-              class="w-full rounded-2xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 py-3 text-sm font-black text-slate-950 shadow-lg transition cursor-pointer"
+              class="w-full rounded-2xl bg-gradient-to-r from-cyan-400 to-sky-400 py-3 text-sm font-black text-slate-950 shadow-lg transition cursor-pointer"
             >
               تسجيل الدخول
             </button>
@@ -489,7 +789,7 @@
             <button
               id="btn-guest-login"
               type="button"
-              class="w-full rounded-2xl border border-slate-600/90 bg-slate-900/90 hover:bg-slate-800 py-2.5 text-xs sm:text-sm font-extrabold text-slate-200 transition cursor-pointer"
+              class="w-full rounded-2xl border border-slate-600/90 bg-slate-900/90 py-2.5 text-xs sm:text-sm font-extrabold text-slate-200 transition cursor-pointer"
             >
               دخول كزائر (قراءة فقط بدون تعديل)
             </button>
@@ -516,7 +816,7 @@
         <button
           id="btn-back-to-stage1"
           type="button"
-          class="rounded-xl border border-slate-700 bg-slate-900/80 hover:bg-slate-800 px-3.5 py-2 text-xs font-bold text-slate-200 transition cursor-pointer"
+          class="rounded-xl border border-slate-700 bg-slate-900/80 px-3.5 py-2 text-xs font-bold text-slate-200 transition cursor-pointer"
         >
           الواجهة الأولى →
         </button>
@@ -524,7 +824,7 @@
         <button
           id="btn-switch-regular-stage2"
           type="button"
-          class="rounded-xl border border-sky-400/45 bg-sky-500/15 hover:bg-sky-500/25 px-3.5 py-2 text-xs font-extrabold text-sky-200 transition cursor-pointer"
+          class="rounded-xl border border-sky-400/45 bg-sky-500/15 px-3.5 py-2 text-xs font-extrabold text-sky-200 transition cursor-pointer"
         >
           تسجيل لحساب عادي
         </button>
@@ -532,7 +832,7 @@
         <button
           id="btn-logout-dev-stage2"
           type="button"
-          class="hidden rounded-xl border border-rose-400/45 bg-rose-500/15 hover:bg-rose-500/25 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+          class="hidden rounded-xl border border-rose-400/45 bg-rose-500/15 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
         >
           تسجيل خروج مطور
         </button>
@@ -540,7 +840,7 @@
         <button
           id="btn-stage2-cycle-theme"
           type="button"
-          class="rounded-xl border border-cyan-400/45 bg-cyan-500/15 hover:bg-cyan-500/25 px-3.5 py-2 text-xs font-extrabold text-cyan-200 transition cursor-pointer"
+          class="rounded-xl border border-cyan-400/45 bg-cyan-500/15 px-3.5 py-2 text-xs font-extrabold text-cyan-200 transition cursor-pointer"
         >
           تغيير اللون والخلفية: <span id="stage2-theme-name">سماوي ليلي</span>
         </button>
@@ -548,7 +848,7 @@
         <button
           id="btn-stage2-edit-idea"
           type="button"
-          class="hidden rounded-xl border border-amber-400/50 bg-amber-500/15 hover:bg-amber-500/25 px-3.5 py-2 text-xs font-extrabold text-amber-200 transition cursor-pointer"
+          class="hidden rounded-xl border border-amber-400/50 bg-amber-500/15 px-3.5 py-2 text-xs font-extrabold text-amber-200 transition cursor-pointer"
         >
           كتابة نص الفكرة والعنوان
         </button>
@@ -556,7 +856,7 @@
         <button
           type="button"
           data-reset-platform="true"
-          class="rounded-xl border border-rose-400/40 bg-rose-500/10 hover:bg-rose-500/20 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+          class="rounded-xl border border-rose-400/40 bg-rose-500/10 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
         >
           إعادة تعيين للافتراضي
         </button>
@@ -584,7 +884,7 @@
           <button
             id="btn-open-topic-center"
             type="button"
-            class="w-full rounded-2xl px-8 py-4 text-base sm:text-lg font-black text-slate-950 transition transform hover:scale-[1.03] cursor-pointer"
+            class="w-full rounded-2xl px-8 py-4 text-base sm:text-lg font-black text-slate-950 transition transform cursor-pointer"
             style="background-image: linear-gradient(to right, var(--stage2-accent), #38bdf8);"
           >
             استعراض البروفايلات (الواجهة 3)
@@ -593,7 +893,7 @@
           <button
             id="btn-open-my-profile-editor"
             type="button"
-            class="hidden w-full rounded-2xl border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 px-6 py-3 text-xs sm:text-sm font-black text-cyan-200 transition cursor-pointer"
+            class="hidden w-full rounded-2xl border border-cyan-400/50 bg-cyan-500/15 px-6 py-3 text-xs sm:text-sm font-black text-cyan-200 transition cursor-pointer"
           >
             تعديل بروفايلي الآن
           </button>
@@ -625,7 +925,7 @@
         <button
           id="btn-back-to-stage2"
           type="button"
-          class="rounded-xl border border-slate-700 bg-slate-900/85 hover:bg-slate-800 px-3.5 py-2 text-xs font-bold text-slate-200 transition cursor-pointer"
+          class="rounded-xl border border-slate-700 bg-slate-900/85 px-3.5 py-2 text-xs font-bold text-slate-200 transition cursor-pointer"
         >
           الواجهة الثانية →
         </button>
@@ -633,7 +933,7 @@
         <button
           id="btn-switch-regular-stage3"
           type="button"
-          class="rounded-xl border border-sky-400/45 bg-sky-500/15 hover:bg-sky-500/25 px-3.5 py-2 text-xs font-extrabold text-sky-200 transition cursor-pointer"
+          class="rounded-xl border border-sky-400/45 bg-sky-500/15 px-3.5 py-2 text-xs font-extrabold text-sky-200 transition cursor-pointer"
         >
           تسجيل لحساب عادي
         </button>
@@ -641,7 +941,7 @@
         <button
           id="btn-logout-dev-stage3"
           type="button"
-          class="hidden rounded-xl border border-rose-400/45 bg-rose-500/15 hover:bg-rose-500/25 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+          class="hidden rounded-xl border border-rose-400/45 bg-rose-500/15 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
         >
           تسجيل خروج مطور
         </button>
@@ -649,7 +949,7 @@
         <button
           type="button"
           data-reset-platform="true"
-          class="rounded-xl border border-rose-400/40 bg-rose-500/10 hover:bg-rose-500/20 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+          class="rounded-xl border border-rose-400/40 bg-rose-500/10 px-3.5 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
         >
           إعادة تعيين للافتراضي
         </button>
@@ -663,14 +963,14 @@
         <button
           id="btn-orbit-prev"
           type="button"
-          class="rounded-xl border border-slate-700 bg-slate-900/85 hover:bg-slate-800 px-3 py-2 text-xs font-extrabold text-white transition cursor-pointer"
+          class="rounded-xl border border-slate-700 bg-slate-900/85 px-3 py-2 text-xs font-extrabold text-white transition cursor-pointer"
         >
           السابق
         </button>
         <button
           id="btn-orbit-next"
           type="button"
-          class="rounded-xl border border-slate-700 bg-slate-900/85 hover:bg-slate-800 px-3 py-2 text-xs font-extrabold text-white transition cursor-pointer"
+          class="rounded-xl border border-slate-700 bg-slate-900/85 px-3 py-2 text-xs font-extrabold text-white transition cursor-pointer"
         >
           التالي
         </button>
@@ -692,37 +992,37 @@
               id="stage3-search-input"
               type="text"
               placeholder="ابحث بالاسم أو الدور..."
-              class="w-full rounded-xl border border-slate-700/90 bg-slate-950/90 px-3.5 py-2 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+              class="w-full rounded-xl border border-slate-700/90 bg-slate-950/90 px-3.5 py-2 text-xs sm:text-sm text-white"
             />
             <button
               id="stage3-clear-search-btn"
               type="button"
-              class="hidden absolute left-2 rounded-lg bg-slate-800 hover:bg-slate-700 px-2 py-0.5 text-[10px] font-bold text-slate-200 cursor-pointer"
+              class="hidden absolute left-2 rounded-lg bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-slate-200 cursor-pointer"
             >
               مسح
             </button>
           </div>
 
-          <!-- Developer-Only Bulk Edit Controls (Hidden for Guest & Regular Users) -->
+          <!-- Developer-Only Bulk Edit Controls -->
           <div id="dev-stage3-controls" class="hidden grid-cols-3 gap-2">
             <button
               id="btn-dev-edit-active"
               type="button"
-              class="rounded-xl border border-cyan-400/40 bg-cyan-500/15 hover:bg-cyan-500/25 py-2 px-2 text-[11px] font-extrabold text-cyan-200 transition cursor-pointer"
+              class="rounded-xl border border-cyan-400/40 bg-cyan-500/15 py-2 px-2 text-[11px] font-extrabold text-cyan-200 transition cursor-pointer"
             >
               تعديل المحدد
             </button>
             <button
               id="btn-dev-add-profile"
               type="button"
-              class="rounded-xl border border-sky-400/40 bg-sky-500/15 hover:bg-sky-500/25 py-2 px-2 text-[11px] font-extrabold text-sky-200 transition cursor-pointer"
+              class="rounded-xl border border-sky-400/40 bg-sky-500/15 py-2 px-2 text-[11px] font-extrabold text-sky-200 transition cursor-pointer"
             >
               إضافة
             </button>
             <button
               id="btn-dev-remove-profile"
               type="button"
-              class="rounded-xl border border-rose-400/40 bg-rose-500/15 hover:bg-rose-500/25 py-2 px-2 text-[11px] font-extrabold text-rose-200 transition cursor-pointer"
+              class="rounded-xl border border-rose-400/40 bg-rose-500/15 py-2 px-2 text-[11px] font-extrabold text-rose-200 transition cursor-pointer"
             >
               إزالة
             </button>
@@ -764,7 +1064,7 @@
             <button
               id="btn-open-featured-modal"
               type="button"
-              class="flex-1 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 py-2.5 text-xs font-black text-slate-950 transition cursor-pointer"
+              class="flex-1 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 py-2.5 text-xs font-black text-slate-950 transition cursor-pointer"
             >
               فتح البروفايل
             </button>
@@ -772,7 +1072,7 @@
             <button
               id="btn-featured-open-article"
               type="button"
-              class="rounded-xl border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 px-4 py-2.5 text-xs font-black text-cyan-200 transition cursor-pointer"
+              class="rounded-xl border border-cyan-400/50 bg-cyan-500/15 px-4 py-2.5 text-xs font-black text-cyan-200 transition cursor-pointer"
             >
               مقال
             </button>
@@ -826,7 +1126,7 @@
         <button
           id="close-person-profile-btn"
           type="button"
-          class="rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 px-3 py-1.5 text-xs font-extrabold text-slate-300 cursor-pointer shrink-0"
+          class="rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-extrabold text-slate-300 cursor-pointer shrink-0"
         >
           إغلاق ✕
         </button>
@@ -849,7 +1149,7 @@
         <button
           id="btn-open-profile-article-page"
           type="button"
-          class="rounded-2xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 px-7 py-3 text-sm font-black text-slate-950 shadow-lg transition cursor-pointer shrink-0"
+          class="rounded-2xl bg-gradient-to-r from-cyan-400 to-sky-400 px-7 py-3 text-sm font-black text-slate-950 shadow-lg transition cursor-pointer shrink-0"
         >
           مقال
         </button>
@@ -858,7 +1158,7 @@
       <!-- Skills List -->
       <div id="detail-skills-list" class="space-y-2.5"></div>
 
-      <!-- Profile Editor Panel (Hidden completely for Guests) -->
+      <!-- Profile Editor Panel -->
       <div id="owner-profile-editor-panel" class="hidden rounded-2xl border border-cyan-400/45 bg-slate-950/95 p-4 space-y-3.5">
         <div class="flex items-center justify-between">
           <span id="owner-editor-heading" class="text-xs font-black text-cyan-300">تعديل البروفايل والصورة والسيرة الذاتية</span>
@@ -883,7 +1183,7 @@
             <div class="flex items-center gap-1.5 shrink-0">
               <label
                 for="owner-edit-avatar-file"
-                class="rounded-xl border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 px-3 py-1.5 text-[11px] font-black text-cyan-200 transition cursor-pointer"
+                class="rounded-xl border border-cyan-400/50 bg-cyan-500/15 px-3 py-1.5 text-[11px] font-black text-cyan-200 transition cursor-pointer"
               >
                 رفع صورة
               </label>
@@ -896,7 +1196,7 @@
               <button
                 id="btn-reset-owner-avatar"
                 type="button"
-                class="rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 text-[11px] font-bold text-slate-300 transition cursor-pointer"
+                class="rounded-xl border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-[11px] font-bold text-slate-300 transition cursor-pointer"
               >
                 افتراضي
               </button>
@@ -910,7 +1210,7 @@
               type="text"
               dir="ltr"
               placeholder="https://..."
-              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-code text-white focus:border-cyan-400 focus:outline-none"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-code text-white"
             />
           </div>
         </div>
@@ -921,7 +1221,7 @@
             <input
               id="owner-edit-name"
               type="text"
-              class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-white focus:border-cyan-400 focus:outline-none"
+              class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-white"
             />
           </div>
 
@@ -930,7 +1230,7 @@
             <input
               id="owner-edit-role"
               type="text"
-              class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-white focus:border-cyan-400 focus:outline-none"
+              class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-white"
             />
           </div>
         </div>
@@ -941,14 +1241,14 @@
             id="owner-edit-bio"
             rows="3"
             placeholder="اكتب السيرة الذاتية هنا..."
-            class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-white leading-relaxed focus:border-cyan-400 focus:outline-none"
+            class="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs sm:text-sm text-white leading-relaxed"
           ></textarea>
         </div>
 
         <button
           id="btn-save-owner-profile"
           type="button"
-          class="w-full rounded-xl bg-cyan-400 hover:bg-cyan-300 py-2.5 text-xs font-black text-slate-950 transition cursor-pointer"
+          class="w-full rounded-xl bg-cyan-400 py-2.5 text-xs font-black text-slate-950 transition cursor-pointer"
         >
           حفظ التعديلات
         </button>
@@ -960,14 +1260,14 @@
           <button
             id="detail-action-email"
             type="button"
-            class="rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-200 cursor-pointer"
+            class="rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-bold text-slate-200 cursor-pointer"
           >
             البريد
           </button>
           <button
             id="detail-action-github"
             type="button"
-            class="rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-200 cursor-pointer"
+            class="rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-bold text-slate-200 cursor-pointer"
           >
             GitHub
           </button>
@@ -976,7 +1276,7 @@
         <button
           id="btn-toggle-owner-editor"
           type="button"
-          class="hidden rounded-xl border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 px-3.5 py-1.5 text-xs font-extrabold text-cyan-200 cursor-pointer"
+          class="hidden rounded-xl border border-cyan-400/50 bg-cyan-500/15 px-3.5 py-1.5 text-xs font-extrabold text-cyan-200 cursor-pointer"
         >
           تعديل البروفايل والصورة والسيرة
         </button>
@@ -1010,27 +1310,27 @@
           <button
             id="btn-back-to-profile-modal"
             type="button"
-            class="rounded-xl border border-slate-600/80 bg-slate-900/85 hover:bg-slate-800 px-3.5 py-2 text-xs font-extrabold text-white transition cursor-pointer"
+            class="rounded-xl border border-slate-600/80 bg-slate-900/85 px-3.5 py-2 text-xs font-extrabold text-white transition cursor-pointer"
           >
             نافذة البروفايل
           </button>
           <button
             id="btn-back-to-stage3-from-article"
             type="button"
-            class="rounded-xl border border-slate-700 bg-slate-900/75 hover:bg-slate-800 px-3.5 py-2 text-xs font-bold text-slate-200 transition cursor-pointer"
+            class="rounded-xl border border-slate-700 bg-slate-900/75 px-3.5 py-2 text-xs font-bold text-slate-200 transition cursor-pointer"
           >
             العودة للبروفايلات (الواجهة 3) →
           </button>
         </div>
       </div>
 
-      <!-- Stage 4 Toolbar (Edit controls hidden for Guests) -->
+      <!-- Stage 4 Toolbar -->
       <div class="rounded-2xl border border-slate-700/70 bg-slate-950/65 backdrop-blur-md p-3 flex flex-wrap items-center justify-between gap-2.5">
         <div id="stage4-visual-controls" class="flex flex-wrap items-center gap-2">
           <button
             id="stage4-btn-theme-cycle"
             type="button"
-            class="rounded-xl border border-indigo-400/50 bg-indigo-500/15 hover:bg-indigo-500/25 px-3.5 py-2 text-xs font-black text-indigo-200 transition cursor-pointer"
+            class="rounded-xl border border-indigo-400/50 bg-indigo-500/15 px-3.5 py-2 text-xs font-black text-indigo-200 transition cursor-pointer"
           >
             ثيم: <span id="stage4-theme-label">Dark Cyber</span>
           </button>
@@ -1038,7 +1338,7 @@
           <label
             id="stage4-color-label"
             for="stage4-color-picker"
-            class="inline-flex items-center gap-2 rounded-xl border border-amber-400/50 bg-amber-500/15 hover:bg-amber-500/25 px-3 py-1.5 text-xs font-black text-amber-200 transition cursor-pointer"
+            class="inline-flex items-center gap-2 rounded-xl border border-amber-400/50 bg-amber-500/15 px-3 py-1.5 text-xs font-black text-amber-200 transition cursor-pointer"
           >
             <span>الألوان</span>
             <input
@@ -1053,7 +1353,7 @@
         <button
           id="stage4-btn-save"
           type="button"
-          class="hidden rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 px-5 py-2 text-xs font-black text-slate-950 shadow-lg transition cursor-pointer"
+          class="hidden rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 px-5 py-2 text-xs font-black text-slate-950 shadow-lg transition cursor-pointer"
         >
           حفظ المقال والصور
         </button>
@@ -1064,7 +1364,6 @@
         id="stage4-workspace-canvas"
         class="flex-1 rounded-3xl border border-cyan-400/35 bg-slate-950/55 backdrop-blur-md p-5 sm:p-8 space-y-6 transition-all"
       >
-        <!-- Article Title -->
         <div>
           <label for="stage4-article-title-input" class="block text-xs sm:text-sm font-extrabold opacity-85 mb-2">
             عنوان المقال
@@ -1073,11 +1372,10 @@
             id="stage4-article-title-input"
             type="text"
             placeholder="اكتب عنوان المقال الرئيسي هنا..."
-            class="w-full rounded-2xl border border-slate-700/80 bg-slate-950/80 px-4 py-3 text-base sm:text-xl font-black text-white focus:outline-none"
+            class="w-full rounded-2xl border border-slate-700/80 bg-slate-950/80 px-4 py-3 text-base sm:text-xl font-black text-white"
           />
         </div>
 
-        <!-- Expansive Article Body -->
         <div>
           <label for="stage4-main-article-textarea" class="block text-xs sm:text-sm font-extrabold opacity-85 mb-2">
             نص المقال الكامل
@@ -1086,11 +1384,11 @@
             id="stage4-main-article-textarea"
             rows="16"
             placeholder="اكتب مقالك الكامل هنا بمساحة واسعة ومريحة..."
-            class="w-full min-h-[380px] sm:min-h-[440px] rounded-2xl border border-slate-700/80 bg-slate-950/80 p-5 text-sm sm:text-base text-white leading-loose focus:outline-none resize-y"
+            class="w-full min-h-[380px] sm:min-h-[440px] rounded-2xl border border-slate-700/80 bg-slate-950/80 p-5 text-sm sm:text-base text-white leading-loose resize-y"
           ></textarea>
         </div>
 
-        <!-- Article Images Section (Add & View Images Belonging to This Article) -->
+        <!-- Article Images Section -->
         <div class="rounded-2xl border border-slate-800/90 bg-slate-950/75 p-4 sm:p-5 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
@@ -1099,7 +1397,6 @@
             </div>
           </div>
 
-          <!-- Add Article Image Controls (Hidden for Guests) -->
           <div id="stage4-add-image-panel" class="hidden rounded-2xl border border-slate-800 bg-slate-900/70 p-4 space-y-3">
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
               <div class="sm:col-span-5">
@@ -1108,7 +1405,7 @@
                   id="stage4-image-caption-input"
                   type="text"
                   placeholder="مثال: لقطة من المشروع أو مخطط توضيحي"
-                  class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs sm:text-sm text-white focus:border-cyan-400 focus:outline-none"
+                  class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs sm:text-sm text-white"
                 />
               </div>
 
@@ -1119,14 +1416,14 @@
                   type="text"
                   dir="ltr"
                   placeholder="https://..."
-                  class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-code text-white focus:border-cyan-400 focus:outline-none"
+                  class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-code text-white"
                 />
               </div>
 
               <div class="sm:col-span-3 flex items-center gap-2">
                 <label
                   for="stage4-image-file-input"
-                  class="flex-1 text-center rounded-xl border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 px-3 py-2 text-xs font-black text-cyan-200 transition cursor-pointer"
+                  class="flex-1 text-center rounded-xl border border-cyan-400/50 bg-cyan-500/15 px-3 py-2 text-xs font-black text-cyan-200 transition cursor-pointer"
                 >
                   رفع من الجهاز
                 </label>
@@ -1135,7 +1432,7 @@
                 <button
                   id="stage4-btn-add-url-image"
                   type="button"
-                  class="rounded-xl bg-sky-400 hover:bg-sky-300 px-3.5 py-2 text-xs font-black text-slate-950 transition cursor-pointer"
+                  class="rounded-xl bg-sky-400 px-3.5 py-2 text-xs font-black text-slate-950 transition cursor-pointer"
                 >
                   إضافة
                 </button>
@@ -1143,7 +1440,6 @@
             </div>
           </div>
 
-          <!-- Article Images Grid -->
           <div id="stage4-article-images-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
       </div>
@@ -1157,7 +1453,7 @@
     <div class="w-full max-w-lg rounded-3xl border border-amber-400/45 bg-[#0c1322] p-6 text-white shadow-2xl space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-black text-amber-300">كتابة عنوان ونص الفكرة</h3>
-        <button id="close-stage2-idea-btn" type="button" class="text-slate-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+        <button id="close-stage2-idea-btn" type="button" class="text-slate-400 text-lg font-bold cursor-pointer bg-transparent border-0">✕</button>
       </div>
       <div class="space-y-3">
         <div>
@@ -1165,7 +1461,7 @@
           <input
             id="stage2-idea-title-input"
             type="text"
-            class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white focus:border-amber-400 focus:outline-none"
+            class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white"
           />
         </div>
         <div>
@@ -1173,15 +1469,15 @@
           <textarea
             id="stage2-idea-text-input"
             rows="4"
-            class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white leading-relaxed focus:border-amber-400 focus:outline-none"
+            class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white leading-relaxed"
           ></textarea>
         </div>
       </div>
       <div class="flex items-center justify-end gap-2 pt-2">
-        <button id="cancel-stage2-idea-btn" type="button" class="rounded-xl border border-slate-700 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 cursor-pointer">
+        <button id="cancel-stage2-idea-btn" type="button" class="rounded-xl border border-slate-700 bg-transparent px-4 py-2 text-xs font-bold text-slate-300 cursor-pointer">
           إلغاء
         </button>
-        <button id="save-stage2-idea-btn" type="button" class="rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 px-5 py-2 text-xs font-black cursor-pointer">
+        <button id="save-stage2-idea-btn" type="button" class="rounded-xl bg-amber-400 text-slate-950 px-5 py-2 text-xs font-black cursor-pointer border-0">
           حفظ الفكرة
         </button>
       </div>
@@ -1195,7 +1491,7 @@
     <div class="w-full max-w-md rounded-3xl border border-cyan-400/40 bg-[#0c1322] p-6 text-white shadow-2xl space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-black text-cyan-300">دخول المطورين</h3>
-        <button id="close-dev-login-btn" type="button" class="text-slate-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+        <button id="close-dev-login-btn" type="button" class="text-slate-400 text-lg font-bold cursor-pointer bg-transparent border-0">✕</button>
       </div>
       <p class="text-xs text-slate-300 leading-relaxed">
         أدخل باسورد المطورين للدخول مباشرة بكل صلاحيات التعديل.
@@ -1205,13 +1501,13 @@
         type="password"
         inputmode="numeric"
         placeholder="•••••"
-        class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm font-code text-white focus:border-cyan-400 focus:outline-none"
+        class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm font-code text-white"
       />
       <div class="flex items-center justify-end gap-2 pt-1">
-        <button id="cancel-dev-login-btn" type="button" class="rounded-xl border border-slate-700 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 cursor-pointer">
+        <button id="cancel-dev-login-btn" type="button" class="rounded-xl border border-slate-700 bg-transparent px-4 py-2 text-xs font-bold text-slate-300 cursor-pointer">
           إلغاء
         </button>
-        <button id="dev-confirm-login-btn" type="button" class="rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 text-slate-950 px-5 py-2 text-xs font-black cursor-pointer">
+        <button id="dev-confirm-login-btn" type="button" class="rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 text-slate-950 px-5 py-2 text-xs font-black cursor-pointer border-0">
           دخول
         </button>
       </div>
@@ -1222,22 +1518,22 @@
     <div class="w-full max-w-lg rounded-3xl border border-sky-400/40 bg-[#0c1322] p-6 text-white shadow-2xl space-y-4 my-auto">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-black text-sky-300">إضافة بروفايل جديد</h3>
-        <button id="close-add-profile-btn" type="button" class="text-slate-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+        <button id="close-add-profile-btn" type="button" class="text-slate-400 text-lg font-bold cursor-pointer bg-transparent border-0">✕</button>
       </div>
       <div class="space-y-3">
         <div>
           <label for="add-item-name" class="block text-xs font-bold text-slate-300 mb-1">الاسم</label>
-          <input id="add-item-name" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white focus:border-sky-400 focus:outline-none" />
+          <input id="add-item-name" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white" />
         </div>
         <div>
           <label for="add-item-role" class="block text-xs font-bold text-slate-300 mb-1">الدور / الوصف</label>
-          <input id="add-item-role" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white focus:border-sky-400 focus:outline-none" />
+          <input id="add-item-role" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white" />
         </div>
         <div>
           <label for="add-item-avatar" class="block text-xs font-bold text-slate-300 mb-1">رابط الصورة أو رفع ملف</label>
           <div class="flex items-center gap-2">
-            <input id="add-item-avatar" type="text" dir="ltr" placeholder="https://..." class="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-code text-white focus:border-sky-400 focus:outline-none" />
-            <label for="add-item-avatar-file" class="rounded-xl border border-sky-400/50 bg-sky-500/15 hover:bg-sky-500/25 px-3 py-2 text-xs font-black text-sky-200 cursor-pointer shrink-0">
+            <input id="add-item-avatar" type="text" dir="ltr" placeholder="https://..." class="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs font-code text-white" />
+            <label for="add-item-avatar-file" class="rounded-xl border border-sky-400/50 bg-sky-500/15 px-3 py-2 text-xs font-black text-sky-200 cursor-pointer shrink-0">
               رفع صورة
             </label>
             <input id="add-item-avatar-file" type="file" accept="image/*" class="hidden" />
@@ -1245,15 +1541,15 @@
         </div>
         <div>
           <label for="add-item-bio" class="block text-xs font-bold text-slate-300 mb-1">السيرة الذاتية</label>
-          <textarea id="add-item-bio" rows="3" placeholder="اكتب السيرة الذاتية للعضو..." class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white leading-relaxed focus:border-sky-400 focus:outline-none"></textarea>
+          <textarea id="add-item-bio" rows="3" placeholder="اكتب السيرة الذاتية للعضو..." class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white leading-relaxed"></textarea>
         </div>
         <div>
           <label for="add-item-article-title" class="block text-xs font-bold text-slate-300 mb-1">عنوان المقال</label>
-          <input id="add-item-article-title" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white focus:border-sky-400 focus:outline-none" />
+          <input id="add-item-article-title" type="text" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white" />
         </div>
         <div>
           <label for="add-item-article" class="block text-xs font-bold text-slate-300 mb-1">نص المقال</label>
-          <textarea id="add-item-article" rows="3" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white leading-relaxed focus:border-sky-400 focus:outline-none"></textarea>
+          <textarea id="add-item-article" rows="3" class="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-sm text-white leading-relaxed"></textarea>
         </div>
         <div class="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/80 p-3">
           <span class="text-xs font-bold text-slate-200">لون التمييز</span>
@@ -1261,10 +1557,10 @@
         </div>
       </div>
       <div class="flex items-center justify-end gap-2 pt-2">
-        <button id="cancel-add-profile-btn" type="button" class="rounded-xl border border-slate-700 px-4 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 cursor-pointer">
+        <button id="cancel-add-profile-btn" type="button" class="rounded-xl border border-slate-700 bg-transparent px-4 py-2 text-xs font-bold text-slate-300 cursor-pointer">
           إلغاء
         </button>
-        <button id="confirm-add-item-btn" type="button" class="rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 px-5 py-2 text-xs font-black cursor-pointer">
+        <button id="confirm-add-item-btn" type="button" class="rounded-xl bg-sky-400 text-slate-950 px-5 py-2 text-xs font-black cursor-pointer border-0">
           إضافة
         </button>
       </div>
@@ -1887,7 +2183,6 @@
         saveState(true);
       });
 
-      // Developer Login Modal (Passcode: 75321 -> Instant Entry)
       document.getElementById('btn-open-dev-login')?.addEventListener('click', () => {
         const input = document.getElementById('dev-pass-input');
         if (input) input.value = '';
@@ -2280,7 +2575,7 @@
           const selected = rid === active.id;
           row.className = selected
             ? 'w-full text-right rounded-2xl border border-cyan-400/60 bg-cyan-500/15 p-3 transition cursor-pointer'
-            : 'w-full text-right rounded-2xl border border-slate-800/90 bg-slate-900/70 hover:bg-slate-800/80 p-3 transition cursor-pointer';
+            : 'w-full text-right rounded-2xl border border-slate-800/90 bg-slate-900/70 p-3 transition cursor-pointer';
         });
       }
 
@@ -2306,7 +2601,7 @@
               btn.setAttribute('data-profile-list-id', p.id);
               btn.className = selected
                 ? 'w-full text-right rounded-2xl border border-cyan-400/60 bg-cyan-500/15 p-3 transition cursor-pointer'
-                : 'w-full text-right rounded-2xl border border-slate-800/90 bg-slate-900/70 hover:bg-slate-800/80 p-3 transition cursor-pointer';
+                : 'w-full text-right rounded-2xl border border-slate-800/90 bg-slate-900/70 p-3 transition cursor-pointer';
               btn.innerHTML = `
                 <div class="flex items-center justify-between gap-2.5">
                   <div class="flex items-center gap-2.5 min-w-0">
@@ -2763,7 +3058,6 @@
         toast(`ملف ${p.name} جاهز للاستعراض`, 'info');
       });
 
-      // Stage 4: Article + Article Images
       function renderStage4ArticleImages() {
         const gridEl = document.getElementById('stage4-article-images-grid');
         const countEl = document.getElementById('stage4-images-count');
@@ -2797,7 +3091,7 @@
               <p class="text-xs font-bold text-slate-200 truncate">${imgItem.caption || `صورة ${idx + 1}`}</p>
               ${
                 editable
-                  ? `<button type="button" data-remove-article-img="${idx}" class="rounded-lg border border-rose-400/40 bg-rose-500/15 hover:bg-rose-500/25 px-2.5 py-1 text-[11px] font-extrabold text-rose-200 cursor-pointer shrink-0">حذف</button>`
+                  ? `<button type="button" data-remove-article-img="${idx}" class="rounded-lg border border-rose-400/40 bg-rose-500/15 px-2.5 py-1 text-[11px] font-extrabold text-rose-200 cursor-pointer shrink-0">حذف</button>`
                   : ''
               }
             </div>
