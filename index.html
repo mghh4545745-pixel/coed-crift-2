@@ -1,3 +1,7 @@
+=======================================================================
+CodeCraft 3D - منصة المراحل الأربع التفاعلية (النسخة الكاملة)
+=======================================================================
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -598,8 +602,6 @@
       color: #0f172a;
     }
 
-
-    /* Responsive Stage 1 side-by-side scaling across all viewport sizes */
     .stage1-split-grid {
       width: 100%;
     }
@@ -681,7 +683,6 @@
     id="stage-1"
     class="stage-section lamp-stage-bg min-h-screen w-full flex flex-col justify-between p-4 sm:p-7"
   >
-    <!-- Top Bar -->
     <div class="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2">
         <button
@@ -738,9 +739,7 @@
       </span>
     </div>
 
-    <!-- Main Stage 1 Split: Articulated Lamp on Left, Login Card on Right across all screen sizes -->
     <div dir="ltr" class="stage1-split-grid w-full max-w-6xl mx-auto my-auto py-3 sm:py-6 flex flex-row items-center justify-between gap-3 sm:gap-8">
-      <!-- LEFT: Articulated SVG Desk Lamp with Pull-Chain & Light Cone -->
       <div class="stage1-lamp-col w-1/2 flex flex-col items-center justify-center min-w-0">
         <div class="lamp-svg-wrapper">
           <svg id="lamp-svg" viewBox="0 0 640 310" role="img" aria-label="مصباح مكتبي مفصلي بحبل سحب على اليسار">
@@ -806,7 +805,6 @@
         </p>
       </div>
 
-      <!-- RIGHT: Login Card -->
       <div dir="rtl" class="stage1-login-col w-1/2 flex items-center justify-center min-w-0">
         <div
           id="login-card"
@@ -873,7 +871,6 @@
   >
     <canvas id="stage2-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
 
-    <!-- Top Row -->
     <div class="relative z-10 w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2">
         <button
@@ -934,7 +931,6 @@
       </span>
     </div>
 
-    <!-- Center Hub -->
     <div class="relative z-10 w-full max-w-6xl mx-auto my-auto py-8 flex flex-col items-center gap-8">
       <h2 id="stage2-idea-title" class="text-3xl sm:text-5xl font-black text-center text-white tracking-tight">
         مركز المواضيع التفاعلي
@@ -982,7 +978,6 @@
     id="stage-3"
     class="stage-section cyber-grid-bg hidden min-h-screen w-full flex flex-col justify-between p-4 sm:p-7"
   >
-    <!-- Top Header -->
     <div class="w-full max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2.5">
         <button
@@ -1040,16 +1035,13 @@
       </div>
     </div>
 
-    <!-- Main Stage 3 Grid -->
     <div class="w-full max-w-7xl mx-auto my-auto py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-      <!-- Left Column: Search/Filter + Profiles List & Featured Summary -->
       <div class="lg:col-span-4 space-y-4">
         <div class="rounded-3xl border border-slate-800 bg-[#0b1220]/90 backdrop-blur-xl p-4 space-y-3">
           <div class="flex items-center justify-between gap-2">
             <h2 class="text-sm sm:text-base font-black text-white">قائمة البروفايلات (<span id="stage3-list-title-count">5</span>)</h2>
           </div>
 
-          <!-- Quick Search / Filter Bar -->
           <div class="relative flex items-center">
             <input
               id="stage3-search-input"
@@ -1066,7 +1058,6 @@
             </button>
           </div>
 
-          <!-- Developer-Only Bulk Edit Controls -->
           <div id="dev-stage3-controls" class="hidden grid-cols-3 gap-2">
             <button
               id="btn-dev-edit-active"
@@ -1094,7 +1085,6 @@
           <div id="stage3-profile-list" class="max-h-64 overflow-y-auto space-y-2 pr-0.5"></div>
         </div>
 
-        <!-- Featured Profile Summary Bar -->
         <div
           id="stage3-featured-bar"
           class="rounded-3xl border border-cyan-400/35 bg-[#0b1220]/90 backdrop-blur-xl p-4 space-y-3"
@@ -1143,7 +1133,6 @@
         </div>
       </div>
 
-      <!-- Right Column: Auto-Orbit + Touch/Drag Cards -->
       <div class="lg:col-span-8">
         <div
           id="orbit-arena"
@@ -1195,13 +1184,11 @@
         </button>
       </div>
 
-      <!-- Bio / CV Box -->
       <div class="rounded-2xl border border-slate-800 bg-slate-950/85 p-4 space-y-2">
         <span class="text-xs font-black text-cyan-300">السيرة الذاتية</span>
         <p id="detail-person-bio" class="text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line"></p>
       </div>
 
-      <!-- Dedicated "مقال" Stage Launcher Box -->
       <div class="rounded-2xl border border-cyan-400/35 bg-slate-950/90 p-4 flex flex-wrap items-center justify-between gap-3">
         <div class="min-w-0">
           <div class="text-[11px] font-bold text-cyan-300">مرحلة المقال والصور الكاملة (الواجهة 4)</div>
@@ -1218,16 +1205,13 @@
         </button>
       </div>
 
-      <!-- Skills List -->
       <div id="detail-skills-list" class="space-y-2.5"></div>
 
-      <!-- Profile Editor Panel -->
       <div id="owner-profile-editor-panel" class="hidden rounded-2xl border border-cyan-400/45 bg-slate-950/95 p-4 space-y-3.5">
         <div class="flex items-center justify-between">
           <span id="owner-editor-heading" class="text-xs font-black text-cyan-300">تعديل البروفايل والصورة والسيرة الذاتية</span>
         </div>
 
-        <!-- Avatar Change Controls -->
         <div class="rounded-xl border border-slate-800 bg-slate-900/75 p-3 space-y-2.5">
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
@@ -1317,7 +1301,6 @@
         </button>
       </div>
 
-      <!-- Bottom Action Buttons -->
       <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
         <div class="flex flex-wrap items-center gap-2">
           <button
@@ -1355,7 +1338,6 @@
     class="stage-section stage4-theme-cyber hidden min-h-screen w-full flex-col p-4 sm:p-7 transition-colors duration-300"
   >
     <div class="w-full max-w-6xl mx-auto flex flex-col gap-5 flex-1">
-      <!-- Top Header -->
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-2.5">
           <h1
@@ -1387,7 +1369,6 @@
         </div>
       </div>
 
-      <!-- Stage 4 Toolbar -->
       <div class="rounded-2xl border border-slate-700/70 bg-slate-950/65 backdrop-blur-md p-3 flex flex-wrap items-center justify-between gap-2.5">
         <div id="stage4-visual-controls" class="flex flex-wrap items-center gap-2">
           <button
@@ -1422,7 +1403,6 @@
         </button>
       </div>
 
-      <!-- Main Large Article & Media Stage -->
       <div
         id="stage4-workspace-canvas"
         class="flex-1 rounded-3xl border border-cyan-400/35 bg-slate-950/55 backdrop-blur-md p-5 sm:p-8 space-y-6 transition-all"
@@ -1458,7 +1438,6 @@
           ></textarea>
         </div>
 
-        <!-- Article Images Section -->
         <div class="rounded-2xl border border-slate-800/90 bg-slate-950/75 p-4 sm:p-5 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
@@ -1555,7 +1534,7 @@
   </div>
 
   <!-- =======================================================================
-       DEVELOPER LOGIN MODAL (PASSCODE: 75321 -> INSTANT ENTRY) + ADD PROFILE MODAL
+       DEVELOPER LOGIN MODAL + ADD PROFILE MODAL
   ======================================================================= -->
   <div id="modal-dev-login" class="fixed inset-0 z-[140] hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
     <div class="w-full max-w-md rounded-3xl border border-cyan-400/40 bg-[#0c1322] p-6 text-white shadow-2xl space-y-4">
@@ -1637,15 +1616,11 @@
     </div>
   </div>
 
-  <!-- =======================================================================
-       APPLICATION RUNTIME SCRIPT (FIXED ORBIT CARDS + SAFE CLOUD SYNC)
-  ======================================================================= -->
   <script>
     (function () {
       const STORAGE_KEY = 'codecraft_id_auth_profiles_v10';
       const DEV_PASS = '75321';
 
-      // Supabase REST config (publishable key only for browser frontend)
       const SUPABASE_URL = 'https://kakdgmwxkhmizlggclei.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtha2RnbXd4a2htaXpsZ2djbGVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMjE4MDAsImV4cCI6MjExMDY5NzgwMH0.wLgbb1dFLd4Iufjw-oRQB0tnowotsi1TzkklQKvEwUk';
       const SUPABASE_TABLE = 'platform_state';
@@ -1878,7 +1853,6 @@
         };
       }
 
-      // منع مزامنة بيانات تسجيل الدخول (authId / authPass) مع السحابة
       function buildCloudPayload(srcState) {
         const sanitizedProfiles = (srcState.profiles || []).map((p) => {
           const { authId, authPass, ...publicProfileFields } = p;
@@ -1940,7 +1914,6 @@
         }
       }
 
-      // Single sync on page open or refresh (no background polling)
       async function syncSharedStateOnceOnLoad() {
         if (hasSyncedOnCurrentLoad) return;
         hasSyncedOnCurrentLoad = true;
@@ -2156,9 +2129,6 @@
         goToStage(1);
       }
 
-      // =====================================================================
-      // LAMP & COLORS (STAGE 1)
-      // =====================================================================
       function applyLampPresetColor(hex, labelText) {
         const accent = hex || '#f59e0b';
         state.stageColors[1] = accent;
@@ -2300,9 +2270,6 @@
         enterAsGuest();
       });
 
-      // =====================================================================
-      // STAGE 2: COLOR/BG SWITCHER + IDEA TITLE & TEXT
-      // =====================================================================
       function applyStage2Theme(themeKey) {
         const key = STAGE2_THEMES[themeKey] ? themeKey : 'cyber';
         const themeObj = STAGE2_THEMES[key];
@@ -2451,9 +2418,6 @@
         openPersonProfileModal(target, true);
       });
 
-      // =====================================================================
-      // STAGE 2 CANVAS
-      // =====================================================================
       (function initStage2Canvas() {
         const canvas = document.getElementById('stage2-canvas');
         if (!canvas) return;
@@ -2519,9 +2483,6 @@
       document.getElementById('btn-back-to-stage1')?.addEventListener('click', () => goToStage(1));
       document.getElementById('btn-open-topic-center')?.addEventListener('click', () => goToStage(3));
 
-      // =====================================================================
-      // STAGE 3: AUTO-ORBIT + TOUCH/DRAG + SEARCH/FILTER PROFILE EXPLORER
-      // =====================================================================
       let orbitAngle = 0;
       let orbitVelocity = 0;
       let isInteractingOrbit = false;
@@ -2965,9 +2926,6 @@
 
       document.getElementById('btn-back-to-stage2')?.addEventListener('click', () => goToStage(2));
 
-      // =====================================================================
-      // PROFILE MODAL + AVATAR & BIO EDITOR + STAGE 4 ARTICLE & IMAGES
-      // =====================================================================
       let draftStage4Theme = 'cyber';
       let draftStage4Accent = '#00f2fe';
       let draftAvatarDataUrl = '';
@@ -3423,7 +3381,6 @@
         }
       }
 
-      // Initial Boot + One-Time Sync on Open / Refresh
       const initialPreset = LAMP_PRESETS[state.lampPreset];
       applyLampPresetColor(
         initialPreset?.hex || state.stageColors[1] || '#f59e0b',
