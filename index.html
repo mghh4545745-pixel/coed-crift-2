@@ -1582,7 +1582,7 @@
 
       // Supabase REST config (publishable key only for browser frontend)
       const SUPABASE_URL = 'https://kakdgmwxkhmizlggclei.supabase.co';
-      const SUPABASE_ANON_KEY = 'sb_publishable_1UcwKN-yOpQ7OPLFksraNA_mgVyQizh';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtha2RnbXd4a2htaXpsZ2djbGVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMjE4MDAsImV4cCI6MjExMDY5NzgwMH0.wLgbb1dFLd4Iufjw-oRQB0tnowotsi1TzkklQKvEwUk';
       const SUPABASE_TABLE = 'platform_state';
       const SUPABASE_ROW_ID = 'codecraft_shared_v1';
 
@@ -1778,19 +1778,26 @@
         };
       }
 
-      function normalizeState(parsed) {
+      function normalizeState(parsed, options = {}) {
+        const ignoreAuthSync = Boolean(options.ignoreAuthSync);
+        const localProfiles = Array.isArray(state?.profiles) ? state.profiles : [];
         const base = createDefaultState();
         if (!parsed || typeof parsed !== 'object') return base;
         const profiles = Array.isArray(parsed.profiles) && parsed.profiles.length
           ? parsed.profiles.map((p, idx) => {
               const fb = base.profiles[idx % base.profiles.length];
+              const existingLocal = localProfiles.find((lp) => lp.id === p.id) || localProfiles[idx];
               return {
                 ...fb,
                 ...p,
                 bio: typeof p.bio === 'string' ? p.bio : fb.bio,
                 articleImages: Array.isArray(p.articleImages) ? p.articleImages : [],
-                authId: p.authId || fb.authId,
-                authPass: p.authPass || fb.authPass
+                authId: ignoreAuthSync
+                  ? (existingLocal?.authId || fb.authId)
+                  : (p.authId || existingLocal?.authId || fb.authId),
+                authPass: ignoreAuthSync
+                  ? (existingLocal?.authPass || fb.authPass)
+                  : (p.authPass || existingLocal?.authPass || fb.authPass)
               };
             })
           : base.profiles;
@@ -1806,14 +1813,19 @@
         };
       }
 
+      // منع مزامنة بيانات تسجيل الدخول (authId / authPass) مع السحابة
       function buildCloudPayload(srcState) {
+        const sanitizedProfiles = (srcState.profiles || []).map((p) => {
+          const { authId, authPass, ...publicProfileFields } = p;
+          return publicProfileFields;
+        });
         return {
           stage2Theme: srcState.stage2Theme,
           stage2IdeaTitle: srcState.stage2IdeaTitle,
           stage2IdeaText: srcState.stage2IdeaText,
           lampPreset: srcState.lampPreset,
           stageColors: srcState.stageColors,
-          profiles: srcState.profiles
+          profiles: sanitizedProfiles
         };
       }
 
@@ -1892,7 +1904,7 @@
             lampPreset: cloud.lampPreset,
             stageColors: cloud.stageColors,
             profiles: cloud.profiles
-          });
+          }, { ignoreAuthSync: true });
           writeLocalOnly();
 
           const preset = LAMP_PRESETS[state.lampPreset];
