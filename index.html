@@ -74,6 +74,7 @@
     .h-14 { height: 3.5rem; }
     .h-16 { height: 4rem; }
     .h-48 { height: 12rem; }
+    .h-\[380px\] { height: 380px; }
     .w-2\.5 { width: 0.625rem; }
     .w-4 { width: 1rem; }
     .w-6 { width: 1.5rem; }
@@ -317,6 +318,7 @@
     }
 
     @media (min-width: 640px) {
+      .sm\:h-\[440px\] { height: 440px; }
       .sm\:p-7 { padding: 1.75rem; }
       .sm\:p-8 { padding: 2rem; }
       .sm\:px-4 { padding-left: 1rem; padding-right: 1rem; }
@@ -526,22 +528,27 @@
     }
 
     .orbit-stage {
-      perspective: 1200px;
-      transform-style: preserve-3d;
+      min-height: 380px;
       touch-action: none;
+    }
+
+    #orbit-ring-track {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 380px;
+      z-index: 15;
     }
 
     .orbit-card {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 174px;
-      margin-left: -87px;
-      margin-top: -86px;
+      width: 168px;
       border-radius: 18px;
-      background: rgba(11, 18, 32, 0.92);
+      background: rgba(11, 18, 32, 0.94);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(148, 163, 184, 0.22);
+      border: 1px solid rgba(148, 163, 184, 0.28);
       transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
       cursor: pointer;
       user-select: none;
@@ -551,16 +558,14 @@
 
     @media (min-width: 640px) {
       .orbit-card {
-        width: 192px;
-        margin-left: -96px;
-        margin-top: -90px;
+        width: 186px;
       }
     }
 
     .orbit-card.is-featured {
       border-color: var(--stage3-accent, #00f2fe);
-      box-shadow: 0 0 24px rgba(0, 242, 254, 0.22), 0 18px 36px rgba(0, 0, 0, 0.75);
-      background: rgba(14, 24, 42, 0.97);
+      box-shadow: 0 0 24px rgba(0, 242, 254, 0.26), 0 18px 36px rgba(0, 0, 0, 0.78);
+      background: rgba(14, 24, 42, 0.98);
     }
 
     #person-detail-card {
@@ -1568,11 +1573,11 @@
   </div>
 
   <!-- =======================================================================
-       APPLICATION RUNTIME SCRIPT (OPEN / REFRESH CLOUD SYNC ONLY)
+       APPLICATION RUNTIME SCRIPT (FIXED ORBIT CARDS + SAFE CLOUD SYNC)
   ======================================================================= -->
   <script>
     (function () {
-      const STORAGE_KEY = 'codecraft_id_auth_profiles_v9';
+      const STORAGE_KEY = 'codecraft_id_auth_profiles_v10';
       const DEV_PASS = '75321';
 
       // Supabase REST config (publishable key only for browser frontend)
@@ -1852,8 +1857,7 @@
               updated_at: new Date().toISOString()
             }])
           });
-          if (!res.ok) return false;
-          return true;
+          return res.ok;
         } catch (_) {
           return false;
         }
@@ -1925,7 +1929,7 @@
           if (ok) {
             toast('تم الحفظ ومزامنة التحديث للجميع', 'success');
           } else {
-            toast('تم الحفظ محلياً (تعذر الوصول للسحابة حالياً)', 'info');
+            toast('تم الحفظ محلياً (تحقق من جدول platform_state وسياسة RLS في Supabase)', 'info');
           }
         }
       }
@@ -2464,32 +2468,42 @@
       }
 
       function renderOrbitCards() {
+        const arena = document.getElementById('orbit-arena');
         const track = document.getElementById('orbit-ring-track');
-        if (!track) return;
+        if (!arena || !track) return;
+
+        track.style.position = 'relative';
+        track.style.width = '100%';
+        track.style.height = '100%';
+        track.style.zIndex = '15';
         track.innerHTML = '';
 
-        const list = state.profiles;
+        const list = Array.isArray(state.profiles) ? state.profiles : [];
         const count = Math.max(1, list.length);
         const stepRad = (Math.PI * 2) / count;
-        const radiusX = window.innerWidth < 640 ? 120 : 225;
-        const radiusZ = window.innerWidth < 640 ? 90 : 165;
+        const arenaW = arena.clientWidth || window.innerWidth;
+        const radiusX = arenaW < 640 ? 110 : Math.min(230, Math.max(150, arenaW * 0.28));
+        const radiusY = arenaW < 640 ? 42 : 52;
         const baseRad = (orbitAngle * Math.PI) / 180;
 
         list.forEach((profile, idx) => {
           const theta = baseRad + idx * stepRad;
           const x = Math.sin(theta) * radiusX;
-          const z = Math.cos(theta) * radiusZ;
-          const depthRatio = (z + radiusZ) / (radiusZ * 2);
-          const scale = 0.72 + depthRatio * 0.34;
-          const opacity = 0.44 + depthRatio * 0.56;
+          const y = Math.cos(theta) * radiusY;
+          const depthRatio = (Math.cos(theta) + 1) / 2;
+          const scale = 0.8 + depthRatio * 0.25;
+          const opacity = 0.65 + depthRatio * 0.35;
 
           const card = document.createElement('div');
           const isSelected = profile.id === state.activeProfileId;
           card.className = `orbit-card p-3.5 text-center ${isSelected ? 'is-featured' : ''}`;
-          card.style.transform = `translate3d(${x.toFixed(1)}px, 0px, ${z.toFixed(1)}px) scale(${scale.toFixed(3)})`;
-          card.style.opacity = opacity.toFixed(2);
-          card.style.zIndex = String(Math.round(10 + depthRatio * 40));
-          card.style.borderColor = isSelected ? (profile.color || '#00f2fe') : 'rgba(148, 163, 184, 0.22)';
+          card.style.position = 'absolute';
+          card.style.top = '50%';
+          card.style.left = '50%';
+          card.style.transform = `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0px) scale(${scale.toFixed(3)})`;
+          card.style.opacity = String(opacity.toFixed(2));
+          card.style.zIndex = String(Math.round(20 + depthRatio * 30));
+          card.style.borderColor = isSelected ? (profile.color || '#00f2fe') : 'rgba(148, 163, 184, 0.35)';
 
           const avatarSrc =
             profile.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile.name)}`;
@@ -3294,7 +3308,10 @@
 
         if (validStage === 1) syncLampState();
         else if (validStage === 2) syncStage2UI();
-        else if (validStage === 3) renderStage3();
+        else if (validStage === 3) {
+          renderStage3();
+          requestAnimationFrame(() => renderOrbitCards());
+        }
       }
 
       // Initial Boot + One-Time Sync on Open / Refresh
