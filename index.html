@@ -2567,37 +2567,41 @@
 
           let cardDownX = 0;
           let cardDownY = 0;
-          let openedOnThisGesture = false;
+          let cardMoved = false;
 
           card.addEventListener('pointerdown', (e) => {
+            e.stopPropagation();
             cardDownX = e.clientX;
             cardDownY = e.clientY;
-            openedOnThisGesture = false;
+            cardMoved = false;
+            isInteractingOrbit = false;
+            orbitVelocity = 0;
           });
 
-          const triggerOpenCardProfile = (e) => {
-            if (e) e.stopPropagation();
-            if (openedOnThisGesture) return;
-            openedOnThisGesture = true;
-            isInteractingOrbit = false;
-            hasDraggedPastThreshold = false;
-            orbitVelocity = 0;
+          card.addEventListener('pointermove', (e) => {
+            if (Math.hypot(e.clientX - cardDownX, e.clientY - cardDownY) > 12) {
+              cardMoved = true;
+            }
+          });
+
+          card.addEventListener('pointerup', (e) => {
+            e.stopPropagation();
+            if (cardMoved) return;
             state.activeProfileId = profile.id;
             state.activeModalProfileId = profile.id;
             saveState(false);
             updateSpotlightOnly();
             openPersonProfileModal(profile, canEditProfile(profile));
-          };
-
-          card.addEventListener('pointerup', (e) => {
-            const movedDist = Math.hypot(e.clientX - cardDownX, e.clientY - cardDownY);
-            if (movedDist < 16) {
-              triggerOpenCardProfile(e);
-            }
           });
 
           card.addEventListener('click', (e) => {
-            triggerOpenCardProfile(e);
+            e.stopPropagation();
+            if (cardMoved) return;
+            state.activeProfileId = profile.id;
+            state.activeModalProfileId = profile.id;
+            saveState(false);
+            updateSpotlightOnly();
+            openPersonProfileModal(profile, canEditProfile(profile));
           });
 
           track.appendChild(card);
@@ -2795,6 +2799,7 @@
         if (!arena) return;
 
         arena.addEventListener('pointerdown', (e) => {
+          if (e.target.closest('.orbit-card')) return;
           isInteractingOrbit = true;
           lastPointerX = e.clientX;
           pointerDownX = e.clientX;
