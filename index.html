@@ -189,6 +189,7 @@
     .bg-transparent { background-color: transparent; }
     .bg-black\/75 { background-color: rgba(0, 0, 0, 0.75); }
     .bg-black\/80 { background-color: rgba(0, 0, 0, 0.8); }
+    .bg-black\/90 { background-color: rgba(0, 0, 0, 0.9); }
     .bg-\[\#060a12\] { background-color: #060a12; }
     .bg-\[\#0b1220\]\/90 { background-color: rgba(11, 18, 32, 0.9); }
     .bg-\[\#0b1220\]\/95 { background-color: rgba(11, 18, 32, 0.95); }
@@ -272,6 +273,7 @@
     .cursor-pointer { cursor: pointer; }
     .resize-y { resize: vertical; }
     .object-cover { object-fit: cover; }
+    .object-contain { object-fit: contain; }
     .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.45); }
     .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
     .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75); }
@@ -296,6 +298,7 @@
     .z-10 { z-index: 10; }
     .z-\[120\] { z-index: 120; }
     .z-\[140\] { z-index: 140; }
+    .z-\[160\] { z-index: 160; }
 
     .left-2 { left: 0.5rem; }
 
@@ -529,7 +532,12 @@
 
     .orbit-stage {
       min-height: 380px;
-      touch-action: pan-y;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .orbit-stage.is-dragging {
+      cursor: grabbing;
     }
 
     #orbit-ring-track {
@@ -538,6 +546,7 @@
       height: 100%;
       min-height: 380px;
       z-index: 15;
+      touch-action: none;
     }
 
     .orbit-card {
@@ -552,8 +561,9 @@
       transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
       cursor: pointer;
       user-select: none;
+      -webkit-user-select: none;
       will-change: transform, opacity;
-      touch-action: manipulation;
+      touch-action: none;
     }
 
     @media (min-width: 640px) {
@@ -1438,7 +1448,7 @@
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h2 class="text-sm sm:text-base font-black text-white">صور المقال (<span id="stage4-images-count" class="font-code text-cyan-300">0</span>)</h2>
-              <p class="text-[11px] sm:text-xs text-slate-400">صور مرفقة ومرتبطة بهذا المقال تحديداً</p>
+              <p class="text-[11px] sm:text-xs text-slate-400">صور مرفقة ومرتبطة بهذا المقال تحديداً — اضغط على أي صورة لتكبيرها</p>
             </div>
           </div>
 
@@ -1490,6 +1500,41 @@
       </div>
     </div>
   </section>
+
+  <!-- =======================================================================
+       STAGE 4 ARTICLE IMAGE LIGHTBOX MODAL
+  ======================================================================= -->
+  <div
+    id="modal-article-image-zoom"
+    class="fixed inset-0 z-[160] hidden items-center justify-center bg-black/90 backdrop-blur-md p-4 sm:p-6"
+    role="dialog"
+    aria-modal="true"
+    aria-label="عرض الصورة مكبرة"
+  >
+    <div
+      id="article-image-zoom-card"
+      class="w-full max-w-4xl max-h-[92vh] rounded-3xl border border-cyan-400/50 bg-[#0b1220]/95 p-4 sm:p-6 text-white shadow-2xl flex flex-col gap-4"
+    >
+      <div class="flex items-center justify-between gap-3">
+        <p id="article-image-zoom-caption" class="text-sm sm:text-base font-black text-white truncate"></p>
+        <button
+          id="close-article-image-zoom-btn"
+          type="button"
+          class="rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-1.5 text-xs font-extrabold text-slate-200 cursor-pointer shrink-0"
+        >
+          إغلاق ✕
+        </button>
+      </div>
+      <div class="flex-1 min-h-0 flex items-center justify-center rounded-2xl border border-slate-800 bg-slate-950/90 p-2 sm:p-4 overflow-hidden">
+        <img
+          id="article-image-zoom-img"
+          src=""
+          alt="صورة المقال مكبرة"
+          class="max-w-full max-h-[72vh] w-auto h-auto rounded-xl object-contain"
+        />
+      </div>
+    </div>
+  </div>
 
   <!-- =======================================================================
        STAGE 2 IDEA TITLE & TEXT MODAL
@@ -1995,6 +2040,7 @@
         closeModal('modal-dev-login');
         closeModal('modal-add-profile');
         closeModal('modal-stage2-idea');
+        closeModal('modal-article-image-zoom');
         applyLampPresetColor(LAMP_PRESETS[state.lampPreset]?.hex || '#f59e0b', LAMP_PRESETS[state.lampPreset]?.label || 'نور دافئ');
         syncDeveloperAndGuestControlsUI();
         syncStage2UI();
@@ -2039,6 +2085,37 @@
         el.classList.add('hidden');
         el.classList.remove('flex');
       }
+
+      function openArticleImageZoom(src, captionText) {
+        const imgEl = document.getElementById('article-image-zoom-img');
+        const capEl = document.getElementById('article-image-zoom-caption');
+        const cardEl = document.getElementById('article-image-zoom-card');
+        if (!imgEl || !src) return;
+        imgEl.src = src;
+        imgEl.alt = captionText || 'صورة المقال مكبرة';
+        if (capEl) capEl.textContent = captionText || 'صورة المقال';
+        if (cardEl) cardEl.style.borderColor = hexToRgba(draftStage4Accent || '#00f2fe', 0.6);
+        openModal('modal-article-image-zoom');
+      }
+
+      function closeArticleImageZoom() {
+        const imgEl = document.getElementById('article-image-zoom-img');
+        closeModal('modal-article-image-zoom');
+        if (imgEl) imgEl.src = '';
+      }
+
+      document.getElementById('close-article-image-zoom-btn')?.addEventListener('click', closeArticleImageZoom);
+      document.getElementById('modal-article-image-zoom')?.addEventListener('click', (e) => {
+        if (e.target.id === 'modal-article-image-zoom') closeArticleImageZoom();
+      });
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const zoomModal = document.getElementById('modal-article-image-zoom');
+          if (zoomModal && !zoomModal.classList.contains('hidden')) {
+            closeArticleImageZoom();
+          }
+        }
+      });
 
       function getActiveProfile() {
         return state.profiles.find((p) => p.id === state.activeProfileId) || state.profiles[0];
@@ -2482,10 +2559,12 @@
       let orbitAngle = 0;
       let orbitVelocity = 0;
       let isInteractingOrbit = false;
+      let activeOrbitPointerId = null;
       let lastPointerX = 0;
       let pointerDownX = 0;
       let pointerDownY = 0;
       let hasDraggedPastThreshold = false;
+      let suppressNextCardClick = false;
       const AUTO_ORBIT_SPEED = 0.24;
 
       function getFilteredProfiles() {
@@ -2557,46 +2636,89 @@
             <img
               src="${avatarSrc}"
               alt="${profile.name}"
+              draggable="false"
               onerror="this.onerror=null;this.src='https://placehold.co/72x72/0f172a/00f2fe?text=DEV';"
-              class="w-12 h-12 sm:w-14 sm:h-14 rounded-full mx-auto object-cover border-2 bg-slate-900"
+              class="w-12 h-12 sm:w-14 sm:h-14 rounded-full mx-auto object-cover border-2 bg-slate-900 pointer-events-none"
               style="border-color:${profile.color || '#00f2fe'};"
             />
-            <div class="mt-2.5 text-xs sm:text-sm font-black text-white truncate">${profile.name}</div>
-            <div class="mt-0.5 text-[10px] sm:text-[11px] text-slate-300 truncate">${profile.role}</div>
+            <div class="mt-2.5 text-xs sm:text-sm font-black text-white truncate pointer-events-none">${profile.name}</div>
+            <div class="mt-0.5 text-[10px] sm:text-[11px] text-slate-300 truncate pointer-events-none">${profile.role}</div>
           `;
 
           let cardDownX = 0;
           let cardDownY = 0;
-          let cardMoved = false;
+          let cardLastX = 0;
+          let cardPointerId = null;
+          let cardDragged = false;
 
           card.addEventListener('pointerdown', (e) => {
             e.stopPropagation();
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            cardPointerId = e.pointerId;
             cardDownX = e.clientX;
             cardDownY = e.clientY;
-            cardMoved = false;
-            isInteractingOrbit = false;
+            cardLastX = e.clientX;
+            cardDragged = false;
+            isInteractingOrbit = true;
+            activeOrbitPointerId = e.pointerId;
             orbitVelocity = 0;
+            arena.classList.add('is-dragging');
+            try {
+              card.setPointerCapture(e.pointerId);
+            } catch (_) {}
           });
 
           card.addEventListener('pointermove', (e) => {
-            if (Math.hypot(e.clientX - cardDownX, e.clientY - cardDownY) > 12) {
-              cardMoved = true;
+            if (e.pointerId !== cardPointerId) return;
+            const totalDist = Math.hypot(e.clientX - cardDownX, e.clientY - cardDownY);
+            if (totalDist > 8) {
+              cardDragged = true;
+              hasDraggedPastThreshold = true;
+            }
+            if (cardDragged) {
+              const dx = e.clientX - cardLastX;
+              cardLastX = e.clientX;
+              const deltaDeg = dx * 0.42;
+              orbitAngle += deltaDeg;
+              orbitVelocity = deltaDeg * 0.72;
+              renderOrbitCards();
             }
           });
 
-          card.addEventListener('pointerup', (e) => {
-            e.stopPropagation();
-            if (cardMoved) return;
-            state.activeProfileId = profile.id;
-            state.activeModalProfileId = profile.id;
-            saveState(false);
-            updateSpotlightOnly();
-            openPersonProfileModal(profile, canEditProfile(profile));
-          });
+          function finishCardPointer(e) {
+            if (e.pointerId !== cardPointerId) return;
+            try {
+              card.releasePointerCapture(e.pointerId);
+            } catch (_) {}
+            const wasTap = !cardDragged;
+            cardPointerId = null;
+            isInteractingOrbit = false;
+            activeOrbitPointerId = null;
+            arena.classList.remove('is-dragging');
+
+            if (wasTap) {
+              suppressNextCardClick = true;
+              setTimeout(() => {
+                suppressNextCardClick = false;
+              }, 220);
+              state.activeProfileId = profile.id;
+              state.activeModalProfileId = profile.id;
+              saveState(false);
+              updateSpotlightOnly();
+              openPersonProfileModal(profile, canEditProfile(profile));
+            } else {
+              setTimeout(() => {
+                hasDraggedPastThreshold = false;
+              }, 60);
+            }
+          }
+
+          card.addEventListener('pointerup', finishCardPointer);
+          card.addEventListener('pointercancel', finishCardPointer);
 
           card.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (cardMoved) return;
+            if (suppressNextCardClick || cardDragged || hasDraggedPastThreshold) return;
             state.activeProfileId = profile.id;
             state.activeModalProfileId = profile.id;
             saveState(false);
@@ -2800,34 +2922,48 @@
 
         arena.addEventListener('pointerdown', (e) => {
           if (e.target.closest('.orbit-card')) return;
+          if (e.pointerType === 'mouse' && e.button !== 0) return;
           isInteractingOrbit = true;
+          activeOrbitPointerId = e.pointerId;
           lastPointerX = e.clientX;
           pointerDownX = e.clientX;
           pointerDownY = e.clientY;
           hasDraggedPastThreshold = false;
           orbitVelocity = 0;
+          arena.classList.add('is-dragging');
+          try {
+            arena.setPointerCapture(e.pointerId);
+          } catch (_) {}
         });
 
-        window.addEventListener('pointermove', (e) => {
-          if (!isInteractingOrbit) return;
+        arena.addEventListener('pointermove', (e) => {
+          if (!isInteractingOrbit || e.pointerId !== activeOrbitPointerId) return;
           const totalDist = Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY);
-          if (totalDist > 16) hasDraggedPastThreshold = true;
+          if (totalDist > 8) hasDraggedPastThreshold = true;
           const dx = e.clientX - lastPointerX;
           lastPointerX = e.clientX;
-          const deltaDeg = dx * 0.38;
+          const deltaDeg = dx * 0.42;
           orbitAngle += deltaDeg;
-          orbitVelocity = deltaDeg * 0.65;
+          orbitVelocity = deltaDeg * 0.72;
           renderOrbitCards();
         });
 
-        function releaseOrbitInteraction() {
+        function releaseOrbitInteraction(e) {
           if (!isInteractingOrbit) return;
+          if (e && activeOrbitPointerId !== null && e.pointerId !== activeOrbitPointerId) return;
+          try {
+            if (activeOrbitPointerId !== null) arena.releasePointerCapture(activeOrbitPointerId);
+          } catch (_) {}
           isInteractingOrbit = false;
+          activeOrbitPointerId = null;
+          arena.classList.remove('is-dragging');
           setTimeout(() => {
             hasDraggedPastThreshold = false;
-          }, 40);
+          }, 60);
         }
 
+        arena.addEventListener('pointerup', releaseOrbitInteraction);
+        arena.addEventListener('pointercancel', releaseOrbitInteraction);
         window.addEventListener('pointerup', releaseOrbitInteraction);
         window.addEventListener('pointercancel', releaseOrbitInteraction);
 
@@ -3142,37 +3278,54 @@
 
         gridEl.innerHTML = '';
         draftArticleImages.forEach((imgItem, idx) => {
+          const captionLabel = imgItem.caption || `صورة ${idx + 1}`;
           const card = document.createElement('div');
           card.className = 'rounded-2xl border border-slate-800 bg-slate-900/85 overflow-hidden flex flex-col justify-between';
-          card.innerHTML = `
-            <img
-              src="${imgItem.src}"
-              alt="${imgItem.caption || 'صورة المقال'}"
-              onerror="this.onerror=null;this.src='https://placehold.co/480x300/0f172a/00f2fe?text=Article+Image';"
-              class="w-full h-48 object-cover bg-slate-950"
-            />
-            <div class="p-3 flex items-center justify-between gap-2">
-              <p class="text-xs font-bold text-slate-200 truncate">${imgItem.caption || `صورة ${idx + 1}`}</p>
-              ${
-                editable
-                  ? `<button type="button" data-remove-article-img="${idx}" class="rounded-lg border border-rose-400/40 bg-rose-500/15 px-2.5 py-1 text-[11px] font-extrabold text-rose-200 cursor-pointer shrink-0">حذف</button>`
-                  : ''
-              }
-            </div>
-          `;
-          gridEl.appendChild(card);
-        });
 
-        if (editable) {
-          gridEl.querySelectorAll('[data-remove-article-img]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-              const delIdx = Number(btn.getAttribute('data-remove-article-img'));
-              draftArticleImages.splice(delIdx, 1);
+          const imgEl = document.createElement('img');
+          imgEl.src = imgItem.src;
+          imgEl.alt = captionLabel;
+          imgEl.title = 'اضغط لتكبير الصورة';
+          imgEl.onerror = function () {
+            this.onerror = null;
+            this.src = 'https://placehold.co/480x300/0f172a/00f2fe?text=Article+Image';
+          };
+          imgEl.className = 'w-full h-48 object-cover bg-slate-950 cursor-pointer transition hover:opacity-95';
+          imgEl.addEventListener('click', () => {
+            openArticleImageZoom(imgEl.currentSrc || imgItem.src, captionLabel);
+          });
+
+          const footerEl = document.createElement('div');
+          footerEl.className = 'p-3 flex items-center justify-between gap-2';
+
+          const capP = document.createElement('p');
+          capP.className = 'text-xs font-bold text-slate-200 truncate cursor-pointer';
+          capP.textContent = captionLabel;
+          capP.title = 'اضغط لتكبير الصورة';
+          capP.addEventListener('click', () => {
+            openArticleImageZoom(imgEl.currentSrc || imgItem.src, captionLabel);
+          });
+
+          footerEl.appendChild(capP);
+
+          if (editable) {
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'rounded-lg border border-rose-400/40 bg-rose-500/15 px-2.5 py-1 text-[11px] font-extrabold text-rose-200 cursor-pointer shrink-0';
+            delBtn.textContent = 'حذف';
+            delBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              draftArticleImages.splice(idx, 1);
               renderStage4ArticleImages();
               toast('تم حذف الصورة من المقال — اضغط حفظ المقال والصور لتثبيت التغيير', 'info');
             });
-          });
-        }
+            footerEl.appendChild(delBtn);
+          }
+
+          card.appendChild(imgEl);
+          card.appendChild(footerEl);
+          gridEl.appendChild(card);
+        });
       }
 
       document.getElementById('stage4-image-file-input')?.addEventListener('change', async (e) => {
