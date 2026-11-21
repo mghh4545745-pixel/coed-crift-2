@@ -1,7 +1,3 @@
-=======================================================================
-CodeCraft 3D - منصة المراحل الأربع التفاعلية (النسخة الكاملة)
-=======================================================================
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -533,7 +529,7 @@ CodeCraft 3D - منصة المراحل الأربع التفاعلية (النس
 
     .orbit-stage {
       min-height: 380px;
-      touch-action: none;
+      touch-action: pan-y;
     }
 
     #orbit-ring-track {
@@ -557,7 +553,7 @@ CodeCraft 3D - منصة المراحل الأربع التفاعلية (النس
       cursor: pointer;
       user-select: none;
       will-change: transform, opacity;
-      touch-action: none;
+      touch-action: manipulation;
     }
 
     @media (min-width: 640px) {
@@ -2571,18 +2567,23 @@ CodeCraft 3D - منصة المراحل الأربع التفاعلية (النس
 
           let cardDownX = 0;
           let cardDownY = 0;
+          let openedOnThisGesture = false;
 
           card.addEventListener('pointerdown', (e) => {
             cardDownX = e.clientX;
             cardDownY = e.clientY;
+            openedOnThisGesture = false;
           });
 
           const triggerOpenCardProfile = (e) => {
             if (e) e.stopPropagation();
-            if (hasDraggedPastThreshold) return;
+            if (openedOnThisGesture) return;
+            openedOnThisGesture = true;
+            isInteractingOrbit = false;
+            hasDraggedPastThreshold = false;
+            orbitVelocity = 0;
             state.activeProfileId = profile.id;
             state.activeModalProfileId = profile.id;
-            orbitVelocity = 0;
             saveState(false);
             updateSpotlightOnly();
             openPersonProfileModal(profile, canEditProfile(profile));
@@ -2590,15 +2591,13 @@ CodeCraft 3D - منصة المراحل الأربع التفاعلية (النس
 
           card.addEventListener('pointerup', (e) => {
             const movedDist = Math.hypot(e.clientX - cardDownX, e.clientY - cardDownY);
-            if (movedDist < 10 && !hasDraggedPastThreshold) {
+            if (movedDist < 16) {
               triggerOpenCardProfile(e);
             }
           });
 
           card.addEventListener('click', (e) => {
-            if (e.detail === 0 || !hasDraggedPastThreshold) {
-              triggerOpenCardProfile(e);
-            }
+            triggerOpenCardProfile(e);
           });
 
           track.appendChild(card);
@@ -2807,7 +2806,7 @@ CodeCraft 3D - منصة المراحل الأربع التفاعلية (النس
         window.addEventListener('pointermove', (e) => {
           if (!isInteractingOrbit) return;
           const totalDist = Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY);
-          if (totalDist > 10) hasDraggedPastThreshold = true;
+          if (totalDist > 16) hasDraggedPastThreshold = true;
           const dx = e.clientX - lastPointerX;
           lastPointerX = e.clientX;
           const deltaDeg = dx * 0.38;
