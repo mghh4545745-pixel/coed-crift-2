@@ -632,6 +632,11 @@
       max-height: clamp(135px, 28vw, 330px);
     }
     @media (max-width: 767px) {
+      #stage4-workspace-canvas,
+      #stage4-main-article-textarea,
+      #stage3-profile-list {
+        touch-action: pan-y pinch-zoom;
+      }
       #stage-1 {
         padding: 0.5rem 0.65rem;
       }
@@ -2459,6 +2464,40 @@
       let stage3SearchQuery = '';
       let hasSyncedOnCurrentLoad = false;
 
+      // === DYNAMIC SCREEN-SIZE SENSITIVITY CONTROLLER ===
+      function getScreenSensitivityProfile() {
+        const vw = Math.max(280, window.innerWidth || 390);
+        const vh = Math.max(400, window.innerHeight || 844);
+        const minSide = Math.min(vw, vh);
+
+        // Scale smoothly from compact phones (~320-480px) up to tablet/desktop (>=1024px)
+        // Smaller screens get lower drag/rebound/tilt sensitivity so scrolling & profile/article navigation stay effortless.
+        const t = Math.max(0, Math.min(1, (minSide - 340) / (960 - 340)));
+
+        return {
+          width: vw,
+          height: vh,
+          isCompactPhone: vw < 480,
+          isMobile: vw < 768,
+          // Orbit drag & card spring sensitivity
+          orbitDragFactor: Number((0.18 + t * 0.24).toFixed(3)),        // ~0.18 on small phone -> ~0.42 on large screen
+          orbitInertiaFactor: Number((0.32 + t * 0.40).toFixed(3)),     // ~0.32 -> ~0.72
+          cardPullFactor: Number((0.36 + t * 0.49).toFixed(3)),         // ~0.36 -> ~0.85
+          maxStretchX: Math.round(34 + t * 62),                         // 34px on small screen -> 96px on large screen
+          maxStretchY: Math.round(24 + t * 40),                         // 24px -> 64px
+          springStiffness: Number((0.10 + t * 0.06).toFixed(3)),        // softer rebound on small screens
+          springDamping: Number((0.80 - t * 0.06).toFixed(3)),          // smoother settle on small screens
+          dragThresholdPx: vw < 480 ? 14 : (vw < 768 ? 11 : 8),         // prevents accidental drag while tapping/scrolling
+          // Tactile card tilt & press depth sensitivity
+          cardMaxTiltDeg: Number((2.2 + t * 4.3).toFixed(2)),           // ~2.2deg on small screen -> ~6.5deg on large
+          cardPressDepthPx: Math.round(4 + t * 6),                      // 4px on small screen -> 10px on large
+          modalTiltMaxDeg: Number((2.0 + t * 4.0).toFixed(2)),          // ~2.0deg -> ~6.0deg
+          // Lamp pull-chain threshold
+          lampPullThresholdPx: vw < 480 ? 20 : 14
+        };
+      }
+
+
       function writeLocalOnly() {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -2804,7 +2843,8 @@
 
         window.addEventListener('pointermove', (e) => {
           if (pointerStartY === null || triggeredByDrag) return;
-          if (e.clientY - pointerStartY > 14) {
+          const sens = getScreenSensitivityProfile();
+          if (e.clientY - pointerStartY > sens.lampPullThresholdPx) {
             triggeredByDrag = true;
             toggleLampWithPull();
           }
@@ -3144,32 +3184,36 @@
       }
 
       function stepOrbitCardSprings(grabbedId, dragDx, dragDy, isDraggingCard) {
+        const sens = getScreenSensitivityProfile();
         const list = Array.isArray(state.profiles) ? state.profiles : [];
         list.forEach((profile) => {
           const sp = ensureOrbitCardSpring(profile.id);
           const isGrabbed = Boolean(isDraggingCard && grabbedId && profile.id === grabbedId);
 
           if (isGrabbed) {
-            // Card stretches/slides ("يتشط") with finger movement while being pulled
-            const maxStretchX = 96;
-            const maxStretchY = 64;
-            const targetOx = Math.max(-maxStretchX, Math.min(maxStretchX, sp.ox + dragDx * 0.85));
-            const targetOy = Math.max(-maxStretchY, Math.min(maxStretchY, sp.oy + dragDy * 0.85));
-            const targetTiltY = Math.max(-24, Math.min(24, targetOx * 0.25));
-            const targetTiltX = Math.max(-20, Math.min(20, -targetOy * 0.3));
-            const targetTwist = Math.max(-14, Math.min(14, targetOx * 0.13 - targetOy * 0.06));
+            // Card stretches/slides ("يتشط") with finger movement while being pulled, scaled by screen size
+            const maxStretchX = sens.maxStretchX;
+            const maxStretchY = sens.maxStretchY;
+            const pullScale = sens.cardPullFactor;
+            const tiltScale = sens.isCompactPhone ? 0.55 : (sens.isMobile ? 0.75 : 1.0);
+            const targetOx = Math.max(-maxStretchX, Math.min(maxStretchX, sp.ox + dragDx * pullScale));
+            const targetOy = Math.max(-maxStretchY, Math.min(maxStretchY, sp.oy + dragDy * pullScale));
+            const targetTiltY = Math.max(-24, Math.min(24, targetOx * 0.25 * tiltScale));
+            const targetTiltX = Math.max(-20, Math.min(20, -targetOy * 0.3 * tiltScale));
+            const targetTwist = Math.max(-14, Math.min(14, (targetOx * 0.13 - targetOy * 0.06) * tiltScale));
 
-            sp.ox += (targetOx - sp.ox) * 0.45;
-            sp.oy += (targetOy - sp.oy) * 0.45;
-            sp.tiltX += (targetTiltX - sp.tiltX) * 0.36;
-            sp.tiltY += (targetTiltY - sp.tiltY) * 0.36;
-            sp.twist += (targetTwist - sp.twist) * 0.36;
-            sp.vox = (targetOx - sp.ox) * 0.2;
-            sp.voy = (targetOy - sp.oy) * 0.2;
+            const followRate = sens.isCompactPhone ? 0.28 : 0.45;
+            sp.ox += (targetOx - sp.ox) * followRate;
+            sp.oy += (targetOy - sp.oy) * followRate;
+            sp.tiltX += (targetTiltX - sp.tiltX) * 0.32;
+            sp.tiltY += (targetTiltY - sp.tiltY) * 0.32;
+            sp.twist += (targetTwist - sp.twist) * 0.32;
+            sp.vox = (targetOx - sp.ox) * 0.16;
+            sp.voy = (targetOy - sp.oy) * 0.16;
           } else {
             // Realistic spring snap-back ("يردع بي ارتداد واقعي لمداره") when finger is lifted
-            const stiffness = 0.16;
-            const damping = 0.74;
+            const stiffness = sens.springStiffness;
+            const damping = sens.springDamping;
 
             sp.vox = (sp.vox + (0 - sp.ox) * stiffness) * damping;
             sp.voy = (sp.voy + (0 - sp.oy) * stiffness) * damping;
@@ -3490,8 +3534,9 @@
 
         arena.addEventListener('pointermove', (e) => {
           if (!isInteractingOrbit || e.pointerId !== activeOrbitPointerId) return;
+          const sens = getScreenSensitivityProfile();
           const totalDist = Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY);
-          if (totalDist > 8) {
+          if (totalDist > sens.dragThresholdPx) {
             hasDraggedPastThreshold = true;
           }
           const dx = e.clientX - lastPointerX;
@@ -3502,11 +3547,11 @@
             if (activeCardProfile) {
               // Keep card anchored near its orbit while stretching/tugging with finger
               stepOrbitCardSprings(activeCardProfile.id, dx, dy, true);
-              orbitVelocity = dx * 0.14;
+              orbitVelocity = dx * (sens.orbitDragFactor * 0.34);
             } else {
-              const deltaDeg = dx * 0.42;
+              const deltaDeg = dx * sens.orbitDragFactor;
               orbitAngle += deltaDeg;
-              orbitVelocity = deltaDeg * 0.72;
+              orbitVelocity = deltaDeg * sens.orbitInertiaFactor;
             }
             renderOrbitCards();
           }
@@ -3587,11 +3632,13 @@
         if (!detailCard) return;
 
         function updateTilt(clientX, clientY) {
+          const sens = getScreenSensitivityProfile();
           const rect = detailCard.getBoundingClientRect();
           if (!rect.width || !rect.height) return;
           const nx = ((clientX - rect.left) / rect.width - 0.5) * 2;
           const ny = ((clientY - rect.top) / rect.height - 0.5) * 2;
-          detailCard.style.transform = `perspective(950px) rotateX(${(-ny * 5).toFixed(2)}deg) rotateY(${(nx * 6).toFixed(2)}deg)`;
+          const maxDeg = sens.modalTiltMaxDeg;
+          detailCard.style.transform = `perspective(950px) rotateX(${(-ny * maxDeg * 0.85).toFixed(2)}deg) rotateY(${(nx * maxDeg).toFixed(2)}deg)`;
         }
 
         detailCard.addEventListener('pointermove', (e) => updateTilt(e.clientX, e.clientY));
@@ -4408,12 +4455,18 @@
           });
         }
 
-        bindTactileSpringCards('#login-card, #stage2-idea-box, #stage3-featured-bar, #stage4-workspace-canvas', 6.5, 10);
+        (function bindResponsiveTactileCards() {
+          const sens = getScreenSensitivityProfile();
+          bindTactileSpringCards('#login-card, #stage2-idea-box, #stage3-featured-bar, #stage4-workspace-canvas', sens.cardMaxTiltDeg, sens.cardPressDepthPx);
+        })();
 
         const prevRenderStage3 = renderStage3;
         renderStage3 = function wrappedSpringRenderStage3() {
           prevRenderStage3();
-          bindTactileSpringCards('#stage3-profile-list > button', 5, 7);
+          (function() {
+            const sens = getScreenSensitivityProfile();
+            bindTactileSpringCards('#stage3-profile-list > button', Math.max(1.8, sens.cardMaxTiltDeg * 0.75), Math.max(3, Math.round(sens.cardPressDepthPx * 0.7)));
+          })();
         };
       })();
 
