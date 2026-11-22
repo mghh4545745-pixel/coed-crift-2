@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&family=Tajawal:wght@400;500;700;800&display=swap"
     rel="stylesheet"
   />
 
@@ -23,6 +23,9 @@
       --stage3-accent: #00f2fe;
       --stage4-accent: #00f2fe;
       --bg-deep: #060a12;
+      --article-font-color: #f8fafc;
+      --article-font-family: 'Cairo', sans-serif;
+      --article-font-size: 16px;
     }
 
     * {
@@ -673,6 +676,46 @@
       }
     }
 
+
+    /* =====================================================================
+       STAGE 4: COMFORT READING MODE & ARTICLE TYPOGRAPHY CONTROLS
+    ===================================================================== */
+    #stage4-main-article-textarea {
+      color: var(--article-font-color, #f8fafc);
+      font-family: var(--article-font-family, 'Cairo', sans-serif);
+      font-size: var(--article-font-size, 16px);
+      transition: font-size 0.25s ease, line-height 0.25s ease, padding 0.25s ease, min-height 0.25s ease, color 0.2s ease, font-family 0.2s ease;
+    }
+
+    #stage-4.comfort-reading-active #stage4-shell {
+      max-width: 1440px;
+    }
+
+    #stage-4.comfort-reading-active #stage4-workspace-canvas {
+      padding: 1.75rem 2.25rem;
+    }
+
+    #stage-4.comfort-reading-active #stage4-main-article-textarea {
+      min-height: 78vh;
+      font-size: calc(var(--article-font-size, 16px) + 3px);
+      line-height: 2.25;
+      padding: 2rem;
+    }
+
+    #stage-4.comfort-reading-active #stage4-images-section {
+      opacity: 0.92;
+    }
+
+    @media (min-width: 640px) {
+      #stage-4.comfort-reading-active #stage4-workspace-canvas {
+        padding: 2.5rem 3.5rem;
+      }
+      #stage-4.comfort-reading-active #stage4-main-article-textarea {
+        min-height: 82vh;
+        font-size: calc(var(--article-font-size, 16px) + 4px);
+      }
+    }
+
     #toast-container {
       position: fixed;
       bottom: 24px;
@@ -684,12 +727,369 @@
       gap: 8px;
       pointer-events: none;
     }
+  
+    /* === CODECRAFT QUANTUM NEURAL HUD & SPATIAL WARP === */
+    .cc-warp-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 210;
+      pointer-events: none;
+      opacity: 0;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(0, 242, 254, 0.28), rgba(99, 102, 241, 0.14) 42%, rgba(6, 10, 18, 0.92) 85%);
+      backdrop-filter: blur(0px);
+      transform: scale(1.08);
+      transition: opacity 0.24s ease, transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), backdrop-filter 0.24s ease;
+    }
+    .cc-warp-overlay.is-warping {
+      opacity: 1;
+      transform: scale(1);
+      backdrop-filter: blur(8px);
+    }
+    .cc-warp-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 140px;
+      height: 140px;
+      margin-left: -70px;
+      margin-top: -70px;
+      border-radius: 9999px;
+      border: 2px solid rgba(0, 242, 254, 0.75);
+      box-shadow: 0 0 40px rgba(0, 242, 254, 0.45), inset 0 0 24px rgba(129, 140, 248, 0.35);
+      transform: scale(0.2);
+      opacity: 0;
+    }
+    .cc-warp-overlay.is-warping .cc-warp-ring {
+      animation: ccWarpPulse 0.46s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes ccWarpPulse {
+      0% { transform: scale(0.2); opacity: 0.95; }
+      100% { transform: scale(4.2); opacity: 0; }
+    }
+
+    .cc-holo-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .cc-holo-card::after {
+      content: "";
+      position: absolute;
+      inset: -120% -60%;
+      background: linear-gradient(
+        115deg,
+        transparent 35%,
+        rgba(255, 255, 255, 0.09) 48%,
+        rgba(0, 242, 254, 0.14) 52%,
+        transparent 65%
+      );
+      transform: translateX(-60%) rotate(12deg);
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+    }
+    .cc-holo-card:hover::after {
+      transform: translateX(60%) rotate(12deg);
+    }
+
+    .cc-hud-fab {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 155;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border-radius: 9999px;
+      border: 1px solid rgba(34, 211, 238, 0.45);
+      background: rgba(11, 18, 32, 0.88);
+      backdrop-filter: blur(14px);
+      color: #e2e8f0;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 20px rgba(0, 242, 254, 0.18);
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .cc-hud-fab:hover {
+      transform: translateY(-2px);
+      border-color: rgba(34, 211, 238, 0.85);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), 0 0 28px rgba(0, 242, 254, 0.32);
+    }
+    .cc-pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+      background: #22d3ee;
+      box-shadow: 0 0 10px #22d3ee;
+      animation: ccDotPulse 2s infinite ease-in-out;
+    }
+    @keyframes ccDotPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.65; }
+    }
+
+    .cc-command-drawer {
+      position: fixed;
+      bottom: 66px;
+      right: 18px;
+      width: min(360px, calc(100vw - 36px));
+      z-index: 165;
+      border-radius: 22px;
+      border: 1px solid rgba(34, 211, 238, 0.4);
+      background: rgba(9, 15, 28, 0.95);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.82), 0 0 35px rgba(0, 242, 254, 0.14);
+      padding: 16px;
+      color: #f8fafc;
+    }
+    .cc-chip-btn {
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: rgba(15, 23, 42, 0.85);
+      color: #e2e8f0;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-align: center;
+    }
+    .cc-chip-btn:hover {
+      border-color: rgba(34, 211, 238, 0.65);
+      background: rgba(6, 182, 212, 0.16);
+      color: #a5f3fc;
+    }
+    .cc-chip-btn.is-active {
+      border-color: #22d3ee;
+      background: rgba(6, 182, 212, 0.24);
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(34, 211, 238, 0.25);
+    }
+
+  
+    /* === CINEMA ARTICLE VIEW & DEEP CARD 3D MOTION === */
+    .cc-cinema-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      z-index: 175;
+      background: rgba(15, 23, 42, 0.75);
+      pointer-events: none;
+    }
+    .cc-cinema-progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00f2fe, #818cf8, #22d3ee);
+      box-shadow: 0 0 14px rgba(0, 242, 254, 0.7);
+      transition: width 0.08s linear;
+    }
+
+    #stage-4.cinema-mode-active {
+      background:
+        radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.14), transparent 52%),
+        linear-gradient(180deg, #03060c 0%, #070d19 60%, #03050a 100%) !important;
+    }
+
+    #stage-4.cinema-mode-active #stage4-shell {
+      max-width: 960px !important;
+      margin: 0 auto;
+    }
+
+    #stage-4.cinema-mode-active #stage4-workspace-canvas {
+      background: rgba(7, 12, 24, 0.92) !important;
+      border-color: rgba(34, 211, 238, 0.45) !important;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.92), 0 0 55px rgba(0, 242, 254, 0.12) !important;
+      padding: 2.25rem 2.5rem !important;
+    }
+
+    #stage-4.cinema-mode-active #stage4-main-article-textarea {
+      font-size: calc(var(--article-font-size, 16px) + 5px) !important;
+      line-height: 2.35 !important;
+      min-height: 75vh !important;
+      background: rgba(3, 7, 15, 0.75) !important;
+      border-color: rgba(51, 65, 85, 0.65) !important;
+    }
+
+    .cc-tactile-card {
+      transform-style: preserve-3d;
+      will-change: transform, box-shadow;
+      touch-action: manipulation;
+    }
+
+  
+    /* === DYNAMIC NEON GLOW, OUTER HALO & INTENSITY/SPREAD CONTROLS === */
+    :root {
+      --cc-neon-strength: 1.35;
+      --cc-neon-range: 95px;
+    }
+
+    @keyframes ccNeonCycle {
+      0% {
+        --cc-dynamic-neon: #00f2fe;
+      }
+      50% {
+        --cc-dynamic-neon: #a855f7;
+      }
+      100% {
+        --cc-dynamic-neon: #10b981;
+      }
+    }
+
+    #stage-4.cc-neon-glow-active #stage4-workspace-canvas {
+      animation: ccNeonCycle 7s infinite alternate ease-in-out;
+      border-color: color-mix(in srgb, var(--cc-dynamic-neon, #00f2fe) 85%, transparent) !important;
+      box-shadow:
+        0 0 calc(20px * var(--cc-neon-strength)) color-mix(in srgb, var(--cc-dynamic-neon, #00f2fe) calc(min(88%, 55% * var(--cc-neon-strength))), transparent),
+        0 0 calc(var(--cc-neon-range) * 0.65) color-mix(in srgb, var(--cc-dynamic-neon, #00f2fe) calc(min(72%, 38% * var(--cc-neon-strength))), transparent),
+        0 0 calc(var(--cc-neon-range) * 1.35) color-mix(in srgb, var(--cc-dynamic-neon, #00f2fe) calc(min(55%, 24% * var(--cc-neon-strength))), transparent),
+        inset 0 0 calc(18px * var(--cc-neon-strength)) color-mix(in srgb, var(--cc-dynamic-neon, #00f2fe) calc(min(35%, 14% * var(--cc-neon-strength))), transparent),
+        0 25px 70px rgba(0, 0, 0, 0.78) !important;
+      transition: border-color 0.4s ease, box-shadow 0.25s ease;
+    }
+
+    #stage-4.cc-neon-glow-active #stage4-workspace-canvas::before {
+      content: "";
+      position: absolute;
+      inset: calc(var(--cc-neon-range) * -0.42);
+      border-radius: 44px;
+      pointer-events: none;
+      z-index: -1;
+      animation: ccNeonCycle 7s infinite alternate ease-in-out;
+      background: radial-gradient(
+        ellipse at center,
+        color-mix(in srgb, var(--cc-dynamic-neon, #00f2fe) calc(min(48%, 24% * var(--cc-neon-strength))), transparent) 0%,
+        color-mix(in srgb, var(--cc-dynamic-neon, #00f2fe) calc(min(26%, 12% * var(--cc-neon-strength))), transparent) 48%,
+        transparent 75%
+      );
+      filter: blur(calc(18px + var(--cc-neon-range) * 0.28));
+      opacity: calc(min(1, 0.75 * var(--cc-neon-strength)));
+      transition: opacity 0.25s ease, filter 0.25s ease;
+    }
+
+    #stage-4:not(.cc-neon-glow-active) #stage4-workspace-canvas::before {
+      opacity: 0;
+    }
+
+    .cc-neon-sliders-panel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(217, 70, 239, 0.35);
+      background: rgba(15, 23, 42, 0.85);
+      font-size: 11px;
+      font-weight: 800;
+      color: #f5d0fe;
+    }
+
+    .cc-neon-slider-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cc-neon-slider-item input[type="range"] {
+      width: 82px;
+      accent-color: #e879f9;
+      cursor: pointer;
+    }
+
+    #stage4-main-article-textarea.cc-tts-speaking {
+      border-color: rgba(34, 211, 238, 0.85) !important;
+      box-shadow: 0 0 28px rgba(34, 211, 238, 0.25), inset 0 0 18px rgba(34, 211, 238, 0.08) !important;
+    }
+
+  
+    /* === HIGH-SENSITIVITY LOGIN PRESS & MICRO-SHAKE === */
+    @keyframes ccLoginShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-7px); }
+      40% { transform: translateX(7px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+
+    .cc-login-shake {
+      animation: ccLoginShake 280ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      border-color: #f87171 !important;
+      box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.25) !important;
+    }
+
+    #login-card button,
+    #btn-open-dev-login,
+    #btn-logout-dev-stage1,
+    #btn-toggle-lamp-light,
+    [data-lamp-preset],
+    #btn-cycle-lamp-color {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 65ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                  box-shadow 75ms ease,
+                  border-color 120ms ease,
+                  filter 120ms ease;
+      will-change: transform;
+    }
+
+    #login-card button.cc-fast-press,
+    #login-card button:active,
+    #btn-open-dev-login.cc-fast-press,
+    #btn-toggle-lamp-light.cc-fast-press,
+    [data-lamp-preset].cc-fast-press,
+    #btn-cycle-lamp-color.cc-fast-press {
+      transform: scale(0.955) translateY(1px);
+    }
+
   </style>
 </head>
 <body class="bg-[#060a12] text-slate-100">
 
   <!-- Toast Notification Container -->
   <div id="toast-container" aria-live="polite"></div>
+
+  <!-- =======================================================================
+       PROFILE AVATAR ZOOM LIGHTBOX MODAL (#modal-profile-avatar-zoom)
+  ======================================================================= -->
+  <div
+    id="modal-profile-avatar-zoom"
+    class="fixed inset-0 z-[170] hidden items-center justify-center bg-black/90 backdrop-blur-md p-4 sm:p-6"
+    role="dialog"
+    aria-modal="true"
+    aria-label="عرض صورة البروفايل مكبرة"
+  >
+    <div
+      id="profile-avatar-zoom-card"
+      class="w-full max-w-lg rounded-3xl border border-cyan-400/55 bg-[#0b1220]/95 p-5 sm:p-6 text-white shadow-2xl flex flex-col items-center gap-4"
+    >
+      <div class="w-full flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h3 id="profile-avatar-zoom-name" class="text-base sm:text-lg font-black text-white truncate"></h3>
+          <p id="profile-avatar-zoom-role" class="text-xs font-bold text-cyan-300 truncate"></p>
+        </div>
+        <button
+          id="close-profile-avatar-zoom-btn"
+          type="button"
+          class="rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-1.5 text-xs font-extrabold text-slate-200 cursor-pointer shrink-0"
+        >
+          إغلاق ✕
+        </button>
+      </div>
+
+      <div class="w-full flex items-center justify-center rounded-2xl border border-slate-800 bg-slate-950/90 p-4">
+        <img
+          id="profile-avatar-zoom-img"
+          src=""
+          alt="صورة البروفايل مكبرة"
+          class="w-52 h-52 sm:w-64 sm:h-64 rounded-full object-cover border-4 border-cyan-400/60 shadow-2xl bg-slate-900"
+        />
+      </div>
+    </div>
+  </div>
+
 
   <!-- =======================================================================
        STAGE 1: ARTICULATED LAMP (LEFT) & LOGIN CARD (RIGHT)
@@ -1352,7 +1752,7 @@
     id="stage-4"
     class="stage-section stage4-theme-cyber hidden min-h-screen w-full flex-col p-4 sm:p-7 transition-colors duration-300"
   >
-    <div class="w-full max-w-6xl mx-auto flex flex-col gap-5 flex-1">
+    <div id="stage4-shell" class="w-full max-w-6xl mx-auto flex flex-col gap-5 flex-1 transition-all duration-300">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-2.5">
           <h1
@@ -1385,28 +1785,99 @@
       </div>
 
       <div class="rounded-2xl border border-slate-700/70 bg-slate-950/65 backdrop-blur-md p-3 flex flex-wrap items-center justify-between gap-2.5">
-        <div id="stage4-visual-controls" class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <button
-            id="stage4-btn-theme-cycle"
+            id="stage4-btn-comfort-reading"
             type="button"
-            class="rounded-xl border border-indigo-400/50 bg-indigo-500/15 px-3.5 py-2 text-xs font-black text-indigo-200 transition cursor-pointer"
+            aria-pressed="false"
+            class="rounded-xl border border-cyan-400/50 bg-cyan-500/15 px-3.5 py-2 text-xs font-black text-cyan-200 transition cursor-pointer"
           >
-            ثيم: <span id="stage4-theme-label">Dark Cyber</span>
+            قراءة مريحة
           </button>
 
-          <label
-            id="stage4-color-label"
-            for="stage4-color-picker"
-            class="inline-flex items-center gap-2 rounded-xl border border-amber-400/50 bg-amber-500/15 px-3 py-1.5 text-xs font-black text-amber-200 transition cursor-pointer"
+          <button
+            id="stage4-btn-cinema-mode"
+            type="button"
+            aria-pressed="false"
+            class="rounded-xl border border-violet-400/50 bg-violet-500/15 px-3.5 py-2 text-xs font-black text-violet-200 transition cursor-pointer"
           >
-            <span>الألوان</span>
-            <input
-              id="stage4-color-picker"
-              type="color"
-              value="#00f2fe"
-              class="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
-            />
-          </label>
+            🎬 عرض سينمائي
+          </button>
+
+
+          <span id="stage4-reading-time-badge" class="rounded-xl border border-cyan-400/35 bg-cyan-500/10 px-3 py-1.5 text-xs font-black text-cyan-200 font-code">⏱️ أقل من دقيقة للقراءة</span>
+
+          <button
+            id="stage4-btn-tts-toggle"
+            type="button"
+            aria-pressed="false"
+            class="rounded-xl border border-sky-400/50 bg-sky-500/15 px-3.5 py-2 text-xs font-black text-sky-200 transition cursor-pointer"
+          >
+            🔊 قراءة المقال
+          </button>
+
+          <button
+            id="stage4-btn-tts-stop"
+            type="button"
+            class="hidden rounded-xl border border-rose-400/45 bg-rose-500/15 px-3 py-2 text-xs font-extrabold text-rose-200 transition cursor-pointer"
+          >
+            ⏹️ إيقاف الصوت
+          </button>
+
+          <button
+            id="stage4-btn-neon-toggle"
+            type="button"
+            aria-pressed="true"
+            class="rounded-xl border border-fuchsia-400/50 bg-fuchsia-500/15 px-3.5 py-2 text-xs font-black text-fuchsia-200 transition cursor-pointer"
+          >
+            ✨ نيون متغير: يعمل
+          </button>
+
+          <div id="cc-neon-controls-panel" class="cc-neon-sliders-panel">
+            <label class="cc-neon-slider-item" for="cc-neon-strength-range">
+              <span>الشدة</span>
+              <input id="cc-neon-strength-range" type="range" min="40" max="240" step="5" value="145" />
+              <span id="cc-neon-strength-val" class="font-code text-fuchsia-200">145%</span>
+            </label>
+            <label class="cc-neon-slider-item" for="cc-neon-range-slider">
+              <span>المدى / الهالة</span>
+              <input id="cc-neon-range-slider" type="range" min="35" max="220" step="5" value="115" />
+              <span id="cc-neon-range-val" class="font-code text-cyan-200">115px</span>
+            </label>
+          </div>
+
+          <div id="stage4-visual-controls" class="flex flex-wrap items-center gap-2">
+            <button
+              id="stage4-btn-font-controls"
+              type="button"
+              aria-expanded="false"
+              class="rounded-xl border border-emerald-400/50 bg-emerald-500/15 px-3.5 py-2 text-xs font-black text-emerald-200 transition cursor-pointer"
+            >
+              تنسيق الخط
+            </button>
+
+            <button
+              id="stage4-btn-theme-cycle"
+              type="button"
+              class="rounded-xl border border-indigo-400/50 bg-indigo-500/15 px-3.5 py-2 text-xs font-black text-indigo-200 transition cursor-pointer"
+            >
+              ثيم: <span id="stage4-theme-label">Dark Cyber</span>
+            </button>
+
+            <label
+              id="stage4-color-label"
+              for="stage4-color-picker"
+              class="inline-flex items-center gap-2 rounded-xl border border-amber-400/50 bg-amber-500/15 px-3 py-1.5 text-xs font-black text-amber-200 transition cursor-pointer"
+            >
+              <span>الألوان</span>
+              <input
+                id="stage4-color-picker"
+                type="color"
+                value="#00f2fe"
+                class="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
+              />
+            </label>
+          </div>
         </div>
 
         <button
@@ -1416,6 +1887,59 @@
         >
           حفظ المقال والصور
         </button>
+      </div>
+
+      <div
+        id="stage4-font-controls-panel"
+        class="hidden rounded-2xl border border-emerald-400/40 bg-slate-950/85 backdrop-blur-md p-4 grid grid-cols-1 sm:grid-cols-3 gap-4 items-center"
+      >
+        <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/75 px-3.5 py-2.5">
+          <label for="stage4-font-color-picker" class="text-xs font-black text-emerald-200">لون الخط</label>
+          <div class="flex items-center gap-2">
+            <input
+              id="stage4-font-color-picker"
+              type="color"
+              value="#f8fafc"
+              class="w-7 h-7 rounded cursor-pointer bg-transparent border-0"
+            />
+            <button
+              id="stage4-btn-reset-font-color"
+              type="button"
+              class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-[10px] font-bold text-slate-300 cursor-pointer"
+            >
+              افتراضي
+            </button>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-slate-800 bg-slate-900/75 px-3.5 py-2">
+          <label for="stage4-font-family-select" class="block text-[11px] font-black text-emerald-200 mb-1">شكل الخط</label>
+          <select
+            id="stage4-font-family-select"
+            class="w-full rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs font-bold text-white"
+          >
+            <option value="'Cairo', sans-serif">Cairo (عصري واضح)</option>
+            <option value="'Tajawal', sans-serif">Tajawal (ناعم ومريح)</option>
+            <option value="'Amiri', serif">Amiri (نسخ كلاسيكي)</option>
+            <option value="'JetBrains Mono', monospace">JetBrains Mono (برمجي)</option>
+          </select>
+        </div>
+
+        <div class="rounded-xl border border-slate-800 bg-slate-900/75 px-3.5 py-2">
+          <div class="flex items-center justify-between text-[11px] font-black text-emerald-200 mb-1">
+            <label for="stage4-font-size-range">حجم الخط</label>
+            <span id="stage4-font-size-value" class="font-code text-cyan-300">16px</span>
+          </div>
+          <input
+            id="stage4-font-size-range"
+            type="range"
+            min="14"
+            max="30"
+            step="1"
+            value="16"
+            class="w-full cursor-pointer"
+          />
+        </div>
       </div>
 
       <div
@@ -1453,7 +1977,7 @@
           ></textarea>
         </div>
 
-        <div class="rounded-2xl border border-slate-800/90 bg-slate-950/75 p-4 sm:p-5 space-y-4">
+        <div id="stage4-images-section" class="rounded-2xl border border-slate-800/90 bg-slate-950/75 p-4 sm:p-5 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h2 class="text-sm sm:text-base font-black text-white">صور المقال (<span id="stage4-images-count" class="font-code text-cyan-300">0</span>)</h2>
@@ -2600,6 +3124,76 @@
         }
       }
 
+      const orbitCardSpringMap = new Map();
+
+      function ensureOrbitCardSpring(profileId) {
+        if (!orbitCardSpringMap.has(profileId)) {
+          orbitCardSpringMap.set(profileId, {
+            ox: 0, vox: 0,
+            oy: 0, voy: 0,
+            tiltX: 0, vTiltX: 0,
+            tiltY: 0, vTiltY: 0,
+            twist: 0, vTwist: 0
+          });
+        }
+        return orbitCardSpringMap.get(profileId);
+      }
+
+      function stepOrbitCardSprings(grabbedId, dragDx, dragDy, isDraggingCard) {
+        const list = Array.isArray(state.profiles) ? state.profiles : [];
+        list.forEach((profile) => {
+          const sp = ensureOrbitCardSpring(profile.id);
+          const isGrabbed = Boolean(isDraggingCard && grabbedId && profile.id === grabbedId);
+
+          if (isGrabbed) {
+            // Card stretches/slides ("يتشط") with finger movement while being pulled
+            const maxStretchX = 96;
+            const maxStretchY = 64;
+            const targetOx = Math.max(-maxStretchX, Math.min(maxStretchX, sp.ox + dragDx * 0.85));
+            const targetOy = Math.max(-maxStretchY, Math.min(maxStretchY, sp.oy + dragDy * 0.85));
+            const targetTiltY = Math.max(-24, Math.min(24, targetOx * 0.25));
+            const targetTiltX = Math.max(-20, Math.min(20, -targetOy * 0.3));
+            const targetTwist = Math.max(-14, Math.min(14, targetOx * 0.13 - targetOy * 0.06));
+
+            sp.ox += (targetOx - sp.ox) * 0.45;
+            sp.oy += (targetOy - sp.oy) * 0.45;
+            sp.tiltX += (targetTiltX - sp.tiltX) * 0.36;
+            sp.tiltY += (targetTiltY - sp.tiltY) * 0.36;
+            sp.twist += (targetTwist - sp.twist) * 0.36;
+            sp.vox = (targetOx - sp.ox) * 0.2;
+            sp.voy = (targetOy - sp.oy) * 0.2;
+          } else {
+            // Realistic spring snap-back ("يردع بي ارتداد واقعي لمداره") when finger is lifted
+            const stiffness = 0.16;
+            const damping = 0.74;
+
+            sp.vox = (sp.vox + (0 - sp.ox) * stiffness) * damping;
+            sp.voy = (sp.voy + (0 - sp.oy) * stiffness) * damping;
+            sp.vTiltX = (sp.vTiltX + (0 - sp.tiltX) * stiffness) * damping;
+            sp.vTiltY = (sp.vTiltY + (0 - sp.tiltY) * stiffness) * damping;
+            sp.vTwist = (sp.vTwist + (0 - sp.twist) * stiffness) * damping;
+
+            sp.ox += sp.vox;
+            sp.oy += sp.voy;
+            sp.tiltX += sp.vTiltX;
+            sp.tiltY += sp.vTiltY;
+            sp.twist += sp.vTwist;
+
+            if (
+              Math.abs(sp.ox) < 0.04 && Math.abs(sp.vox) < 0.04 &&
+              Math.abs(sp.oy) < 0.04 && Math.abs(sp.voy) < 0.04 &&
+              Math.abs(sp.tiltX) < 0.04 && Math.abs(sp.tiltY) < 0.04 && Math.abs(sp.twist) < 0.04
+            ) {
+              sp.ox = 0; sp.vox = 0;
+              sp.oy = 0; sp.voy = 0;
+              sp.tiltX = 0; sp.vTiltX = 0;
+              sp.tiltY = 0; sp.vTiltY = 0;
+              sp.twist = 0; sp.vTwist = 0;
+            }
+          }
+        });
+      }
+
       function renderOrbitCards() {
         const arena = document.getElementById('orbit-arena');
         const track = document.getElementById('orbit-ring-track');
@@ -2625,18 +3219,27 @@
           const y = Math.cos(theta) * radiusY;
           const depthRatio = (Math.cos(theta) + 1) / 2;
           const scale = 0.8 + depthRatio * 0.25;
+          const sp = ensureOrbitCardSpring(profile.id);
+          const finalX = x + sp.ox;
+          const finalY = y + sp.oy;
+          const stretchMag = Math.hypot(sp.ox, sp.oy);
+          const stretchScale = 1 + Math.min(0.11, stretchMag * 0.0011);
           const opacity = 0.65 + depthRatio * 0.35;
 
           const card = document.createElement('div');
           const isSelected = profile.id === state.activeProfileId;
+          const isGrabbedNow = Boolean(hasDraggedPastThreshold && activeCardProfile && activeCardProfile.id === profile.id);
           card.className = `orbit-card p-3.5 text-center ${isSelected ? 'is-featured' : ''}`;
           card.setAttribute('data-orbit-profile-id', profile.id);
           card.style.position = 'absolute';
           card.style.top = '50%';
           card.style.left = '50%';
-          card.style.transform = `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0px) scale(${scale.toFixed(3)})`;
+          card.style.transform =
+            `translate(-50%, -50%) translate3d(${finalX.toFixed(1)}px, ${finalY.toFixed(1)}px, ${isGrabbedNow ? '28px' : '0px'}) ` +
+            `perspective(760px) rotateX(${sp.tiltX.toFixed(2)}deg) rotateY(${sp.tiltY.toFixed(2)}deg) rotateZ(${sp.twist.toFixed(2)}deg) ` +
+            `scale(${(scale * stretchScale).toFixed(3)})`;
           card.style.opacity = String(opacity.toFixed(2));
-          card.style.zIndex = String(Math.round(20 + depthRatio * 30));
+          card.style.zIndex = isGrabbedNow ? '95' : String(Math.round(20 + depthRatio * 30));
           card.style.borderColor = isSelected ? (profile.color || '#00f2fe') : 'rgba(148, 163, 184, 0.35)';
 
           const avatarSrc =
@@ -2851,15 +3454,26 @@
 
         // Unified pointer handler on the arena so both touch rotation AND card tap-to-open work reliably
         // (Note: renderOrbitCards rebuilds innerHTML on every frame, so attaching pointer capture to child cards gets lost)
+        let lastPointerY = 0;
+        let releasedCardProfile = null;
+
         arena.addEventListener('pointerdown', (e) => {
           if (e.pointerType === 'mouse' && e.button !== 0) return;
           const hitCard = e.target.closest('.orbit-card');
           const hitId = hitCard ? hitCard.getAttribute('data-orbit-profile-id') : null;
           activeCardProfile = hitId ? state.profiles.find((p) => p.id === hitId) || null : null;
+          releasedCardProfile = null;
+
+          if (activeCardProfile) {
+            state.activeProfileId = activeCardProfile.id;
+            state.activeModalProfileId = activeCardProfile.id;
+            updateSpotlightOnly();
+          }
 
           isInteractingOrbit = true;
           activeOrbitPointerId = e.pointerId;
           lastPointerX = e.clientX;
+          lastPointerY = e.clientY;
           pointerDownX = e.clientX;
           pointerDownY = e.clientY;
           hasDraggedPastThreshold = false;
@@ -2873,15 +3487,23 @@
         arena.addEventListener('pointermove', (e) => {
           if (!isInteractingOrbit || e.pointerId !== activeOrbitPointerId) return;
           const totalDist = Math.hypot(e.clientX - pointerDownX, e.clientY - pointerDownY);
-          if (totalDist > 10) {
+          if (totalDist > 8) {
             hasDraggedPastThreshold = true;
           }
           const dx = e.clientX - lastPointerX;
+          const dy = e.clientY - lastPointerY;
           lastPointerX = e.clientX;
+          lastPointerY = e.clientY;
           if (hasDraggedPastThreshold) {
-            const deltaDeg = dx * 0.42;
-            orbitAngle += deltaDeg;
-            orbitVelocity = deltaDeg * 0.72;
+            if (activeCardProfile) {
+              // Keep card anchored near its orbit while stretching/tugging with finger
+              stepOrbitCardSprings(activeCardProfile.id, dx, dy, true);
+              orbitVelocity = dx * 0.14;
+            } else {
+              const deltaDeg = dx * 0.42;
+              orbitAngle += deltaDeg;
+              orbitVelocity = deltaDeg * 0.72;
+            }
             renderOrbitCards();
           }
         });
@@ -2896,6 +3518,16 @@
 
           const wasTap = !hasDraggedPastThreshold;
           const tappedProfile = activeCardProfile;
+
+          if (!wasTap && activeCardProfile) {
+            const sp = ensureOrbitCardSpring(activeCardProfile.id);
+            sp.vox -= sp.ox * 0.22;
+            sp.voy -= sp.oy * 0.22;
+            sp.vTiltX -= sp.tiltX * 0.18;
+            sp.vTiltY -= sp.tiltY * 0.18;
+            sp.vTwist -= sp.twist * 0.18;
+            releasedCardProfile = activeCardProfile;
+          }
 
           isInteractingOrbit = false;
           activeOrbitPointerId = null;
@@ -2917,12 +3549,27 @@
 
         function animateOrbitLoop() {
           if (state.currentStage === 3) {
+            const activeGrabbedId = (isInteractingOrbit && hasDraggedPastThreshold && activeCardProfile)
+              ? activeCardProfile.id
+              : null;
+            stepOrbitCardSprings(activeGrabbedId, 0, 0, Boolean(activeGrabbedId));
+
             if (!isInteractingOrbit) {
               orbitAngle += AUTO_ORBIT_SPEED + orbitVelocity;
               orbitVelocity *= 0.92;
               if (Math.abs(orbitVelocity) < 0.01) orbitVelocity = 0;
               if (orbitAngle > 360000 || orbitAngle < -360000) orbitAngle = orbitAngle % 360;
-              renderOrbitCards();
+            }
+            renderOrbitCards();
+
+            if (releasedCardProfile) {
+              const sp = ensureOrbitCardSpring(releasedCardProfile.id);
+              const stillBouncing =
+                Math.abs(sp.ox) > 0.25 || Math.abs(sp.oy) > 0.25 ||
+                Math.abs(sp.vox) > 0.25 || Math.abs(sp.voy) > 0.25;
+              if (!stillBouncing) {
+                releasedCardProfile = null;
+              }
             }
           }
           requestAnimationFrame(animateOrbitLoop);
@@ -3018,6 +3665,48 @@
       let draftStage4Accent = '#00f2fe';
       let draftAvatarDataUrl = '';
       let draftArticleImages = [];
+      let draftFontColor = '#f8fafc';
+      let draftFontFamily = "'Cairo', sans-serif";
+      let draftFontSize = 16;
+      let isComfortReadingMode = false;
+
+      function applyArticleTypography(colorVal, familyVal, sizeVal) {
+        const safeColor = colorVal || '#f8fafc';
+        const safeFamily = familyVal || "'Cairo', sans-serif";
+        const safeSize = Math.max(14, Math.min(30, Number(sizeVal) || 16));
+
+        document.documentElement.style.setProperty('--article-font-color', safeColor);
+        document.documentElement.style.setProperty('--article-font-family', safeFamily);
+        document.documentElement.style.setProperty('--article-font-size', `${safeSize}px`);
+
+        const colorPicker = document.getElementById('stage4-font-color-picker');
+        const familySelect = document.getElementById('stage4-font-family-select');
+        const sizeRange = document.getElementById('stage4-font-size-range');
+        const sizeLabel = document.getElementById('stage4-font-size-value');
+
+        if (colorPicker && /^#[0-9a-fA-F]{6}$/.test(safeColor)) {
+          colorPicker.value = safeColor;
+        }
+        if (familySelect) {
+          const exists = Array.from(familySelect.options).some((opt) => opt.value === safeFamily);
+          familySelect.value = exists ? safeFamily : "'Cairo', sans-serif";
+        }
+        if (sizeRange) sizeRange.value = String(safeSize);
+        if (sizeLabel) sizeLabel.textContent = `${safeSize}px`;
+      }
+
+      function setComfortReadingMode(enabled) {
+        isComfortReadingMode = Boolean(enabled);
+        const stage4El = document.getElementById('stage-4');
+        const btn = document.getElementById('stage4-btn-comfort-reading');
+        if (stage4El) {
+          stage4El.classList.toggle('comfort-reading-active', isComfortReadingMode);
+        }
+        if (btn) {
+          btn.setAttribute('aria-pressed', String(isComfortReadingMode));
+          btn.textContent = isComfortReadingMode ? 'تصغير صفحة المقال' : 'قراءة مريحة';
+        }
+      }
 
       function setOwnerEditorVisibility(profile, openPanel = false) {
         const toggleBtn = document.getElementById('btn-toggle-owner-editor');
@@ -3367,12 +4056,17 @@
         const saveBtn = document.getElementById('stage4-btn-save');
         const addImgPanel = document.getElementById('stage4-add-image-panel');
         const visualControls = document.getElementById('stage4-visual-controls');
+        const fontPanel = document.getElementById('stage4-font-controls-panel');
 
         if (titleInput) titleInput.readOnly = !editable;
         if (bodyTextarea) bodyTextarea.readOnly = !editable;
         saveBtn?.classList.toggle('hidden', !editable);
         addImgPanel?.classList.toggle('hidden', !editable);
         visualControls?.classList.toggle('hidden', !editable);
+        if (!editable && fontPanel) {
+          fontPanel.classList.add('hidden');
+          document.getElementById('stage4-btn-font-controls')?.setAttribute('aria-expanded', 'false');
+        }
       }
 
       function openStage4ForProfile(profileId) {
@@ -3392,12 +4086,16 @@
         draftArticleImages = Array.isArray(target.articleImages)
           ? target.articleImages.map((im) => ({ ...im }))
           : [];
+        draftFontColor = target.articleFontColor || '#f8fafc';
+        draftFontFamily = target.articleFontFamily || "'Cairo', sans-serif";
+        draftFontSize = Number(target.articleFontSize) || 16;
 
         document.getElementById('article-workspace-author').textContent = target.name;
         document.getElementById('stage4-article-title-input').value = target.articleTitle || '';
         document.getElementById('stage4-main-article-textarea').value = target.article || '';
 
         applyStage4Visuals(draftStage4Theme, draftStage4Accent);
+        applyArticleTypography(draftFontColor, draftFontFamily, draftFontSize);
         syncStage4EditableState(target);
         updateStage4ArticleStats();
         renderStage4ArticleImages();
@@ -3440,6 +4138,50 @@
         applyStage4Visuals(draftStage4Theme, draftStage4Accent);
       });
 
+      document.getElementById('stage4-btn-comfort-reading')?.addEventListener('click', () => {
+        setComfortReadingMode(!isComfortReadingMode);
+        toast(isComfortReadingMode ? 'تم تفعيل وضع القراءة المريحة وتكبير مساحة المقال' : 'تم العودة للحجم الطبيعي لصفحة المقال', 'info');
+      });
+
+      document.getElementById('stage4-btn-font-controls')?.addEventListener('click', () => {
+        const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(target)) return;
+        const panel = document.getElementById('stage4-font-controls-panel');
+        const btn = document.getElementById('stage4-btn-font-controls');
+        if (!panel) return;
+        const willOpen = panel.classList.contains('hidden');
+        panel.classList.toggle('hidden', !willOpen);
+        btn?.setAttribute('aria-expanded', String(willOpen));
+      });
+
+      document.getElementById('stage4-font-color-picker')?.addEventListener('input', (e) => {
+        const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(target)) return;
+        draftFontColor = e.target.value || '#f8fafc';
+        applyArticleTypography(draftFontColor, draftFontFamily, draftFontSize);
+      });
+
+      document.getElementById('stage4-btn-reset-font-color')?.addEventListener('click', () => {
+        const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(target)) return;
+        draftFontColor = '#f8fafc';
+        applyArticleTypography(draftFontColor, draftFontFamily, draftFontSize);
+      });
+
+      document.getElementById('stage4-font-family-select')?.addEventListener('change', (e) => {
+        const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(target)) return;
+        draftFontFamily = e.target.value || "'Cairo', sans-serif";
+        applyArticleTypography(draftFontColor, draftFontFamily, draftFontSize);
+      });
+
+      document.getElementById('stage4-font-size-range')?.addEventListener('input', (e) => {
+        const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+        if (!canEditProfile(target)) return;
+        draftFontSize = Number(e.target.value) || 16;
+        applyArticleTypography(draftFontColor, draftFontFamily, draftFontSize);
+      });
+
       document.getElementById('stage4-btn-save')?.addEventListener('click', async () => {
         const idx = state.profiles.findIndex((p) => p.id === state.activeModalProfileId);
         if (idx === -1 || !canEditProfile(state.profiles[idx])) return;
@@ -3451,6 +4193,9 @@
         state.profiles[idx].stage4Theme = draftStage4Theme;
         state.profiles[idx].stage4Accent = draftStage4Accent;
         state.profiles[idx].color = draftStage4Accent;
+        state.profiles[idx].articleFontColor = draftFontColor;
+        state.profiles[idx].articleFontFamily = draftFontFamily;
+        state.profiles[idx].articleFontSize = draftFontSize;
         renderStage3();
         await saveState(true);
       });
@@ -3492,7 +4237,738 @@
       syncStage2UI();
       goToStage(state.currentStage || 1);
       syncSharedStateOnceOnLoad();
+
+      // === CINEMA ARTICLE VIEW + DEEP 3D CARD MOTION ===
+      (function initCinemaAndDeepMotion() {
+        const stage4El = document.getElementById('stage-4');
+        const cinemaBar = document.getElementById('cc-cinema-bar');
+        const cinemaProgress = document.getElementById('cc-cinema-progress');
+        let cinemaActive = false;
+
+        function updateCinemaProgress() {
+          if (!cinemaActive || !cinemaProgress) return;
+          const doc = document.documentElement;
+          const scrollTop = window.scrollY || doc.scrollTop || 0;
+          const maxScroll = Math.max(1, doc.scrollHeight - window.innerHeight);
+          const pct = Math.min(100, Math.max(0, (scrollTop / maxScroll) * 100));
+          cinemaProgress.style.width = `${pct.toFixed(1)}%`;
+        }
+
+        function setCinemaMode(enable) {
+          cinemaActive = Boolean(enable);
+          const btn = document.getElementById('stage4-btn-cinema-mode');
+          if (stage4El) {
+            stage4El.classList.toggle('cinema-mode-active', cinemaActive);
+          }
+          if (cinemaBar) {
+            cinemaBar.classList.toggle('hidden', !cinemaActive || state.currentStage !== 4);
+          }
+          if (btn) {
+            btn.setAttribute('aria-pressed', String(cinemaActive));
+            btn.textContent = cinemaActive ? '🎬 خروج من السينمائي' : '🎬 عرض سينمائي';
+            btn.classList.toggle('is-active', cinemaActive);
+          }
+          updateCinemaProgress();
+          if (typeof toast === 'function') {
+            toast(cinemaActive ? 'تم تفعيل العرض السينمائي للمقال' : 'تم إيقاف العرض السينمائي', 'info');
+          }
+        }
+
+        document.getElementById('stage4-btn-cinema-mode')?.addEventListener('click', () => {
+          setCinemaMode(!cinemaActive);
+        });
+
+        window.addEventListener('scroll', updateCinemaProgress, { passive: true });
+
+        const prevGoStage = goToStage;
+        goToStage = function wrappedCinemaGoToStage(stageNum) {
+          prevGoStage(stageNum);
+          if (cinemaBar) {
+            cinemaBar.classList.toggle('hidden', !cinemaActive || Number(state.currentStage) !== 4);
+          }
+          updateCinemaProgress();
+        };
+
+        // Realistic finger-press hold + damped spring rebound on cards
+        function bindTactileSpringCards(selector, maxTiltDeg = 6.5, pressDepth = 10) {
+          document.querySelectorAll(selector).forEach((el) => {
+            if (el.dataset.tactileSpringBound === '1') return;
+            el.dataset.tactileSpringBound = '1';
+            el.classList.add('cc-tactile-card');
+
+            let isHolding = false;
+            let activePointerId = null;
+
+            // Spring state: rotX, rotY, zOffset (negative = pressed inward, positive = rebound)
+            let rotX = 0, vRotX = 0;
+            let rotY = 0, vRotY = 0;
+            let zPos = 0, vZ = 0;
+
+            let targetRotX = 0;
+            let targetRotY = 0;
+            let targetZ = 0;
+            let rafId = null;
+
+            function applyCardTransform() {
+              el.style.transform =
+                `perspective(920px) translate3d(0px, 0px, ${zPos.toFixed(2)}px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
+            }
+
+            function stepSpring() {
+              // Stiffer/snappier when pressed by finger, lively damped rebound when released
+              const stiffness = isHolding ? 0.28 : 0.14;
+              const damping = isHolding ? 0.68 : 0.78;
+
+              vRotX = (vRotX + (targetRotX - rotX) * stiffness) * damping;
+              vRotY = (vRotY + (targetRotY - rotY) * stiffness) * damping;
+              vZ = (vZ + (targetZ - zPos) * stiffness) * damping;
+
+              rotX += vRotX;
+              rotY += vRotY;
+              zPos += vZ;
+
+              applyCardTransform();
+
+              const settled =
+                !isHolding &&
+                Math.abs(targetRotX - rotX) < 0.02 &&
+                Math.abs(targetRotY - rotY) < 0.02 &&
+                Math.abs(targetZ - zPos) < 0.05 &&
+                Math.abs(vRotX) < 0.02 &&
+                Math.abs(vRotY) < 0.02 &&
+                Math.abs(vZ) < 0.05;
+
+              if (settled) {
+                rotX = 0; rotY = 0; zPos = 0;
+                vRotX = 0; vRotY = 0; vZ = 0;
+                applyCardTransform();
+                rafId = null;
+              } else {
+                rafId = requestAnimationFrame(stepSpring);
+              }
+            }
+
+            function startSpringLoop() {
+              if (!rafId) {
+                rafId = requestAnimationFrame(stepSpring);
+              }
+            }
+
+            function updateFingerTilt(clientX, clientY) {
+              const r = el.getBoundingClientRect();
+              if (!r.width || !r.height) return;
+              const nx = Math.max(-1, Math.min(1, ((clientX - r.left) / r.width - 0.5) * 2));
+              const ny = Math.max(-1, Math.min(1, ((clientY - r.top) / r.height - 0.5) * 2));
+              targetRotX = -ny * maxTiltDeg;
+              targetRotY = nx * maxTiltDeg;
+              targetZ = -pressDepth;
+            }
+
+            el.addEventListener('pointerdown', (e) => {
+              if (e.pointerType === 'mouse' && e.button !== 0) return;
+              isHolding = true;
+              activePointerId = e.pointerId;
+              updateFingerTilt(e.clientX, e.clientY);
+              // Immediate subtle physical sink on touch/press
+              rotX += (targetRotX - rotX) * 0.35;
+              rotY += (targetRotY - rotY) * 0.35;
+              zPos += (targetZ - zPos) * 0.35;
+              startSpringLoop();
+            });
+
+            el.addEventListener('pointermove', (e) => {
+              if (!isHolding) return;
+              if (activePointerId !== null && e.pointerId !== activePointerId) return;
+              updateFingerTilt(e.clientX, e.clientY);
+              startSpringLoop();
+            });
+
+            function releaseFinger(e) {
+              if (!isHolding) return;
+              if (e && activePointerId !== null && e.pointerId !== activePointerId) return;
+              isHolding = false;
+              activePointerId = null;
+              targetRotX = 0;
+              targetRotY = 0;
+              targetZ = 0;
+              // Add slight realistic overshoot kick on finger lift-off
+              vRotX += (-rotX) * 0.24;
+              vRotY += (-rotY) * 0.24;
+              vZ += 2.2;
+              startSpringLoop();
+            }
+
+            el.addEventListener('pointerup', releaseFinger);
+            el.addEventListener('pointercancel', releaseFinger);
+            el.addEventListener('pointerleave', releaseFinger);
+          });
+        }
+
+        bindTactileSpringCards('#login-card, #stage2-idea-box, #stage3-featured-bar, #stage4-workspace-canvas', 6.5, 10);
+
+        const prevRenderStage3 = renderStage3;
+        renderStage3 = function wrappedSpringRenderStage3() {
+          prevRenderStage3();
+          bindTactileSpringCards('#stage3-profile-list > button', 5, 7);
+        };
+      })();
+
+
+      // === CODECRAFT QUANTUM HUD, WARP TRANSITIONS & HAPTIC SYNTH ===
+      (function initQuantumExperience() {
+        const warpEl = document.getElementById('cc-warp-overlay');
+        const fabBtn = document.getElementById('cc-hud-fab');
+        const drawerEl = document.getElementById('cc-command-drawer');
+        const closeHudBtn = document.getElementById('cc-close-hud-btn');
+                const soundBtn = document.getElementById('cc-hud-sound-btn');
+        const orbitBoostBtn = document.getElementById('cc-hud-orbit-boost-btn');
+        const profilesCountEl = document.getElementById('cc-hud-profiles-count');
+
+        let soundEnabled = true;
+        let orbitBoosted = false;
+        let audioCtx = null;
+
+        function playTone(freq = 520, duration = 0.06, type = 'sine', gainVal = 0.035) {
+          if (!soundEnabled) return;
+          try {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            if (!audioCtx) audioCtx = new Ctx();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(freq * 1.25, audioCtx.currentTime + duration);
+            gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+          } catch (_) {}
+        }
+
+        function triggerWarpTransition() {
+          if (!warpEl) return;
+          warpEl.classList.remove('is-warping');
+          void warpEl.offsetWidth;
+          warpEl.classList.add('is-warping');
+          playTone(440, 0.09, 'triangle', 0.03);
+          setTimeout(() => {
+            warpEl.classList.remove('is-warping');
+          }, 460);
+        }
+
+        const originalGoToStage = goToStage;
+        goToStage = function wrappedGoToStage(stageNum) {
+          const prev = state.currentStage;
+          originalGoToStage(stageNum);
+          if (Number(stageNum) !== Number(prev)) {
+            triggerWarpTransition();
+          }
+          refreshHudStats();
+        };
+
+        function refreshHudStats() {
+          if (profilesCountEl && Array.isArray(state.profiles)) {
+            profilesCountEl.textContent = String(state.profiles.length);
+          }
+          document.querySelectorAll('[data-hud-stage]').forEach((btn) => {
+            const st = Number(btn.getAttribute('data-hud-stage'));
+            btn.classList.toggle('is-active', st === Number(state.currentStage));
+          });
+        }
+
+        function toggleDrawer(forceState) {
+          if (!drawerEl) return;
+          const willOpen = typeof forceState === 'boolean' ? forceState : drawerEl.classList.contains('hidden');
+          drawerEl.classList.toggle('hidden', !willOpen);
+          playTone(willOpen ? 620 : 380, 0.05, 'sine', 0.025);
+          refreshHudStats();
+        }
+
+        fabBtn?.addEventListener('click', () => toggleDrawer());
+        closeHudBtn?.addEventListener('click', () => toggleDrawer(false));
+
+        document.querySelectorAll('[data-hud-stage]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const targetStage = Number(btn.getAttribute('data-hud-stage'));
+            if (targetStage) {
+              goToStage(targetStage);
+              toggleDrawer(false);
+            }
+          });
+        });
+
+        soundBtn?.addEventListener('click', () => {
+          soundEnabled = !soundEnabled;
+          soundBtn.classList.toggle('is-active', soundEnabled);
+          soundBtn.textContent = soundEnabled ? '🔊 صوت التفاعل: يعمل' : '🔇 صوت التفاعل: مكتوم';
+          if (soundEnabled) playTone(660, 0.07, 'sine', 0.03);
+        });
+
+        orbitBoostBtn?.addEventListener('click', () => {
+          orbitBoosted = !orbitBoosted;
+          orbitBoostBtn.classList.toggle('is-active', orbitBoosted);
+          orbitBoostBtn.textContent = orbitBoosted ? '⚡ تسريع المدار: مفعل' : '⚡ تسريع المدار';
+          orbitVelocity = orbitBoosted ? 2.4 : -1.2;
+          playTone(580, 0.07, 'sawtooth', 0.02);
+        });
+
+        document.addEventListener('click', (e) => {
+          const clickable = e.target.closest('button');
+          if (clickable && clickable.id !== 'cc-hud-fab') {
+            playTone(740, 0.035, 'sine', 0.018);
+          }
+        });
+
+        window.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            toggleDrawer();
+          } else if (e.key === 'Escape' && drawerEl && !drawerEl.classList.contains('hidden')) {
+            toggleDrawer(false);
+          }
+        });
+
+        // Subtle holographic sheen on key cards
+        ['login-card', 'stage2-idea-box', 'stage3-featured-bar', 'stage4-workspace-canvas'].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.classList.add('cc-holo-card');
+        });
+
+
+        refreshHudStats();
+      })();
+
+      // === READING TIME ESTIMATE, DYNAMIC NEON GLOW & ARTICLE TEXT-TO-SPEECH ===
+      (function initReadingNeonAndTTS() {
+        const stage4El = document.getElementById('stage-4');
+        const titleInput = document.getElementById('stage4-article-title-input');
+        const bodyTextarea = document.getElementById('stage4-main-article-textarea');
+        const readingTimeBadge = document.getElementById('stage4-reading-time-badge');
+        const neonToggleBtn = document.getElementById('stage4-btn-neon-toggle');
+        const ttsToggleBtn = document.getElementById('stage4-btn-tts-toggle');
+        const ttsStopBtn = document.getElementById('stage4-btn-tts-stop');
+
+        let neonEnabled = true;
+        let neonStrengthPct = 145;
+        let neonRangePx = 115;
+
+        const strengthSlider = document.getElementById('cc-neon-strength-range');
+        const rangeSlider = document.getElementById('cc-neon-range-slider');
+        const strengthValEl = document.getElementById('cc-neon-strength-val');
+        const rangeValEl = document.getElementById('cc-neon-range-val');
+        const neonPanelEl = document.getElementById('cc-neon-controls-panel');
+
+        function applyNeonIntensityAndRange() {
+          const strengthFactor = Math.max(0.2, Number(neonStrengthPct) / 100);
+          const rangeValue = Math.max(20, Number(neonRangePx));
+          document.documentElement.style.setProperty('--cc-neon-strength', String(strengthFactor.toFixed(2)));
+          document.documentElement.style.setProperty('--cc-neon-range', `${rangeValue}px`);
+          if (strengthValEl) strengthValEl.textContent = `${Math.round(neonStrengthPct)}%`;
+          if (rangeValEl) rangeValEl.textContent = `${Math.round(rangeValue)}px`;
+          if (strengthSlider) strengthSlider.value = String(Math.round(neonStrengthPct));
+          if (rangeSlider) rangeSlider.value = String(Math.round(rangeValue));
+        }
+
+        function refreshReadingTimeEstimate() {
+          const titleStr = (titleInput?.value || '').trim();
+          const bodyStr = (bodyTextarea?.value || '').trim();
+          const combined = `${titleStr} ${bodyStr}`.trim();
+          const words = combined ? combined.split(/\s+/).filter(Boolean).length : 0;
+          const minutes = Math.max(1, Math.round(words / 190));
+
+          if (readingTimeBadge) {
+            readingTimeBadge.textContent =
+              words < 110
+                ? '⏱️ أقل من دقيقة للقراءة'
+                : `⏱️ ${minutes} ${minutes === 1 ? 'دقيقة' : minutes === 2 ? 'دقيقتان' : 'دقائق'} قراءة`;
+          }
+        }
+
+        function setNeonEnabled(enabled) {
+          neonEnabled = Boolean(enabled);
+          if (stage4El) {
+            stage4El.classList.toggle('cc-neon-glow-active', neonEnabled);
+          }
+          if (neonPanelEl) {
+            neonPanelEl.style.opacity = neonEnabled ? '1' : '0.55';
+          }
+          if (neonToggleBtn) {
+            neonToggleBtn.setAttribute('aria-pressed', String(neonEnabled));
+            neonToggleBtn.classList.toggle('is-active', neonEnabled);
+            neonToggleBtn.textContent = neonEnabled ? '✨ نيون متغير: يعمل' : '✨ نيون متغير: متوقف';
+          }
+          applyNeonIntensityAndRange();
+        }
+
+        strengthSlider?.addEventListener('input', (e) => {
+          neonStrengthPct = Number(e.target.value) || 145;
+          if (!neonEnabled) setNeonEnabled(true);
+          else applyNeonIntensityAndRange();
+        });
+
+        rangeSlider?.addEventListener('input', (e) => {
+          neonRangePx = Number(e.target.value) || 115;
+          if (!neonEnabled) setNeonEnabled(true);
+          else applyNeonIntensityAndRange();
+        });
+
+        neonToggleBtn?.addEventListener('click', () => {
+          setNeonEnabled(!neonEnabled);
+          if (typeof toast === 'function') {
+            toast(neonEnabled ? 'تم تفعيل إضاءة النيون المتغيرة' : 'تم إيقاف إضاءة النيون المتغيرة', 'info');
+          }
+        });
+
+        const ttsSupported = typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+        let isSpeakingActive = false;
+
+        function syncTtsUI() {
+          const activeNow = ttsSupported && isSpeakingActive && (window.speechSynthesis.speaking || window.speechSynthesis.paused);
+          if (ttsToggleBtn) {
+            ttsToggleBtn.setAttribute('aria-pressed', String(activeNow));
+            ttsToggleBtn.classList.toggle('is-active', activeNow);
+            if (!ttsSupported) {
+              ttsToggleBtn.textContent = '🔇 الصوت غير مدعوم';
+            } else if (window.speechSynthesis.paused) {
+              ttsToggleBtn.textContent = '▶️ استئناف القراءة';
+            } else if (activeNow) {
+              ttsToggleBtn.textContent = '⏸️ إيقاف مؤقت';
+            } else {
+              ttsToggleBtn.textContent = '🔊 قراءة المقال';
+            }
+          }
+          ttsStopBtn?.classList.toggle('hidden', !activeNow);
+          bodyTextarea?.classList.toggle('cc-tts-speaking', Boolean(activeNow));
+        }
+
+        function stopArticleSpeech(showToast = false) {
+          isSpeakingActive = false;
+          if (ttsSupported) {
+            try {
+              window.speechSynthesis.cancel();
+            } catch (_) {}
+          }
+          syncTtsUI();
+          if (showToast && typeof toast === 'function') {
+            toast('تم إيقاف القراءة الصوتية', 'info');
+          }
+        }
+
+        function pickVoiceForText(text) {
+          if (!ttsSupported) return null;
+          const voices = window.speechSynthesis.getVoices() || [];
+          const hasArabic = /[\u0600-\u06FF]/.test(text);
+          if (hasArabic) {
+            return voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('ar')) || null;
+          }
+          return voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('en')) || null;
+        }
+
+        function startArticleSpeech() {
+          if (!ttsSupported) {
+            if (typeof toast === 'function') {
+              toast('المتصفح الحالي لا يدعم تحويل النص إلى صوت', 'error');
+            }
+            return;
+          }
+
+          if (window.speechSynthesis.paused && isSpeakingActive) {
+            window.speechSynthesis.resume();
+            syncTtsUI();
+            return;
+          }
+
+          if (window.speechSynthesis.speaking && isSpeakingActive) {
+            window.speechSynthesis.pause();
+            syncTtsUI();
+            return;
+          }
+
+          const titleStr = (titleInput?.value || '').trim();
+          const bodyStr = (bodyTextarea?.value || '').trim();
+          const fullText = [titleStr, bodyStr].filter(Boolean).join('. ');
+
+          if (!fullText) {
+            if (typeof toast === 'function') {
+              toast('لا يوجد نص في المقال لقراءته', 'info');
+            }
+            return;
+          }
+
+          try {
+            window.speechSynthesis.cancel();
+          } catch (_) {}
+
+          const utter = new SpeechSynthesisUtterance(fullText);
+          const voice = pickVoiceForText(fullText);
+          if (voice) {
+            utter.voice = voice;
+            utter.lang = voice.lang;
+          } else {
+            utter.lang = /[\u0600-\u06FF]/.test(fullText) ? 'ar-SA' : 'en-US';
+          }
+          utter.rate = 1.0;
+          utter.pitch = 1.0;
+
+          utter.onstart = () => {
+            isSpeakingActive = true;
+            syncTtsUI();
+          };
+          utter.onpause = () => syncTtsUI();
+          utter.onresume = () => syncTtsUI();
+          utter.onend = () => {
+            isSpeakingActive = false;
+            syncTtsUI();
+          };
+          utter.onerror = () => {
+            isSpeakingActive = false;
+            syncTtsUI();
+          };
+
+          isSpeakingActive = true;
+          syncTtsUI();
+          window.speechSynthesis.speak(utter);
+          if (typeof toast === 'function') {
+            toast('بدأت القراءة الصوتية للمقال', 'success');
+          }
+        }
+
+        ttsToggleBtn?.addEventListener('click', startArticleSpeech);
+        ttsStopBtn?.addEventListener('click', () => stopArticleSpeech(true));
+
+        if (ttsSupported && typeof window.speechSynthesis.onvoiceschanged !== 'undefined') {
+          window.speechSynthesis.onvoiceschanged = () => pickVoiceForText(bodyTextarea?.value || '');
+        }
+
+        titleInput?.addEventListener('input', refreshReadingTimeEstimate);
+        bodyTextarea?.addEventListener('input', () => {
+          refreshReadingTimeEstimate();
+          if (isSpeakingActive) stopArticleSpeech(false);
+        });
+
+        const origGoToStage = goToStage;
+        goToStage = function wrappedReadingGoToStage(stageNum) {
+          if (Number(stageNum) !== 4 && isSpeakingActive) {
+            stopArticleSpeech(false);
+          }
+          origGoToStage(stageNum);
+          if (Number(stageNum) === 4) {
+            refreshReadingTimeEstimate();
+            setNeonEnabled(neonEnabled);
+            syncTtsUI();
+          }
+        };
+
+        setNeonEnabled(true);
+        refreshReadingTimeEstimate();
+        syncTtsUI();
+      })();
+
+
+      // === HIGH-SENSITIVITY PRESS & MICRO-SHAKE ON STAGE 1 LOGIN ===
+      (function initStage1LoginTouchAndShake() {
+        const loginCardEl = document.getElementById('login-card');
+        const idInputEl = document.getElementById('auth-id-input');
+        const passInputEl = document.getElementById('auth-pass-input');
+        const errorMsgEl = document.getElementById('login-error-msg');
+        const devPassInputEl = document.getElementById('dev-pass-input');
+
+        function shakeEl(target) {
+          if (!target) return;
+          target.classList.remove('cc-login-shake');
+          void target.offsetWidth;
+          target.classList.add('cc-login-shake');
+        }
+
+        document.addEventListener('animationend', (e) => {
+          if (e.animationName === 'ccLoginShake') {
+            e.target.classList.remove('cc-login-shake');
+          }
+        });
+
+        document.querySelectorAll('#login-card button, #btn-open-dev-login, #btn-logout-dev-stage1, #btn-toggle-lamp-light, [data-lamp-preset], #btn-cycle-lamp-color').forEach((btn) => {
+          const releasePress = () => btn.classList.remove('cc-fast-press');
+          btn.addEventListener('pointerdown', () => {
+            if (btn.disabled) return;
+            btn.classList.add('cc-fast-press');
+          });
+          btn.addEventListener('pointerup', releasePress);
+          btn.addEventListener('pointercancel', releasePress);
+          btn.addEventListener('pointerleave', releasePress);
+        });
+
+        document.getElementById('login-form')?.addEventListener('submit', () => {
+          const idVal = (idInputEl?.value || '').trim();
+          const passVal = (passInputEl?.value || '').trim();
+          if (!state.lampOn || !idVal || !passVal) {
+            shakeEl(loginCardEl);
+            if (!idVal && idInputEl) shakeEl(idInputEl);
+            if (!passVal && passInputEl) shakeEl(passInputEl);
+            return;
+          }
+          setTimeout(() => {
+            if (errorMsgEl && !errorMsgEl.classList.contains('hidden')) {
+              shakeEl(loginCardEl);
+              shakeEl(idInputEl);
+              shakeEl(passInputEl);
+            }
+          }, 0);
+        }, true);
+
+        document.getElementById('dev-confirm-login-btn')?.addEventListener('click', () => {
+          const passVal = (devPassInputEl?.value || '').trim();
+          if (passVal !== DEV_PASS && devPassInputEl) {
+            shakeEl(devPassInputEl);
+          }
+        }, true);
+      })();
+
+
+      // === ZOOM PROFILE AVATAR ON CLICK ===
+      (function initProfileAvatarZoom() {
+        const zoomModalId = 'modal-profile-avatar-zoom';
+        const zoomImg = document.getElementById('profile-avatar-zoom-img');
+        const zoomName = document.getElementById('profile-avatar-zoom-name');
+        const zoomRole = document.getElementById('profile-avatar-zoom-role');
+        const zoomCard = document.getElementById('profile-avatar-zoom-card');
+        const closeBtn = document.getElementById('close-profile-avatar-zoom-btn');
+
+        function openProfileAvatarZoom(imgSrc, nameText, roleText, accentColor) {
+          if (!zoomImg || !imgSrc) return;
+          const accent = accentColor || '#00f2fe';
+          zoomImg.src = imgSrc;
+          zoomImg.alt = nameText ? `صورة ${nameText} مكبرة` : 'صورة البروفايل مكبرة';
+          zoomImg.style.borderColor = accent;
+          zoomImg.style.boxShadow = `0 0 36px ${hexToRgba(accent, 0.45)}`;
+          if (zoomName) zoomName.textContent = nameText || 'البروفايل';
+          if (zoomRole) {
+            zoomRole.textContent = roleText || '';
+            zoomRole.style.color = accent;
+          }
+          if (zoomCard) {
+            zoomCard.style.borderColor = hexToRgba(accent, 0.65);
+          }
+          openModal(zoomModalId);
+        }
+
+        function closeProfileAvatarZoom() {
+          closeModal(zoomModalId);
+          if (zoomImg) zoomImg.src = '';
+        }
+
+        closeBtn?.addEventListener('click', closeProfileAvatarZoom);
+        document.getElementById(zoomModalId)?.addEventListener('click', (e) => {
+          if (e.target.id === zoomModalId) closeProfileAvatarZoom();
+        });
+
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            const m = document.getElementById(zoomModalId);
+            if (m && !m.classList.contains('hidden')) {
+              closeProfileAvatarZoom();
+            }
+          }
+        });
+
+        // 1. Inside Profile Detail Modal (#detail-person-avatar)
+        const modalAvatarEl = document.getElementById('detail-person-avatar');
+        if (modalAvatarEl) {
+          modalAvatarEl.classList.add('cursor-pointer');
+          modalAvatarEl.title = 'اضغط لتكبير صورة البروفايل';
+          modalAvatarEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+            const src = modalAvatarEl.currentSrc || modalAvatarEl.src;
+            openProfileAvatarZoom(src, target?.name, target?.role, target?.color);
+          });
+        }
+
+        // 2. Featured bar avatar in Stage 3 (#featured-profile-avatar)
+        const featuredAvatarEl = document.getElementById('featured-profile-avatar');
+        if (featuredAvatarEl) {
+          featuredAvatarEl.classList.add('cursor-pointer');
+          featuredAvatarEl.title = 'اضغط لتكبير صورة البروفايل';
+          featuredAvatarEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const active = getActiveProfile();
+            const src = featuredAvatarEl.currentSrc || featuredAvatarEl.src;
+            openProfileAvatarZoom(src, active?.name, active?.role, active?.color);
+          });
+        }
+
+        // 3. Stage 3 profile list avatars
+        document.getElementById('stage3-profile-list')?.addEventListener('click', (e) => {
+          const imgHit = e.target.closest('img');
+          if (!imgHit) return;
+          const rowBtn = imgHit.closest('[data-profile-list-id]');
+          const pid = rowBtn?.getAttribute('data-profile-list-id');
+          const prof = state.profiles.find((p) => p.id === pid);
+          if (prof) {
+            e.preventDefault();
+            e.stopPropagation();
+            openProfileAvatarZoom(imgHit.currentSrc || imgHit.src, prof.name, prof.role, prof.color);
+          }
+        }, true);
+      })();
+
     })();
   </script>
+
+  <!-- Spatial Warp Overlay -->
+  <div id="cc-warp-overlay" class="cc-warp-overlay" aria-hidden="true">
+    <div class="cc-warp-ring"></div>
+  </div>
+
+  <!-- Quantum HUD Floating Button -->
+  <button id="cc-hud-fab" type="button" class="cc-hud-fab" title="لوحة التحكم السريعة (Ctrl + K)">
+    <span class="cc-pulse-dot"></span>
+    <span>Quantum HUD</span>
+    
+  </button>
+
+  <!-- Quantum HUD Command Drawer -->
+  <div id="cc-command-drawer" class="cc-command-drawer hidden space-y-3.5" role="dialog" aria-label="لوحة التحكم المتقدمة">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+      <div>
+        <div class="text-xs font-black text-cyan-300">CodeCraft Quantum HUD</div>
+        <div class="text-[10px] text-slate-400">تحكم فوري في المراحل والتأثيرات والصوت</div>
+      </div>
+      <button id="cc-close-hud-btn" type="button" class="rounded-lg border border-slate-700 bg-slate-900 px-2.5 py-1 text-[11px] font-bold text-slate-300 cursor-pointer">✕</button>
+    </div>
+
+    <div class="space-y-1.5">
+      <div class="text-[11px] font-extrabold text-slate-300">انتقال فوري بين المراحل</div>
+      <div class="grid grid-cols-4 gap-1.5">
+        <button type="button" data-hud-stage="1" class="cc-chip-btn font-code">S1 • لمبة</button>
+        <button type="button" data-hud-stage="2" class="cc-chip-btn font-code">S2 • مركز</button>
+        <button type="button" data-hud-stage="3" class="cc-chip-btn font-code">S3 • مدار</button>
+        <button type="button" data-hud-stage="4" class="cc-chip-btn font-code">S4 • مقال</button>
+      </div>
+    </div>
+
+    <div class="space-y-1.5">
+      <div class="text-[11px] font-extrabold text-slate-300">وضعيات الأداء والتفاعل</div>
+      <div class="grid grid-cols-2 gap-2">
+        <button id="cc-hud-sound-btn" type="button" class="cc-chip-btn is-active">🔊 صوت التفاعل: يعمل</button>
+        <button id="cc-hud-orbit-boost-btn" type="button" class="cc-chip-btn">⚡ تسريع المدار</button>
+      </div>
+    </div>
+
+    <div class="rounded-xl border border-slate-800 bg-slate-950/80 p-2.5 flex items-center justify-between text-[11px]">
+      <span class="text-slate-400">عدد البروفايلات المسجلة:</span>
+      <span id="cc-hud-profiles-count" class="font-code font-bold text-cyan-300">5</span>
+    </div>
+  </div>
+
+
+  <!-- Cinema Reading Scroll Progress Bar -->
+  <div id="cc-cinema-bar" class="cc-cinema-bar hidden" aria-hidden="true">
+    <div id="cc-cinema-progress" class="cc-cinema-progress"></div>
+  </div>
+
 </body>
 </html>
