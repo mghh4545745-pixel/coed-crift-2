@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27><circle cx=%278%27 cy=%278%27 r=%277%27 fill=%27%2322d3ee%27/></svg>" />
   <title>CodeCraft 3D - منصة المراحل الأربع التفاعلية</title>
 
   <!-- Three.js for Stage 3 3D Orbital Explorer -->
@@ -795,7 +796,8 @@
       position: fixed;
       bottom: 18px;
       right: 18px;
-      z-index: 155;
+      z-index: 220;
+      pointer-events: auto;
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -834,7 +836,8 @@
       bottom: 66px;
       right: 18px;
       width: min(360px, calc(100vw - 36px));
-      z-index: 165;
+      z-index: 225;
+      pointer-events: auto;
       border-radius: 22px;
       border: 1px solid rgba(34, 211, 238, 0.4);
       background: rgba(9, 15, 28, 0.95);
@@ -2467,6 +2470,7 @@
       async function pushSharedStateToCloud() {
         if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return false;
         try {
+          if (typeof fetch !== 'function') return false;
           const endpoint = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?on_conflict=id`;
           const res = await fetch(endpoint, {
             method: 'POST',
@@ -2482,7 +2486,7 @@
               updated_at: new Date().toISOString()
             }])
           });
-          return res.ok;
+          return Boolean(res && res.ok);
         } catch (_) {
           return false;
         }
@@ -2491,7 +2495,7 @@
       async function syncSharedStateOnceOnLoad() {
         if (hasSyncedOnCurrentLoad) return;
         hasSyncedOnCurrentLoad = true;
-        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY || typeof fetch !== 'function') return;
 
         try {
           const endpoint = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${encodeURIComponent(SUPABASE_ROW_ID)}&select=payload`;
@@ -2503,7 +2507,7 @@
             },
             cache: 'no-store'
           });
-          if (!res.ok) return;
+          if (!res || !res.ok) return;
           const rows = await res.json();
           if (!Array.isArray(rows) || !rows.length || !rows[0]?.payload) return;
 
@@ -2552,9 +2556,9 @@
         if (syncCloud) {
           const ok = await pushSharedStateToCloud();
           if (ok) {
-            toast('تم الحفظ ومزامنة التحديث للجميع', 'success');
+            toast('تم الحفظ ومزامنة التحديث للجميع بنجاح', 'success');
           } else {
-            toast('تم الحفظ محلياً (تحقق من جدول platform_state وسياسة RLS في Supabase)', 'info');
+            toast('تم الحفظ محلياً، تعذرت المزامنة السحابية الآن', 'info');
           }
         }
       }
@@ -4481,15 +4485,28 @@
         }
 
         function toggleDrawer(forceState) {
-          if (!drawerEl) return;
-          const willOpen = typeof forceState === 'boolean' ? forceState : drawerEl.classList.contains('hidden');
-          drawerEl.classList.toggle('hidden', !willOpen);
-          playTone(willOpen ? 620 : 380, 0.05, 'sine', 0.025);
-          refreshHudStats();
+          const drawerNode = document.getElementById('cc-command-drawer');
+          if (!drawerNode) return;
+          const willOpen = typeof forceState === 'boolean' ? forceState : drawerNode.classList.contains('hidden');
+          drawerNode.classList.toggle('hidden', !willOpen);
+          try {
+            playTone(willOpen ? 620 : 380, 0.05, 'sine', 0.025);
+          } catch (_) {}
+          try {
+            refreshHudStats();
+          } catch (_) {}
         }
 
-        fabBtn?.addEventListener('click', () => toggleDrawer());
-        closeHudBtn?.addEventListener('click', () => toggleDrawer(false));
+        fabBtn?.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleDrawer();
+        });
+        closeHudBtn?.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleDrawer(false);
+        });
 
         document.querySelectorAll('[data-hud-stage]').forEach((btn) => {
           btn.addEventListener('click', () => {
@@ -4906,6 +4923,20 @@
           if (!imgHit) return;
           const rowBtn = imgHit.closest('[data-profile-list-id]');
           const pid = rowBtn?.getAttribute('data-profile-list-id');
+          const prof = state.profiles.find((p) => p.id === pid);
+          if (prof) {
+            e.preventDefault();
+            e.stopPropagation();
+            openProfileAvatarZoom(imgHit.currentSrc || imgHit.src, prof.name, prof.role, prof.color);
+          }
+        }, true);
+
+        // 4. Stage 3 orbit card avatars (on clean click/tap)
+        document.getElementById('orbit-ring-track')?.addEventListener('click', (e) => {
+          const imgHit = e.target.closest('img');
+          if (!imgHit || hasDraggedPastThreshold) return;
+          const cardEl = imgHit.closest('.orbit-card');
+          const pid = cardEl?.getAttribute('data-orbit-profile-id');
           const prof = state.profiles.find((p) => p.id === pid);
           if (prof) {
             e.preventDefault();
