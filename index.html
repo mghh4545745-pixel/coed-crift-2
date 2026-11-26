@@ -1084,6 +1084,160 @@
       transform: scale(0.955) translateY(1px);
     }
 
+  
+    /* === INTERACTIVE RUNNING & DOCKED CHARACTER ASSISTANT === */
+    #cc-bot-wrapper {
+      position: fixed;
+      z-index: 240;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+      will-change: transform;
+      transform-origin: center center;
+    }
+
+    #cc-bot-actor {
+      position: relative;
+      pointer-events: auto;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform-origin: bottom center;
+      transition: filter 0.2s ease;
+    }
+
+    #cc-bot-actor:hover {
+      filter: drop-shadow(0 0 14px rgba(0, 242, 254, 0.55));
+    }
+
+    #cc-bot-svg {
+      width: 100%;
+      height: auto;
+      overflow: visible;
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.7));
+    }
+
+    /* Running & Grabbing Animations */
+    #cc-bot-actor.is-running .bot-leg-left {
+      animation: botLegSwingA 0.36s infinite alternate ease-in-out;
+      transform-origin: 42px 74px;
+    }
+    #cc-bot-actor.is-running .bot-leg-right {
+      animation: botLegSwingB 0.36s infinite alternate ease-in-out;
+      transform-origin: 58px 74px;
+    }
+    #cc-bot-actor.is-running .bot-arm-left {
+      animation: botArmSwingB 0.36s infinite alternate ease-in-out;
+      transform-origin: 28px 50px;
+    }
+    #cc-bot-actor.is-running .bot-arm-right {
+      animation: botArmSwingA 0.36s infinite alternate ease-in-out;
+      transform-origin: 72px 50px;
+    }
+    #cc-bot-actor.is-running .bot-body-group {
+      animation: botBobRun 0.12s infinite alternate ease-in-out;
+    }
+
+    /* Reaching / Grabbing Cursor State */
+    #cc-bot-actor.is-grabbing .bot-arm-front {
+      transform: rotate(-125deg) translate(-4px, -6px);
+      transform-origin: 72px 50px;
+      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #cc-bot-actor.is-grabbing .bot-arm-back {
+      transform: rotate(-105deg) translate(-2px, -4px);
+      transform-origin: 28px 50px;
+      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #cc-bot-actor.is-grabbing .bot-body-group {
+      animation: botHappyBounce 0.45s infinite alternate ease-in-out;
+    }
+
+    /* Idle Docked Breathing */
+    #cc-bot-actor:not(.is-running):not(.is-grabbing) .bot-body-group {
+      animation: botIdleBreathe 2.2s infinite alternate ease-in-out;
+    }
+
+    @keyframes botLegSwingA {
+      0% { transform: rotate(-36deg); }
+      100% { transform: rotate(36deg); }
+    }
+    @keyframes botLegSwingB {
+      0% { transform: rotate(36deg); }
+      100% { transform: rotate(-36deg); }
+    }
+    @keyframes botArmSwingA {
+      0% { transform: rotate(-32deg); }
+      100% { transform: rotate(32deg); }
+    }
+    @keyframes botArmSwingB {
+      0% { transform: rotate(32deg); }
+      100% { transform: rotate(-32deg); }
+    }
+    @keyframes botBobRun {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-4px); }
+    }
+    @keyframes botHappyBounce {
+      0% { transform: translateY(0px) scaleY(1); }
+      100% { transform: translateY(-3px) scaleY(1.04); }
+    }
+    @keyframes botIdleBreathe {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-2.5px); }
+    }
+
+    /* Quick Mode Pill Above Character */
+    #cc-bot-mode-pill {
+      pointer-events: auto;
+      margin-bottom: 4px;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 10px;
+      font-weight: 800;
+      background: rgba(11, 18, 32, 0.92);
+      border: 1px solid rgba(34, 211, 238, 0.55);
+      color: #a5f3fc;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+    }
+
+    /* Speech Bubble */
+    #cc-bot-bubble {
+      position: fixed;
+      z-index: 245;
+      width: min(320px, calc(100vw - 28px));
+      border-radius: 20px;
+      border: 1px solid rgba(34, 211, 238, 0.55);
+      background: rgba(9, 15, 28, 0.96);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 28px rgba(0, 242, 254, 0.2);
+      padding: 12px 14px;
+      color: #f8fafc;
+      pointer-events: auto;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    #cc-bot-reply-text {
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.65;
+      color: #e2e8f0;
+      white-space: pre-line;
+    }
+
+    .cc-bot-mic-active {
+      background: rgba(244, 63, 94, 0.28) !important;
+      border-color: #fb7185 !important;
+      color: #fecdd3 !important;
+      animation: ccDotPulse 1s infinite ease-in-out;
+    }
+
   </style>
 </head>
 <body class="bg-[#060a12] text-slate-100">
@@ -2818,6 +2972,10 @@
         if (!el) return;
         el.classList.remove('hidden');
         el.classList.add('flex');
+        if (id === 'modal-person-profile') {
+          if (typeof isOrbitPausedByModal !== 'undefined') isOrbitPausedByModal = true;
+          if (typeof orbitVelocity !== 'undefined') orbitVelocity = 0;
+        }
       }
 
       function closeModal(id) {
@@ -2825,6 +2983,10 @@
         if (!el) return;
         el.classList.add('hidden');
         el.classList.remove('flex');
+        if (id === 'modal-person-profile') {
+          if (typeof isOrbitPausedByModal !== 'undefined') isOrbitPausedByModal = false;
+          if (typeof orbitVelocity !== 'undefined') orbitVelocity = 0;
+        }
       }
 
       function openArticleImageZoom(src, captionText) {
@@ -3312,7 +3474,8 @@
       let pointerDownX = 0;
       let pointerDownY = 0;
       let hasDraggedPastThreshold = false;
-      const AUTO_ORBIT_SPEED = 0.24;
+      let isOrbitPausedByModal = false;
+      const AUTO_ORBIT_SPEED = 0.08;
 
       function getFilteredProfiles() {
         const q = (stage3SearchQuery || '').trim().toLowerCase();
@@ -3895,7 +4058,7 @@
               : null;
             stepOrbitCardSprings(activeGrabbedId, 0, 0, Boolean(activeGrabbedId));
 
-            if (!isInteractingOrbit) {
+            if (!isInteractingOrbit && !isOrbitPausedByModal) {
               orbitAngle += AUTO_ORBIT_SPEED + orbitVelocity;
               orbitVelocity *= 0.92;
               if (Math.abs(orbitVelocity) < 0.01) orbitVelocity = 0;
@@ -5359,6 +5522,565 @@
   <div id="cc-cinema-bar" class="cc-cinema-bar hidden" aria-hidden="true">
     <div id="cc-cinema-progress" class="cc-cinema-progress"></div>
   </div>
+
+
+  <!-- =======================================================================
+       INTERACTIVE RUNNING & DOCKED CHARACTER ASSISTANT (VOICE + TEXT)
+  ======================================================================= -->
+  <div id="cc-bot-wrapper" aria-label="المساعد الذكي التفاعلي">
+    <div id="cc-bot-actor" title="اضغط للتحدث أو الكتابة للمساعد">
+      <button id="cc-bot-mode-pill" type="button" title="تبديل بين الوضع المتحرك والثابت">🏃 متحرك</button>
+      <svg id="cc-bot-svg" viewBox="0 0 100 105" role="img" aria-label="شخصية المساعد الذكي">
+        <defs>
+          <linearGradient id="botSuitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#22d3ee" />
+            <stop offset="100%" stop-color="#3b82f6" />
+          </linearGradient>
+          <linearGradient id="botVisorGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#090f1d" />
+            <stop offset="100%" stop-color="#1e293b" />
+          </linearGradient>
+        </defs>
+
+        <!-- Ground Shadow -->
+        <ellipse cx="50" cy="98" rx="22" ry="5" fill="rgba(0, 242, 254, 0.22)" />
+
+        <!-- Left Leg -->
+        <g class="bot-leg-left">
+          <rect x="37" y="72" width="10" height="18" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="1.8" />
+          <rect x="34" y="86" width="15" height="8" rx="4" fill="#22d3ee" />
+        </g>
+
+        <!-- Right Leg -->
+        <g class="bot-leg-right">
+          <rect x="53" y="72" width="10" height="18" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="1.8" />
+          <rect x="52" y="86" width="15" height="8" rx="4" fill="#22d3ee" />
+        </g>
+
+        <!-- Left / Back Arm -->
+        <g class="bot-arm-left bot-arm-back">
+          <rect x="20" y="48" width="9" height="20" rx="4.5" fill="#0f172a" stroke="#22d3ee" stroke-width="1.8" />
+          <circle cx="24.5" cy="69" r="5" fill="#38bdf8" />
+        </g>
+
+        <!-- Torso & Head Group -->
+        <g class="bot-body-group">
+          <!-- Body -->
+          <rect x="31" y="45" width="38" height="30" rx="12" fill="url(#botSuitGrad)" stroke="#e0f2fe" stroke-width="1.8" />
+          <circle cx="50" cy="60" r="6" fill="#090f1d" stroke="#a5f3fc" stroke-width="1.5" />
+          <circle id="bot-chest-core" cx="50" cy="60" r="3" fill="#22d3ee" />
+
+          <!-- Antenna -->
+          <line x1="50" y1="14" x2="50" y2="5" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+          <circle id="bot-antenna-tip" cx="50" cy="4" r="4" fill="#f59e0b" />
+
+          <!-- Head -->
+          <rect x="25" y="13" width="50" height="34" rx="15" fill="#0f172a" stroke="#22d3ee" stroke-width="2.2" />
+          <!-- Visor -->
+          <rect x="31" y="20" width="38" height="19" rx="9" fill="url(#botVisorGrad)" stroke="#38bdf8" stroke-width="1.2" />
+          <!-- Eyes -->
+          <circle id="bot-eye-left" cx="42" cy="29" r="3.8" fill="#22d3ee" />
+          <circle id="bot-eye-right" cx="58" cy="29" r="3.8" fill="#22d3ee" />
+          <!-- Smile -->
+          <path d="M 45 34 Q 50 38 55 34" fill="none" stroke="#22d3ee" stroke-width="1.8" stroke-linecap="round" />
+        </g>
+
+        <!-- Right / Front Grabbing Arm -->
+        <g class="bot-arm-right bot-arm-front">
+          <rect x="71" y="48" width="9" height="20" rx="4.5" fill="#0f172a" stroke="#22d3ee" stroke-width="1.8" />
+          <circle cx="75.5" cy="69" r="5.2" fill="#f59e0b" stroke="#ffffff" stroke-width="1.2" />
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Interactive Assistant Dialog Bubble -->
+  <div id="cc-bot-bubble" class="hidden space-y-2.5" role="dialog" aria-label="محادثة المساعد الصوتي والكتابي">
+    <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-2">
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+        <span class="text-xs font-black text-cyan-300">مساعد CodeCraft الذكي</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button id="cc-bot-toggle-mode-btn" type="button" class="rounded-lg border border-cyan-400/40 bg-cyan-500/15 px-2 py-0.5 text-[10px] font-extrabold text-cyan-200 cursor-pointer">
+          📌 تثبيت على الجنب
+        </button>
+        <button id="cc-bot-close-btn" type="button" class="rounded-lg border border-slate-700 bg-slate-900 px-2 py-0.5 text-[10px] font-bold text-slate-300 cursor-pointer">✕</button>
+      </div>
+    </div>
+
+    <div id="cc-bot-reply-text">أهلاً بك! اسألني بالصوت أو الكتابة:
+• "ملخص المقال" أو "لخص مقال محمد"
+• "مصادر المقال منين؟"
+• "افتح بروفايل محمد شعبان" (أو أي عضو)</div>
+
+    <div class="flex flex-wrap gap-1">
+      <button type="button" data-bot-quick="ملخص المقال" class="rounded-lg border border-slate-700 bg-slate-900/90 px-2 py-1 text-[10px] font-bold text-cyan-200 cursor-pointer">📝 ملخص المقال</button>
+      <button type="button" data-bot-quick="مصادر المقال منين؟" class="rounded-lg border border-slate-700 bg-slate-900/90 px-2 py-1 text-[10px] font-bold text-amber-200 cursor-pointer">🔗 المصادر</button>
+      <button type="button" data-bot-quick="افتح بروفايل محمد شعبان" class="rounded-lg border border-slate-700 bg-slate-900/90 px-2 py-1 text-[10px] font-bold text-emerald-200 cursor-pointer">👤 بروفايل محمد</button>
+    </div>
+
+    <form id="cc-bot-form" class="flex items-center gap-1.5 pt-1">
+      <button id="cc-bot-mic-btn" type="button" title="تحدث بالصوت" class="rounded-xl border border-cyan-400/50 bg-cyan-500/15 px-2.5 py-2 text-xs font-black text-cyan-200 cursor-pointer shrink-0">
+        🎤
+      </button>
+      <input
+        id="cc-bot-input"
+        type="text"
+        placeholder="اكتب سؤالك أو أمرك هنا..."
+        class="flex-1 min-w-0 rounded-xl border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+      />
+      <button type="submit" class="rounded-xl bg-gradient-to-r from-cyan-400 to-sky-400 px-3 py-1.5 text-xs font-black text-slate-950 cursor-pointer shrink-0">
+        إرسال
+      </button>
+    </form>
+  </div>
+
+  <script>
+    (function initInteractiveCharacterAssistant() {
+      const wrapper = document.getElementById('cc-bot-wrapper');
+      const actor = document.getElementById('cc-bot-actor');
+      const svgEl = document.getElementById('cc-bot-svg');
+      const modePill = document.getElementById('cc-bot-mode-pill');
+      const bubble = document.getElementById('cc-bot-bubble');
+      const replyEl = document.getElementById('cc-bot-reply-text');
+      const toggleModeBtn = document.getElementById('cc-bot-toggle-mode-btn');
+      const closeBtn = document.getElementById('cc-bot-close-btn');
+      const micBtn = document.getElementById('cc-bot-mic-btn');
+      const formEl = document.getElementById('cc-bot-form');
+      const inputEl = document.getElementById('cc-bot-input');
+
+      if (!wrapper || !actor || !bubble) return;
+
+      const STORAGE_REF = 'codecraft_id_auth_profiles_v10';
+      let isFollowMode = true; // true = متحرك يجري ورا المؤشر/اللمس, false = ثابت على جنب الشاشة
+      let isBubbleOpen = false;
+      let facingDir = 1; // 1 = right, -1 = left
+
+      // Responsive size calculation based on viewport dimensions
+      function getResponsiveBotSize() {
+        const minDim = Math.min(window.innerWidth || 390, window.innerHeight || 800);
+        const w = window.innerWidth || 390;
+        if (w < 480) return Math.max(46, Math.round(minDim * 0.135));
+        if (w < 900) return Math.max(56, Math.round(minDim * 0.11));
+        return Math.min(78, Math.max(62, Math.round(minDim * 0.095)));
+      }
+
+      let botSize = getResponsiveBotSize();
+      function applyBotScale() {
+        botSize = getResponsiveBotSize();
+        wrapper.style.width = `${botSize}px`;
+      }
+      applyBotScale();
+
+      // Position & physics state
+      let targetX = Math.max(20, (window.innerWidth || 800) - botSize - 24);
+      let targetY = Math.max(80, (window.innerHeight || 600) * 0.55);
+      let curX = targetX;
+      let curY = targetY;
+
+      function getDockedCoords() {
+        const vw = window.innerWidth || 800;
+        const vh = window.innerHeight || 600;
+        // Sit neatly on the left edge middle-bottom so it doesn't collide with right-side HUD
+        return {
+          x: 14,
+          y: Math.max(90, Math.min(vh - botSize - 95, vh * 0.68))
+        };
+      }
+
+      function updateModeLabels() {
+        if (modePill) {
+          modePill.textContent = isFollowMode ? '🏃 متحرك' : '📌 ثابت';
+        }
+        if (toggleModeBtn) {
+          toggleModeBtn.textContent = isFollowMode ? '📌 تثبيت على الجنب' : '🏃 وضع الجري ورا المؤشر';
+        }
+        if (!isFollowMode) {
+          const dock = getDockedCoords();
+          targetX = dock.x;
+          targetY = dock.y;
+          actor.classList.remove('is-grabbing');
+        }
+      }
+
+      function setFollowMode(follow) {
+        isFollowMode = Boolean(follow);
+        updateModeLabels();
+      }
+
+      modePill?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setFollowMode(!isFollowMode);
+      });
+
+      toggleModeBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setFollowMode(!isFollowMode);
+      });
+
+      // Track mouse & finger touch globally
+      function handlePointerTarget(clientX, clientY) {
+        if (!isFollowMode || isBubbleOpen) return;
+        const vw = window.innerWidth || 800;
+        const vh = window.innerHeight || 600;
+        // Aim so the character's raised hand touches/holds right beside the pointer/finger tip
+        const handOffsetX = facingDir === 1 ? -botSize * 0.72 : -botSize * 0.28;
+        const handOffsetY = -botSize * 0.42;
+        targetX = Math.max(6, Math.min(vw - botSize - 6, clientX + handOffsetX));
+        targetY = Math.max(24, Math.min(vh - botSize - 18, clientY + handOffsetY));
+      }
+
+      window.addEventListener('pointermove', (e) => {
+        handlePointerTarget(e.clientX, e.clientY);
+      }, { passive: true });
+
+      window.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('#cc-bot-wrapper') || e.target.closest('#cc-bot-bubble')) return;
+        handlePointerTarget(e.clientX, e.clientY);
+      }, { passive: true });
+
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches && e.touches[0]) {
+          handlePointerTarget(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      }, { passive: true });
+
+      window.addEventListener('resize', () => {
+        applyBotScale();
+        if (!isFollowMode) {
+          const dock = getDockedCoords();
+          targetX = dock.x;
+          targetY = dock.y;
+        }
+      });
+
+      function positionBubbleNearBot() {
+        if (!isBubbleOpen || !bubble) return;
+        const vw = window.innerWidth || 800;
+        const vh = window.innerHeight || 600;
+        const bw = bubble.offsetWidth || 300;
+        const bh = bubble.offsetHeight || 220;
+
+        let bx = curX + botSize * 0.5 - bw * 0.5;
+        bx = Math.max(12, Math.min(vw - bw - 12, bx));
+
+        let by = curY - bh - 12;
+        if (by < 14) {
+          by = Math.min(vh - bh - 14, curY + botSize + 14);
+        }
+        bubble.style.left = `${Math.round(bx)}px`;
+        bubble.style.top = `${Math.round(by)}px`;
+      }
+
+      // Smooth physics loop for running & grabbing pointer
+      function animateBotLoop() {
+        const dx = targetX - curX;
+        const dy = targetY - curY;
+        const dist = Math.hypot(dx, dy);
+
+        // Adaptive speed based on screen size
+        // When menu/bubble is open, freeze/stop the assistant completely so it stays put while you use it
+        if (isBubbleOpen) {
+          actor.classList.remove('is-running');
+          actor.classList.remove('is-grabbing');
+          wrapper.style.transform = `translate3d(${curX.toFixed(1)}px, ${curY.toFixed(1)}px, 0)`;
+          if (svgEl) {
+            svgEl.style.transform = `scaleX(${facingDir})`;
+          }
+          requestAnimationFrame(animateBotLoop);
+          return;
+        }
+
+        // Slower, smoother running speed when following cursor/touch
+        const speedFactor = isFollowMode ? 0.045 : 0.12;
+
+        if (dist > 2.2) {
+          curX += dx * speedFactor;
+          curY += dy * speedFactor;
+          if (Math.abs(dx) > 1.5) {
+            facingDir = dx >= 0 ? 1 : -1;
+          }
+          actor.classList.add('is-running');
+          actor.classList.remove('is-grabbing');
+        } else {
+          curX = targetX;
+          curY = targetY;
+          actor.classList.remove('is-running');
+          if (isFollowMode) {
+            actor.classList.add('is-grabbing');
+          } else {
+            actor.classList.remove('is-grabbing');
+          }
+        }
+
+        wrapper.style.transform = `translate3d(${curX.toFixed(1)}px, ${curY.toFixed(1)}px, 0)`;
+        if (svgEl) {
+          svgEl.style.transform = `scaleX(${facingDir})`;
+        }
+        if (isBubbleOpen) {
+          positionBubbleNearBot();
+        }
+        requestAnimationFrame(animateBotLoop);
+      }
+      requestAnimationFrame(animateBotLoop);
+
+      // Open/close speech bubble
+      function setBubbleOpen(open) {
+        isBubbleOpen = Boolean(open);
+        bubble.classList.toggle('hidden', !isBubbleOpen);
+        if (isBubbleOpen) {
+          positionBubbleNearBot();
+        }
+      }
+
+      actor.addEventListener('click', (e) => {
+        if (e.target === modePill) return;
+        e.stopPropagation();
+        setBubbleOpen(!isBubbleOpen);
+      });
+
+      closeBtn?.addEventListener('click', () => setBubbleOpen(false));
+
+      // Read live platform profiles & current article DOM
+      function getPlatformData() {
+        let profiles = [];
+        let activeProfileId = null;
+        try {
+          const raw = localStorage.getItem(STORAGE_REF);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed.profiles)) profiles = parsed.profiles;
+            activeProfileId = parsed.activeModalProfileId || parsed.activeProfileId;
+          }
+        } catch (_) {}
+        return { profiles, activeProfileId };
+      }
+
+      function normalizeArabic(str) {
+        return (str || '')
+          .toLowerCase()
+          .replace(/[أإآ]/g, 'ا')
+          .replace(/ة/g, 'ه')
+          .replace(/ى/g, 'ي')
+          .replace(/[ً-ٟ]/g, '')
+          .trim();
+      }
+
+      function findProfileByQuery(qNorm, profiles) {
+        if (!profiles.length) return null;
+        // Exact or partial full name match first
+        for (const p of profiles) {
+          const pNorm = normalizeArabic(p.name);
+          if (pNorm && qNorm.includes(pNorm)) return p;
+        }
+        // First/second token match (e.g. "محمد", "ادهم", "شهاب", "عادل", "عبد الصبور", "شعبان")
+        const tokens = qNorm.split(/\s+/).filter((w) => w.length >= 3 && !['افتح', 'بروفايل', 'ملف', 'مقال', 'ملخص', 'مصادر', 'منين', 'ايه', 'عاوز'].includes(w));
+        for (const tok of tokens) {
+          const match = profiles.find((p) => normalizeArabic(p.name).includes(tok));
+          if (match) return match;
+        }
+        return null;
+      }
+
+      function summarizeText(title, body) {
+        const cleanBody = (body || '').replace(/\s+/g, ' ').trim();
+        if (!cleanBody) {
+          return `المقال بعنوان "${title || 'بدون عنوان'}" لا يحتوي على نص كافٍ للتلخيص حالياً.`;
+        }
+        const sentences = cleanBody
+          .split(/[.!؟\n]+/)
+          .map((s) => s.trim())
+          .filter((s) => s.length > 8);
+        const wordCount = cleanBody.split(/\s+/).length;
+        const lead = sentences.slice(0, 2).join('، ');
+        const snippet = lead.length > 220 ? lead.slice(0, 220) + '...' : lead;
+        return `📌 ملخص "${title || 'المقال'}":
+${snippet || cleanBody.slice(0, 180)}
+(إجمالي الكلمات: ${wordCount} كلمة)`;
+      }
+
+      function extractSources(title, body) {
+        const text = (title || '') + '\n' + (body || '');
+        const urls = text.match(/https?:\/\/[^\s)»"']+/gi) || [];
+        const lines = text.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+        const sourceLines = lines.filter((l) => /(مصدر|مصادر|مرجع|مراجع|المصدر|المراجع|source|reference)/i.test(l));
+
+        if (urls.length || sourceLines.length) {
+          const combined = [...new Set([...sourceLines, ...urls])].slice(0, 5);
+          return '🔗 مصادر "' + (title || 'المقال') + '":\n• ' + combined.join('\n• ');
+        }
+        return 'ℹ️ لم يتم ذكر روابط أو مصادر نصية صريحة داخل "' + (title || 'هذا المقال') + '" بعد. يمكنك إضافتها في نهاية نص المقال وسأقرأها فوراً.';
+      }
+
+      function speakArabicReply(text) {
+        if (!('speechSynthesis' in window)) return;
+        try {
+          window.speechSynthesis.cancel();
+          const cleanForSpeech = text.replace(/[📌🔗ℹ️•"]/g, '').replace(/https?:\/\/\S+/g, 'رابط إلكتروني');
+          const utter = new SpeechSynthesisUtterance(cleanForSpeech);
+          const voices = window.speechSynthesis.getVoices() || [];
+          const arVoice = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith('ar'));
+          if (arVoice) {
+            utter.voice = arVoice;
+            utter.lang = arVoice.lang;
+          } else {
+            utter.lang = 'ar-EG';
+          }
+          utter.rate = 1.05;
+          window.speechSynthesis.speak(utter);
+        } catch (_) {}
+      }
+
+      function processAssistantCommand(rawQuery) {
+        const query = (rawQuery || '').trim();
+        if (!query) return;
+        const qNorm = normalizeArabic(query);
+        const { profiles, activeProfileId } = getPlatformData();
+
+        // Check if user mentioned a specific person
+        const mentionedProfile = findProfileByQuery(qNorm, profiles);
+        const stage4Visible = !document.getElementById('stage-4')?.classList.contains('hidden');
+
+        // Determine active article context
+        let targetProfile = mentionedProfile
+          || profiles.find((p) => p.id === activeProfileId)
+          || profiles[0];
+
+        let currentTitle = stage4Visible
+          ? (document.getElementById('stage4-article-title-input')?.value || targetProfile?.articleTitle || '')
+          : (targetProfile?.articleTitle || '');
+
+        let currentBody = stage4Visible
+          ? (document.getElementById('stage4-main-article-textarea')?.value || targetProfile?.article || '')
+          : (targetProfile?.article || '');
+
+        let responseMsg = '';
+
+        // 1. Open Profile Command ("افتح بروفايل محمد" / "بروفايل ادهم")
+        if (/(افتح|عرض|وريني|اذهب|انتقل).*(بروفايل|ملف|صفحه|شخص)|^(بروفايل)\s+/i.test(qNorm)) {
+          if (mentionedProfile) {
+            // Switch to Stage 3 and click the profile item in the list to trigger native modal
+            const s3Btn = document.querySelector('[data-hud-stage="3"]');
+            if (s3Btn) s3Btn.click();
+            setTimeout(() => {
+              const rowBtn = document.querySelector(`[data-profile-list-id="${mentionedProfile.id}"]`);
+              if (rowBtn) rowBtn.click();
+            }, 120);
+            responseMsg = `✅ جاري فتح بروفايل "${mentionedProfile.name}" (${mentionedProfile.role}) الآن!`;
+          } else {
+            const names = profiles.map((p) => p.name).join('، ');
+            responseMsg = `لم أحدد الاسم المطلوب. البروفايلات المتاحة هي: ${names}.`;
+          }
+        }
+        // 2. Open Article Command ("افتح مقال محمد")
+        else if (/(افتح|اقرا|عرض).*(مقال)/i.test(qNorm)) {
+          if (mentionedProfile) {
+            const s3Btn = document.querySelector('[data-hud-stage="3"]');
+            if (s3Btn) s3Btn.click();
+            setTimeout(() => {
+              const rowBtn = document.querySelector(`[data-profile-list-id="${mentionedProfile.id}"]`);
+              if (rowBtn) rowBtn.click();
+              setTimeout(() => {
+                document.getElementById('btn-open-profile-article-page')?.click();
+              }, 120);
+            }, 120);
+            responseMsg = `📖 فتحت لك صفحة مقال "${mentionedProfile.name}".`;
+          } else {
+            document.getElementById('btn-featured-open-article')?.click();
+            responseMsg = `📖 تم الانتقال إلى صفحة المقال.`;
+          }
+        }
+        // 3. Article Sources Command ("مصادر المقال" / "المصادر منين")
+        else if (/(مصدر|مصادر|مرجع|مراجع|منين|جايب)/i.test(qNorm)) {
+          responseMsg = extractSources(currentTitle, currentBody);
+        }
+        // 4. Article Summary Command ("ملخص" / "لخص" / "فكره المقال")
+        else if (/(ملخص|لخص|تلخيص|مختصر|فكره المقال|عن ايه)/i.test(qNorm)) {
+          responseMsg = summarizeText(currentTitle, currentBody);
+        }
+        // 5. Fallback helpful guidance
+        else {
+          responseMsg = `سمعتك: "${query}"
+يمكنك أن تطلب مني:
+• "ملخص المقال" أو "لخص مقال محمد"
+• "مصادر المقال منين؟"
+• "افتح بروفايل [الاسم]"`;
+        }
+
+        if (replyEl) replyEl.textContent = responseMsg;
+        setBubbleOpen(true);
+        speakArabicReply(responseMsg);
+      }
+
+      // Text form submit
+      formEl?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const val = inputEl?.value || '';
+        if (!val.trim()) return;
+        inputEl.value = '';
+        processAssistantCommand(val);
+      });
+
+      // Quick suggestion chips
+      document.querySelectorAll('[data-bot-quick]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const cmd = btn.getAttribute('data-bot-quick');
+          processAssistantCommand(cmd);
+        });
+      });
+
+      // Voice Recognition (Web Speech API)
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let recognition = null;
+      let isListening = false;
+
+      if (SpeechRec && micBtn) {
+        recognition = new SpeechRec();
+        recognition.lang = 'ar-EG';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+          isListening = true;
+          micBtn.classList.add('cc-bot-mic-active');
+          if (replyEl) replyEl.textContent = '🎙️ جاري الاستماع لأمرك الصوتي... تكلم الآن';
+        };
+
+        recognition.onresult = (event) => {
+          const transcript = event.results?.[0]?.[0]?.transcript || '';
+          if (transcript) {
+            processAssistantCommand(transcript);
+          }
+        };
+
+        recognition.onerror = () => {
+          isListening = false;
+          micBtn.classList.remove('cc-bot-mic-active');
+          if (replyEl) replyEl.textContent = '⚠️ تعذر التقاط الصوت، تأكد من إذن المايك أو اكتب أمرك بالأسفل.';
+        };
+
+        recognition.onend = () => {
+          isListening = false;
+          micBtn.classList.remove('cc-bot-mic-active');
+        };
+
+        micBtn.addEventListener('click', () => {
+          if (isListening) {
+            try { recognition.stop(); } catch (_) {}
+          } else {
+            try { recognition.start(); } catch (_) {}
+          }
+        });
+      } else if (micBtn) {
+        micBtn.addEventListener('click', () => {
+          if (replyEl) replyEl.textContent = 'المتصفح الحالي لا يدعم الأوامر الصوتية، يمكنك كتابة أمرك في الخانة بالأسفل.';
+        });
+      }
+
+      updateModeLabels();
+    })();
+  </script>
 
 </body>
 </html>
