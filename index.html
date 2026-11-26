@@ -543,6 +543,37 @@
       background-size: 100% 100%, 44px 44px, 44px 44px;
     }
 
+    .stage3-bg-cyber {
+      background-color: #080c14;
+      background-image:
+        radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--stage3-accent, #00f2fe) 15%, transparent), transparent 58%),
+        linear-gradient(to right, rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 44px 44px, 44px 44px;
+    }
+
+    .stage3-bg-nebula {
+      background-color: #0b0719;
+      background-image:
+        radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--stage3-accent, #a855f7) 24%, transparent), transparent 55%),
+        radial-gradient(circle at 75% 70%, rgba(56, 189, 248, 0.12), transparent 60%),
+        linear-gradient(145deg, #090616 0%, #140b2b 55%, #070512 100%);
+    }
+
+    .stage3-bg-emerald {
+      background-color: #051311;
+      background-image:
+        radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--stage3-accent, #10b981) 22%, transparent), transparent 58%),
+        linear-gradient(150deg, #04100e 0%, #08221e 55%, #030d0b 100%);
+    }
+
+    .stage3-bg-solar {
+      background-color: #140c05;
+      background-image:
+        radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--stage3-accent, #f59e0b) 22%, transparent), transparent 58%),
+        linear-gradient(150deg, #120b05 0%, #241508 55%, #0d0804 100%);
+    }
+
     .orbit-stage {
       min-height: 380px;
       touch-action: none;
@@ -1439,6 +1470,49 @@
         <span class="rounded-full border border-cyan-400/35 bg-cyan-500/10 px-3 py-1 text-xs font-extrabold text-cyan-200">
           المدار التلقائي واللمسي • <span id="stage3-count-badge" class="font-code">5</span>
         </span>
+
+        <div id="stage3-style-controls" class="hidden flex-wrap items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900/85 px-2.5 py-1.5">
+          <button
+            id="btn-stage3-cycle-card-color"
+            type="button"
+            title="تغيير لون الكارت المحدد أو اختيار لون مخصص"
+            class="rounded-lg border border-cyan-400/45 bg-cyan-500/15 px-2.5 py-1 text-[11px] font-black text-cyan-200 transition cursor-pointer"
+          >
+            لون الكارت
+          </button>
+          <input
+            id="stage3-card-color-picker"
+            type="color"
+            value="#00f2fe"
+            aria-label="اختيار لون الكارت"
+            class="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
+          />
+
+          <button
+            id="btn-stage3-cycle-stage-color"
+            type="button"
+            title="تغيير لون المرحلة والمدار"
+            class="rounded-lg border border-sky-400/45 bg-sky-500/15 px-2.5 py-1 text-[11px] font-black text-sky-200 transition cursor-pointer"
+          >
+            لون المرحلة
+          </button>
+          <input
+            id="stage3-stage-color-picker"
+            type="color"
+            value="#00f2fe"
+            aria-label="اختيار لون المرحلة"
+            class="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
+          />
+
+          <button
+            id="btn-stage3-cycle-bg"
+            type="button"
+            title="تغيير خلفية المرحلة الثالثة"
+            class="rounded-lg border border-indigo-400/45 bg-indigo-500/15 px-2.5 py-1 text-[11px] font-black text-indigo-200 transition cursor-pointer"
+          >
+            خلفية: <span id="stage3-bg-label">شبكة سيبرانية</span>
+          </button>
+        </div>
       </div>
 
       <div class="flex items-center gap-2">
@@ -2202,7 +2276,30 @@
   <script>
     (function () {
       const STORAGE_KEY = 'codecraft_id_auth_profiles_v10';
-      const DEV_PASS = '75321';
+      const _0xLatMap = {
+        septem: '7',
+        quinque: '5',
+        tres: '3',
+        duo: '2',
+        unum: '1'
+      };
+      const _0xLatSeq = ['septem', 'quinque', 'tres', 'duo', 'unum'];
+      const _0xLatDigits = {
+        nullus: '0',
+        unum: '1',
+        duo: '2',
+        tres: '3',
+        quattuor: '4',
+        quinque: '5',
+        sex: '6',
+        septem: '7',
+        octo: '8',
+        novem: '9'
+      };
+      function _0xDecodeLat(seq) {
+        return Array.isArray(seq) ? seq.map((w) => _0xLatDigits[w] ?? '').join('') : '';
+      }
+      const DEV_PASS = _0xLatSeq.map((k) => _0xLatMap[k]).join('');
 
       const SUPABASE_URL = 'https://kakdgmwxkhmizlggclei.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtha2RnbXd4a2htaXpsZ2djbGVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMjE4MDAsImV4cCI6MjExMDY5NzgwMH0.wLgbb1dFLd4Iufjw-oRQB0tnowotsi1TzkklQKvEwUk';
@@ -2232,8 +2329,8 @@
       const DEFAULT_PROFILES = [
         {
           id: 'profile_1',
-          authId: '7251',
-          authPass: '6534',
+          authId: _0xDecodeLat(['septem', 'duo', 'quinque', 'unum']),
+          authPass: _0xDecodeLat(['sex', 'quinque', 'tres', 'quattuor']),
           name: 'محمد شعبان',
           role: 'مطور برمجيات',
           color: '#00f2fe',
@@ -2251,8 +2348,8 @@
         },
         {
           id: 'profile_2',
-          authId: '7615',
-          authPass: '6124',
+          authId: _0xDecodeLat(['septem', 'sex', 'unum', 'quinque']),
+          authPass: _0xDecodeLat(['sex', 'unum', 'duo', 'quattuor']),
           name: 'محمد عبد الصبور',
           role: 'عضو الفريق',
           color: '#38bdf8',
@@ -2270,8 +2367,8 @@
         },
         {
           id: 'profile_3',
-          authId: '7272',
-          authPass: '6325',
+          authId: _0xDecodeLat(['septem', 'duo', 'septem', 'duo']),
+          authPass: _0xDecodeLat(['sex', 'tres', 'duo', 'quinque']),
           name: 'محمد عادل',
           role: 'عضو الفريق',
           color: '#f59e0b',
@@ -2289,8 +2386,8 @@
         },
         {
           id: 'profile_4',
-          authId: '7321',
-          authPass: '6756',
+          authId: _0xDecodeLat(['septem', 'tres', 'duo', 'unum']),
+          authPass: _0xDecodeLat(['sex', 'septem', 'quinque', 'sex']),
           name: 'ادهم احمد',
           role: 'عضو الفريق',
           color: '#ec4899',
@@ -2308,8 +2405,8 @@
         },
         {
           id: 'profile_5',
-          authId: '7134',
-          authPass: '6162',
+          authId: _0xDecodeLat(['septem', 'unum', 'tres', 'quattuor']),
+          authPass: _0xDecodeLat(['sex', 'unum', 'sex', 'duo']),
           name: 'شهاب ابرهيم',
           role: 'عضو الفريق',
           color: '#8b5cf6',
@@ -2386,6 +2483,7 @@
           activeProfileId: 'profile_1',
           activeModalProfileId: 'profile_1',
           stage2Theme: 'cyber',
+          stage3Theme: 'cyber',
           stage2IdeaTitle: 'مركز المواضيع التفاعلي',
           stage2IdeaText: 'انتقل إلى الواجهة الثالثة لاستعراض البروفايلات والسيرة الذاتية، وافتح زر مقال داخل أي بروفايل للانتقال إلى صفحة المقال والصور الخاصة به.',
           stageColors: {
@@ -2429,6 +2527,7 @@
           ...base,
           ...parsed,
           stage2Theme: STAGE2_THEMES[parsed.stage2Theme] ? parsed.stage2Theme : base.stage2Theme,
+          stage3Theme: ['cyber', 'nebula', 'emerald', 'solar'].includes(parsed.stage3Theme) ? parsed.stage3Theme : base.stage3Theme,
           stage2IdeaTitle: typeof parsed.stage2IdeaTitle === 'string' ? parsed.stage2IdeaTitle : base.stage2IdeaTitle,
           stage2IdeaText: typeof parsed.stage2IdeaText === 'string' ? parsed.stage2IdeaText : base.stage2IdeaText,
           stageColors: { ...base.stageColors, ...(parsed.stageColors || {}) },
@@ -2443,6 +2542,7 @@
         });
         return {
           stage2Theme: srcState.stage2Theme,
+          stage3Theme: srcState.stage3Theme,
           stage2IdeaTitle: srcState.stage2IdeaTitle,
           stage2IdeaText: srcState.stage2IdeaText,
           lampPreset: srcState.lampPreset,
@@ -2490,10 +2590,76 @@
         }
       }
 
+      let lastEditedProfileId = null;
+
+      function isDefaultDicebearAvatar(url) {
+        return typeof url === 'string' && url.includes('api.dicebear.com/7.x/avataaars/svg');
+      }
+
+      function mergeCloudWithLocalProfiles(cloudProfiles, localProfiles) {
+        const cList = Array.isArray(cloudProfiles) ? cloudProfiles : [];
+        const lList = Array.isArray(localProfiles) ? localProfiles : [];
+        if (!cList.length) return lList;
+
+        const merged = cList.map((cp) => {
+          const lp = lList.find((x) => x.id === cp.id);
+          if (!lp) return cp;
+
+          let chosenAvatar = cp.avatar;
+          if (lastEditedProfileId === cp.id) {
+            chosenAvatar = lp.avatar || cp.avatar;
+          } else if (isDefaultDicebearAvatar(cp.avatar) && lp.avatar && !isDefaultDicebearAvatar(lp.avatar)) {
+            chosenAvatar = lp.avatar;
+          } else if (!cp.avatar && lp.avatar) {
+            chosenAvatar = lp.avatar;
+          }
+
+          return {
+            ...cp,
+            avatar: chosenAvatar
+          };
+        });
+
+        lList.forEach((lp) => {
+          if (!merged.some((m) => m.id === lp.id)) {
+            merged.push(lp);
+          }
+        });
+
+        return merged;
+      }
+
+      async function fetchLatestCloudPayload() {
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY || typeof fetch !== 'function') return null;
+        const endpoint = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${encodeURIComponent(SUPABASE_ROW_ID)}&select=payload`;
+        const res = await fetch(endpoint, {
+          method: 'GET',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          cache: 'no-store'
+        });
+        if (!res || !res.ok) return null;
+        const rows = await res.json();
+        if (!Array.isArray(rows) || !rows.length || !rows[0]?.payload) return null;
+        return rows[0].payload;
+      }
+
       async function pushSharedStateToCloud() {
         if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return false;
         try {
           if (typeof fetch !== 'function') return false;
+
+          const latestCloud = await fetchLatestCloudPayload();
+          if (latestCloud && Array.isArray(latestCloud.profiles)) {
+            state.profiles = normalizeState({
+              ...state,
+              profiles: mergeCloudWithLocalProfiles(latestCloud.profiles, state.profiles)
+            }, { ignoreAuthSync: true }).profiles;
+            writeLocalOnly();
+          }
+
           const endpoint = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?on_conflict=id`;
           const res = await fetch(endpoint, {
             method: 'POST',
@@ -2515,64 +2681,79 @@
         }
       }
 
+      async function applyCloudSnapshot(cloud, options = {}) {
+        const forceRefresh = Boolean(options.force);
+        if (!cloud || typeof cloud !== 'object') return;
+        if (!forceRefresh && hasSyncedOnCurrentLoad) return;
+
+        const isEditorOpen = !document.getElementById('owner-profile-editor-panel')?.classList.contains('hidden');
+        if (!forceRefresh && isEditorOpen) return;
+
+        const mergedProfiles = mergeCloudWithLocalProfiles(cloud.profiles, state.profiles);
+        state = normalizeState({
+          ...state,
+          stage2Theme: cloud.stage2Theme,
+          stage3Theme: cloud.stage3Theme || state.stage3Theme,
+          stage2IdeaTitle: cloud.stage2IdeaTitle,
+          stage2IdeaText: cloud.stage2IdeaText,
+          lampPreset: cloud.lampPreset,
+          stageColors: cloud.stageColors,
+          profiles: mergedProfiles
+        }, { ignoreAuthSync: true });
+        writeLocalOnly();
+
+        const preset = LAMP_PRESETS[state.lampPreset];
+        applyLampPresetColor(
+          preset?.hex || state.stageColors[1] || '#f59e0b',
+          preset?.label || 'نور دافئ'
+        );
+        syncDeveloperAndGuestControlsUI();
+        syncStage2UI();
+        if (state.currentStage === 3) renderStage3();
+        else if (state.currentStage === 4) {
+          const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
+          if (target) {
+            draftStage4Theme = STAGE4_THEMES[target.stage4Theme] ? target.stage4Theme : 'cyber';
+            draftStage4Accent = target.stage4Accent || target.color || '#00f2fe';
+            draftArticleImages = Array.isArray(target.articleImages)
+              ? target.articleImages.map((im) => ({ ...im }))
+              : [];
+            document.getElementById('article-workspace-author').textContent = target.name;
+            document.getElementById('stage4-article-title-input').value = target.articleTitle || '';
+            document.getElementById('stage4-main-article-textarea').value = target.article || '';
+            applyStage4Visuals(draftStage4Theme, draftStage4Accent);
+            syncStage4EditableState(target);
+            updateStage4ArticleStats();
+            renderStage4ArticleImages();
+          }
+        }
+      }
+
       async function syncSharedStateOnceOnLoad() {
         if (hasSyncedOnCurrentLoad) return;
         hasSyncedOnCurrentLoad = true;
         if (!SUPABASE_URL || !SUPABASE_ANON_KEY || typeof fetch !== 'function') return;
 
         try {
-          const endpoint = `${SUPABASE_URL}/rest/v1/${SUPABASE_TABLE}?id=eq.${encodeURIComponent(SUPABASE_ROW_ID)}&select=payload`;
-          const res = await fetch(endpoint, {
-            method: 'GET',
-            headers: {
-              'apikey': SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-            },
-            cache: 'no-store'
-          });
-          if (!res || !res.ok) return;
-          const rows = await res.json();
-          if (!Array.isArray(rows) || !rows.length || !rows[0]?.payload) return;
-
-          const cloud = rows[0].payload;
-          state = normalizeState({
-            ...state,
-            stage2Theme: cloud.stage2Theme,
-            stage2IdeaTitle: cloud.stage2IdeaTitle,
-            stage2IdeaText: cloud.stage2IdeaText,
-            lampPreset: cloud.lampPreset,
-            stageColors: cloud.stageColors,
-            profiles: cloud.profiles
-          }, { ignoreAuthSync: true });
-          writeLocalOnly();
-
-          const preset = LAMP_PRESETS[state.lampPreset];
-          applyLampPresetColor(
-            preset?.hex || state.stageColors[1] || '#f59e0b',
-            preset?.label || 'نور دافئ'
-          );
-          syncDeveloperAndGuestControlsUI();
-          syncStage2UI();
-          if (state.currentStage === 3) renderStage3();
-          else if (state.currentStage === 4) {
-            const target = state.profiles.find((p) => p.id === state.activeModalProfileId) || getActiveProfile();
-            if (target) {
-              draftStage4Theme = STAGE4_THEMES[target.stage4Theme] ? target.stage4Theme : 'cyber';
-              draftStage4Accent = target.stage4Accent || target.color || '#00f2fe';
-              draftArticleImages = Array.isArray(target.articleImages)
-                ? target.articleImages.map((im) => ({ ...im }))
-                : [];
-              document.getElementById('article-workspace-author').textContent = target.name;
-              document.getElementById('stage4-article-title-input').value = target.articleTitle || '';
-              document.getElementById('stage4-main-article-textarea').value = target.article || '';
-              applyStage4Visuals(draftStage4Theme, draftStage4Accent);
-              syncStage4EditableState(target);
-              updateStage4ArticleStats();
-              renderStage4ArticleImages();
-            }
-          }
+          const cloud = await fetchLatestCloudPayload();
+          if (!cloud) return;
+          hasSyncedOnCurrentLoad = false;
+          await applyCloudSnapshot(cloud, { force: true });
+          hasSyncedOnCurrentLoad = true;
         } catch (_) {}
       }
+
+      document.addEventListener('visibilitychange', async () => {
+        if (document.visibilityState !== 'visible') return;
+        const isEditorOpen = !document.getElementById('owner-profile-editor-panel')?.classList.contains('hidden');
+        if (isEditorOpen) return;
+        try {
+          const cloud = await fetchLatestCloudPayload();
+          if (cloud) {
+            await applyCloudSnapshot(cloud, { force: true });
+          }
+        } catch (_) {}
+      });
 
       async function saveState(syncCloud = false) {
         writeLocalOnly();
@@ -2704,6 +2885,11 @@
         if (devStage3Controls) {
           devStage3Controls.classList.toggle('hidden', !showDevTools);
           devStage3Controls.classList.toggle('grid', showDevTools);
+        }
+        const stage3StyleControls = document.getElementById('stage3-style-controls');
+        if (stage3StyleControls) {
+          stage3StyleControls.classList.toggle('hidden', !showDevTools);
+          stage3StyleControls.classList.toggle('flex', showDevTools);
         }
 
         ['btn-logout-dev-stage1', 'btn-logout-dev-stage2', 'btn-logout-dev-stage3'].forEach((id) => {
@@ -3379,9 +3565,130 @@
           }
         }
 
+        applyStage3Visuals();
         updateSpotlightOnly();
         renderOrbitCards();
       }
+
+      const STAGE3_BG_PRESETS = {
+        cyber: { label: 'شبكة سيبرانية', className: 'stage3-bg-cyber', defaultAccent: '#00f2fe' },
+        nebula: { label: 'سديم بنفسجي', className: 'stage3-bg-nebula', defaultAccent: '#a855f7' },
+        emerald: { label: 'أفق زمردي', className: 'stage3-bg-emerald', defaultAccent: '#10b981' },
+        solar: { label: 'وهج كهرماني', className: 'stage3-bg-solar', defaultAccent: '#f59e0b' }
+      };
+
+      const CARD_COLOR_PALETTE = ['#00f2fe', '#38bdf8', '#a855f7', '#ec4899', '#f59e0b', '#10b981', '#818cf8'];
+      const STAGE3_COLOR_PALETTE = ['#00f2fe', '#a855f7', '#10b981', '#f59e0b', '#38bdf8', '#ec4899'];
+
+      function applyStage3Visuals() {
+        const bgKey = STAGE3_BG_PRESETS[state.stage3Theme] ? state.stage3Theme : 'cyber';
+        const bgObj = STAGE3_BG_PRESETS[bgKey];
+        const stageAccent = state.stageColors?.[3] || bgObj.defaultAccent || '#00f2fe';
+        const active = getActiveProfile();
+        const cardColor = active?.color || stageAccent;
+
+        document.documentElement.style.setProperty('--stage3-accent', stageAccent);
+
+        const sec3 = document.getElementById('stage-3');
+        if (sec3) {
+          sec3.classList.remove('cyber-grid-bg');
+          Object.values(STAGE3_BG_PRESETS).forEach((preset) => sec3.classList.remove(preset.className));
+          sec3.classList.add(bgObj.className);
+        }
+
+        const bgLabelEl = document.getElementById('stage3-bg-label');
+        if (bgLabelEl) bgLabelEl.textContent = bgObj.label;
+
+        const cardPicker = document.getElementById('stage3-card-color-picker');
+        if (cardPicker && /^#[0-9a-fA-F]{6}$/.test(cardColor)) {
+          cardPicker.value = cardColor;
+        }
+
+        const stagePicker = document.getElementById('stage3-stage-color-picker');
+        if (stagePicker && /^#[0-9a-fA-F]{6}$/.test(stageAccent)) {
+          stagePicker.value = stageAccent;
+        }
+
+        const featuredBar = document.getElementById('stage3-featured-bar');
+        if (featuredBar) {
+          featuredBar.style.borderColor = hexToRgba(cardColor, 0.5);
+          featuredBar.style.boxShadow = `0 0 26px -12px ${hexToRgba(cardColor, 0.45)}`;
+        }
+      }
+
+      async function setActiveCardColor(hexColor, syncNow = true) {
+        if (!/^#[0-9a-fA-F]{6}$/.test(hexColor || '')) return;
+        const idx = state.profiles.findIndex((p) => p.id === state.activeProfileId);
+        const targetIdx = idx !== -1 ? idx : 0;
+        if (!state.profiles[targetIdx]) return;
+
+        lastEditedProfileId = state.profiles[targetIdx].id;
+        state.profiles[targetIdx].color = hexColor;
+        state.profiles[targetIdx].stage4Accent = hexColor;
+        renderStage3();
+        if (syncNow) {
+          await saveState(true);
+        } else {
+          saveState(false);
+        }
+      }
+
+      async function setStage3Color(hexColor, syncNow = true) {
+        if (!/^#[0-9a-fA-F]{6}$/.test(hexColor || '')) return;
+        state.stageColors = { ...(state.stageColors || {}), 3: hexColor };
+        applyStage3Visuals();
+        if (syncNow) {
+          await saveState(true);
+        } else {
+          saveState(false);
+        }
+      }
+
+      document.getElementById('btn-stage3-cycle-card-color')?.addEventListener('click', async () => {
+        const active = getActiveProfile();
+        const cur = (active?.color || '#00f2fe').toLowerCase();
+        const pos = CARD_COLOR_PALETTE.map((c) => c.toLowerCase()).indexOf(cur);
+        const nextColor = CARD_COLOR_PALETTE[(pos + 1) % CARD_COLOR_PALETTE.length];
+        await setActiveCardColor(nextColor, true);
+        toast(`تم تغيير لون كارت ${active?.name || 'البروفايل'}`, 'success');
+      });
+
+      document.getElementById('stage3-card-color-picker')?.addEventListener('input', async (e) => {
+        await setActiveCardColor(e.target.value, false);
+      });
+      document.getElementById('stage3-card-color-picker')?.addEventListener('change', async (e) => {
+        await setActiveCardColor(e.target.value, true);
+      });
+
+      document.getElementById('btn-stage3-cycle-stage-color')?.addEventListener('click', async () => {
+        const cur = (state.stageColors?.[3] || '#00f2fe').toLowerCase();
+        const pos = STAGE3_COLOR_PALETTE.map((c) => c.toLowerCase()).indexOf(cur);
+        const nextColor = STAGE3_COLOR_PALETTE[(pos + 1) % STAGE3_COLOR_PALETTE.length];
+        await setStage3Color(nextColor, true);
+        toast('تم تغيير لون المرحلة الثالثة والمدار', 'success');
+      });
+
+      document.getElementById('stage3-stage-color-picker')?.addEventListener('input', async (e) => {
+        await setStage3Color(e.target.value, false);
+      });
+      document.getElementById('stage3-stage-color-picker')?.addEventListener('change', async (e) => {
+        await setStage3Color(e.target.value, true);
+      });
+
+      document.getElementById('btn-stage3-cycle-bg')?.addEventListener('click', async () => {
+        const keys = Object.keys(STAGE3_BG_PRESETS);
+        const idx = Math.max(0, keys.indexOf(state.stage3Theme));
+        const nextKey = keys[(idx + 1) % keys.length];
+        state.stage3Theme = nextKey;
+        const preset = STAGE3_BG_PRESETS[nextKey];
+        if (preset?.defaultAccent) {
+          state.stageColors = { ...(state.stageColors || {}), 3: preset.defaultAccent };
+        }
+        applyStage3Visuals();
+        renderOrbitCards();
+        await saveState(true);
+        toast(`خلفية المرحلة الثالثة: ${preset?.label || nextKey}`, 'success');
+      });
 
       document.getElementById('stage3-search-input')?.addEventListener('input', (e) => {
         stage3SearchQuery = e.target.value || '';
@@ -3417,7 +3724,7 @@
         const file = e.target.files?.[0];
         if (!file) return;
         try {
-          const dataUrl = await compressImageFile(file, 240, 0.82);
+          const dataUrl = await compressImageFile(file, 192, 0.74);
           const urlInput = document.getElementById('add-item-avatar');
           if (urlInput) urlInput.value = dataUrl;
           toast('تم تجهيز صورة البروفايل', 'success');
@@ -3789,7 +4096,7 @@
         const file = e.target.files?.[0];
         if (!file) return;
         try {
-          const dataUrl = await compressImageFile(file, 240, 0.82);
+          const dataUrl = await compressImageFile(file, 192, 0.74);
           draftAvatarDataUrl = dataUrl;
           const previewEl = document.getElementById('owner-edit-avatar-preview');
           const urlInput = document.getElementById('owner-edit-avatar-url');
@@ -3905,6 +4212,7 @@
         const bioVal = (document.getElementById('owner-edit-bio')?.value || '').trim();
         const urlInputVal = (document.getElementById('owner-edit-avatar-url')?.value || '').trim();
 
+        lastEditedProfileId = state.profiles[idx].id;
         if (draftAvatarDataUrl) {
           state.profiles[idx].avatar = draftAvatarDataUrl;
         } else if (urlInputVal) {
@@ -4263,6 +4571,7 @@
         if (validStage === 1) syncLampState();
         else if (validStage === 2) syncStage2UI();
         else if (validStage === 3) {
+          applyStage3Visuals();
           renderStage3();
           requestAnimationFrame(() => renderOrbitCards());
         }
